@@ -1,5 +1,7 @@
 # factory — fábricas de agentes para Claude Code
 
+📖 **Documentação completa (PT/EN):** https://correaschneider.github.io/ai-factory/
+
 Plugin com quatro fábricas config-driven e o gerador de config:
 
 | Command | Faz |

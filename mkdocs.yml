@@ -1,0 +1,96 @@
+site_name: Factory
+site_description: Fábricas de agentes config-driven para Claude Code — PO, DEV, QA e CR.
+site_url: https://correaschneider.github.io/ai-factory/
+repo_url: https://github.com/correaschneider/ai-factory
+repo_name: correaschneider/ai-factory
+edit_uri: edit/main/docs/
+copyright: MIT · Pedro Schneider
+
+theme:
+  name: material
+  language: pt
+  logo: assets/icon.svg
+  favicon: assets/icon.svg
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+    - content.tabs.link
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue grey
+      accent: amber
+      toggle: { icon: material/weather-night, name: Modo escuro }
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue grey
+      accent: amber
+      toggle: { icon: material/weather-sunny, name: Modo claro }
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: suffix
+      reconfigure_material: true
+      languages:
+        - locale: pt
+          name: Português
+          default: true
+          build: true
+        - locale: en
+          name: English
+          build: true
+          site_description: Config-driven agent factories for Claude Code — PO, DEV, QA and CR.
+          nav_translations:
+            Início: Home
+            Conceitos: Concepts
+            Começando: Getting started
+            Fábricas: Factories
+            Referência: Reference
+            Configuração: Configuration
+            Drivers: Drivers
+            Modelos por papel: Models per role
+            Perguntas frequentes: FAQ
+
+nav:
+  - Início: index.md
+  - Começando: getting-started.md
+  - Conceitos: concepts.md
+  - Fábricas:
+      - factories/init.md
+      - factories/po.md
+      - factories/dev.md
+      - factories/qa.md
+      - factories/cr.md
+  - Referência:
+      - Configuração: reference/config.md
+      - Drivers: reference/drivers.md
+      - Modelos por papel: reference/models.md
+  - Perguntas frequentes: faq.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format

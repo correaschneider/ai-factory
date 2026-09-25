@@ -1,12 +1,12 @@
 {
   "name": "factory",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Fábricas de agentes config-driven: PO (iniciativa → stories), DEV (task → código), QA (testes + evidências) e CR (code review), com drivers de tracker e code host.",
   "author": {
     "name": "Pedro Schneider"
   },
   "repository": "https://github.com/correaschneider/ai-factory",
   "license": "MIT",
-  "homepage": "https://github.com/correaschneider/ai-factory",
+  "homepage": "https://correaschneider.github.io/ai-factory/",
   "privacyPolicyUrl": "https://github.com/correaschneider/ai-factory#privacidade"
 }

@@ -9,7 +9,7 @@
       "name": "factory",
       "source": "./",
       "description": "Fábricas de agentes config-driven: PO, DEV, QA e CR, com drivers de tracker e code host.",
-      "version": "1.0.2"
+      "version": "1.0.3"
     }
   ]
 }

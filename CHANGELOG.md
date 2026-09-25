@@ -3,6 +3,9 @@
 Semver: **major** = quebra de config/contrato (chave obrigatória nova no `CONTRACT.md`, op de driver com
 assinatura nova); **minor** = fábrica, driver ou op nova; **patch** = ajuste de prompt/correção.
 
+## 1.0.3 — 2026-09-25
+- Documentação em https://correaschneider.github.io/ai-factory/ (MkDocs Material, português e inglês), publicada pelo GitHub Actions a cada merge na `main`.
+
 ## 1.0.2 — 2026-09-25
 - `/factory:dev`: remove frontmatter duplicado (aparecia como texto no corpo) e usa `factory:dev-doc-sync`.
 - `/factory:cr` e `CONTRACT.md`: caminhos e nomes antigos (`scm/`, `*-pipeline`) trocados pelos do plugin.
