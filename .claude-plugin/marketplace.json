@@ -1,0 +1,13 @@
+{
+  "name": "ai-factory",
+  "owner": { "name": "Pedro Schneider" },
+  "description": "Marketplace do plugin factory: fábricas de agentes PO/DEV/QA/CR para Claude Code.",
+  "plugins": [
+    {
+      "name": "factory",
+      "source": "./",
+      "description": "Fábricas de agentes config-driven: PO, DEV, QA e CR, com drivers de tracker e code host.",
+      "version": "1.0.1"
+    }
+  ]
+}
