@@ -3,6 +3,10 @@
 Semver: **major** = quebra de config/contrato (chave obrigatória nova no `CONTRACT.md`, op de driver com
 assinatura nova); **minor** = fábrica, driver ou op nova; **patch** = ajuste de prompt/correção.
 
+## 1.0.2 — 2026-09-25
+- `/factory:dev`: remove frontmatter duplicado (aparecia como texto no corpo) e usa `factory:dev-doc-sync`.
+- `/factory:cr` e `CONTRACT.md`: caminhos e nomes antigos (`scm/`, `*-pipeline`) trocados pelos do plugin.
+
 ## 1.0.1 — 2026-09-25
 - Repositório também é marketplace (`.claude-plugin/marketplace.json`): `claude plugin marketplace add correaschneider/ai-factory`.
 - README: seção de privacidade e do que o plugin executa/envia; ícone; drivers de SCM sem referência a arquivo de credencial.

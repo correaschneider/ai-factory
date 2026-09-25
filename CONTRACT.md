@@ -51,7 +51,7 @@ No `fetch`, o driver retorna o status lógico pelo seletor **mais específico** 
 
 ---
 
-## Operações (as que o `qa-pipeline` usa)
+## Operações (as que a fábrica QA usa)
 
 | # | Operação | Entrada | Saída / Efeito |
 |---|----------|---------|----------------|
@@ -88,14 +88,14 @@ no kanban (`board_path`); **gitlab/jira** = Issues no servidor.
   `tracker.epic_folder` (épico) e `tracker.story_folder` (stories).
 - gitlab/jira → id atribuído pelo servidor; grava no `project_path`/`project_key`; link nativo de issues.
 
-**Chaves obrigatórias da fábrica PO (validar no passo 0 do `po-pipeline`):**
+**Chaves obrigatórias da fábrica PO (validar no ETAPA 0 do `/factory:po`):**
 `product.{domain,personas}` (+ `competitors`/`compliance` quando o domínio exigir) — researcher;
 `docs_map.codebase` — codemap; `stack.{backend,frontend}` — blueprint;
 tasks: markdown→`tracker.{board_path,epic_folder,story_folder}` + `issue.id_format`; gitlab→`project_path`.
 
 ---
 
-## Chaves obrigatórias da fábrica DEV (validar no passo 0 do `dev-pipeline`)
+## Chaves obrigatórias da fábrica DEV (validar no ETAPA 0 do `/factory:dev`)
 `tracker.status.{backlog,in_progress,qa_gate}` (distintos!); `git.{dev_base,protected,branch_prefix,commit_format,remote}`;
 `workspace.{root,repos}`; `stack.{backend,frontend}.build`; `docs_map.codebase`;
 `dev.{developer_split,doc_sync_order,retries,commit.{by,push}}`. Opcionais: `dev.self_test.pre_migrate_stash`,
@@ -105,7 +105,7 @@ tasks: markdown→`tracker.{board_path,epic_folder,story_folder}` + `issue.id_fo
 > ramificar de `origin/beta`); o QA faz o diff contra `git.base_branch` (ex.: `origin/dev`). Coincidiram
 > (PHCS: ambos `develop`) → repita o valor; não assuma que são iguais.
 
-> **Transição no DEV:** o `dev-pipeline` usa `tracker.transition` com `in_progress` (ao iniciar) e `qa_gate`
+> **Transição no DEV:** o `/factory:dev` usa `tracker.transition` com `in_progress` (ao iniciar) e `qa_gate`
 > (handoff p/ QA). Nenhuma op nova de driver — `transition` já cobre (são só mais status lógicos).
 
 ---

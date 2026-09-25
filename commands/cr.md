@@ -7,7 +7,7 @@ argument-hint: <task-id> [--model papel=valor]
 Recebe o id de uma task, descobre os MRs/PRs ligados a ela, revisa cada um, **mostra os achados e
 espera o veredito humano (aprovar/reprovar + porquê)**, comenta no MR **e** na task, e move o status:
 aprovado → avança; reprovado → retorna. **Nada específico de projeto**: tracker, code host, stack,
-branch e status vêm do `factory.config.md`. Task via ops do `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md` (tracker); MR via ops SCM (`scm/<driver>.md`).
+branch e status vêm do `factory.config.md`. Task via ops do `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md` (tracker); MR via ops SCM (`${CLAUDE_PLUGIN_ROOT}/drivers/scm/<driver>.md`).
 
 > **Invariante de segurança:** esta fábrica é **read-only sobre o git** — usa `glab/gh mr diff` e, no
 > máximo, `git fetch`+`git diff` contra refs remotas. **NUNCA faz checkout nem altera branch local.**
