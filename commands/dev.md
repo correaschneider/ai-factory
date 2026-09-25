@@ -2,11 +2,6 @@
 description: Factory DEV — leva uma task do backlog ao handoff de QA
 argument-hint: <task-id> [--model papel=valor]
 ---
----
-description: Factory DEV — leva uma task do backlog ao handoff de QA (genérico/config-driven)
-argument-hint: <task-id>
----
-
 # Factory DEV — Orquestrador da fábrica DEV (genérico/config-driven)
 
 Leva uma task do backlog ao handoff de QA: prepara o ambiente, implementa via **agents isolados**
@@ -81,7 +76,7 @@ Prompt = briefing comum + `plan_path: {DIR}/tech-lead-$ARGUMENTS.md` + `scope` +
 **Gate:** `git diff --stat` coerente com o plano em cada repo. Developer **não** toca `docs/` nem commita.
 
 ### Doc Sync (posição = `config.dev.doc_sync_order`) → `{DIR}/doc-sync-report-$ARGUMENTS.md`
-Agent `dev-doc-sync`; prompt = briefing comum. Se `config.dev.commit.by == doc_sync`, **ele commita**
+Agent `factory:dev-doc-sync`; prompt = briefing comum. Se `config.dev.commit.by == doc_sync`, **ele commita**
 (código+docs + ponteiro de submódulo); senão só edita no disco.
 
 ### ETAPA 3 — Code Review (agent `factory:dev-code-reviewer`, até `config.dev.retries` tentativas)
