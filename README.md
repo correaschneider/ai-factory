@@ -29,5 +29,26 @@ claude --plugin-dir /caminho/para/ai-factory
 ```
 Tracker ou code host novo = arquivo novo em `drivers/` + `tracker.driver`/`scm.driver` no config.
 
+## O que o plugin executa, envia e busca
+
+O plugin é só texto (commands, agents e instruções em Markdown): não tem hooks, servidor MCP, scripts
+próprios nem dependências a instalar. Tudo o que ele faz passa pelas ferramentas do próprio Claude Code,
+sujeito às permissões que o usuário já configurou, e sempre dentro do projeto em que roda:
+
+- **Lê e escreve no repositório do projeto:** lê o `docs/factory.config.md` e o código; grava artefatos em
+  `docs/initiatives/<nome>/` (pesquisa, blueprint, planos e relatórios de QA). A fábrica DEV edita código e
+  pode fazer commit e push conforme o config; a fábrica QA cria arquivos de teste.
+- **Executa comandos locais:** `git`, as CLIs de code host `glab` (GitLab) e `gh` (GitHub), o build e os
+  testes definidos no config (`docker compose`, `pnpm`, `composer`, `phpunit`, `cypress` etc.) e `curl` nas
+  URLs de `env.app_url`/`env.api_url` do próprio config, para smoke test.
+- **Fala com o tracker de tarefas** que o usuário configurou (Jira, ClickUp ou GitLab Issues), usando o
+  servidor MCP desse tracker já instalado pelo usuário: lê tasks, cria épicos, stories e bugs, comenta e
+  muda status. Com o driver `markdown`, tudo fica em arquivos do repositório.
+- **Comenta em merge/pull requests** pelo `glab`/`gh`, na fábrica CR, só depois da aprovação humana.
+- **Pesquisa na web** (fábrica PO, etapa de pesquisa de mercado) com as ferramentas de busca do Claude Code.
+
+Nenhum dado é enviado a outro destino além do tracker e do code host configurados pelo usuário. Ações que
+mudam o tracker ou publicam comentário em MR passam por gates descritos em cada command.
+
 ## Licença
 MIT — ver [LICENSE](LICENSE).
