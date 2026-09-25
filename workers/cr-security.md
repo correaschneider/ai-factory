@@ -57,7 +57,7 @@ assuma stack nenhuma). Os eixos:
 **Validação de entrada**
 - SQL injection por input não sanitizado (inclui SQL cru / `whereRaw` / interpolação em query builder)
 - Command injection em chamada de sistema/subprocess
-- Path traversal em operação de arquivo (upload, download, include)
+- Path traversal em operação de arquivo (envio, leitura ou inclusão de arquivo pelo caminho vindo do usuário)
 - Injeção em template engine · XXE em parsing de XML · injeção NoSQL
 
 **Autenticação & Autorização** — *na prática, o que mais pega em SaaS multi-tenant*

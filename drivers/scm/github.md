@@ -5,7 +5,7 @@ Terminologia: "MR" do contrato = **PR** no GitHub.
 
 **Config keys:** `scm.repos` (mapa `backend|frontend → {repo}` no formato `org/repo`), `scm.mr_target`
 (branch base p/ filtrar, ex.: `develop`), `scm.branch_convention`, `scm.exclude_branch_suffix` (opcional).
-**Acesso:** `gh` autenticado (`gh auth status`).
+**Acesso:** `gh` autenticado (`gh auth status`). O plugin nunca lê arquivo de credencial: usa só a CLI.
 
 ---
 

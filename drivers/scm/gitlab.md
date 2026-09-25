@@ -4,7 +4,7 @@ Onde vivem os MRs. **Read-only sobre o repo** (nunca faz checkout / nunca troca 
 
 **Config keys:** `scm.repos` (mapa `backend|frontend → {repo}` no formato `grupo/projeto`), `scm.mr_target`
 (branch alvo p/ filtrar, ex.: `beta`), `scm.branch_convention` (ex.: `CU-{id}`), `scm.exclude_branch_suffix` (opcional, ex.: `-hml`).
-**Acesso:** `glab` autenticado (token no `~/.config/glab-cli/config.yml`).
+**Acesso:** `glab` autenticado (`glab auth status`). O plugin nunca lê arquivo de credencial: usa só a CLI.
 
 ---
 
