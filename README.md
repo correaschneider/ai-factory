@@ -25,10 +25,12 @@ CONTRACT.md schema do config, ops abstratas, chaves obrigatórias e modelos por 
 ```
 
 ## Instalação
-Local, apontando pro clone:
+Pelo marketplace deste repositório:
 ```bash
-claude --plugin-dir /caminho/para/ai-factory
+claude plugin marketplace add correaschneider/ai-factory
+claude plugin install factory@ai-factory
 ```
+Para testar um clone local sem instalar: `claude --plugin-dir /caminho/para/ai-factory`.
 Tracker ou code host novo = arquivo novo em `drivers/` + `tracker.driver`/`scm.driver` no config.
 
 ## O que o plugin executa, envia e busca
