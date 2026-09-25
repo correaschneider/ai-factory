@@ -13,6 +13,8 @@ Plugin com quatro fábricas config-driven e o gerador de config:
 Nada é específico de projeto: tudo vem do `docs/factory.config.md` de cada repositório, cujo schema está no
 [`CONTRACT.md`](CONTRACT.md).
 
+[Privacy / Privacidade](https://github.com/correaschneider/ai-factory#privacidade)
+
 ## Estrutura
 ```
 commands/   orquestradores (o que aparece no menu)
@@ -49,6 +51,27 @@ sujeito às permissões que o usuário já configurou, e sempre dentro do projet
 
 Nenhum dado é enviado a outro destino além do tracker e do code host configurados pelo usuário. Ações que
 mudam o tracker ou publicam comentário em MR passam por gates descritos em cada command.
+
+## Privacidade
+
+O plugin não tem servidor, conta nem coleta própria. Ele não envia dado para o autor do plugin nem para
+terceiros escolhidos por ele. Tudo roda na sessão do Claude Code de quem instalou, dentro das permissões
+que essa pessoa configurou.
+
+- **O que ele lê:** o `docs/factory.config.md` e o código do projeto; tasks, épicos e comentários do
+  tracker configurado (que podem conter nomes e e-mails de responsáveis e autores); merge/pull requests
+  do code host configurado; e páginas públicas na etapa de pesquisa da fábrica PO.
+- **Onde ele grava:** só no repositório do próprio usuário (`docs/initiatives/<nome>/`, código e testes)
+  e no tracker e code host configurados (issues, comentários, mudança de status). Esses artefatos podem
+  conter trechos das tasks lidas, inclusive nomes e e-mails.
+- **Para onde os dados vão:** apenas para os serviços que o próprio usuário configurou (tracker, code host
+  e a busca web do Claude Code), usando as credenciais que ele já tem nesses serviços. O plugin nunca lê
+  arquivo de credencial nem variável de ambiente com segredo.
+- **Retenção:** o plugin não retém nada. O que fica gravado segue as regras do repositório, do tracker e do
+  code host do usuário; apagar o artefato ou a task apaga o dado.
+
+Dúvidas ou pedidos sobre privacidade: abra uma issue em
+[github.com/correaschneider/ai-factory/issues](https://github.com/correaschneider/ai-factory/issues).
 
 ## Licença
 MIT — ver [LICENSE](LICENSE).

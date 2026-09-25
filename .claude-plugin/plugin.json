@@ -6,5 +6,7 @@
     "name": "Pedro Schneider"
   },
   "repository": "https://github.com/correaschneider/ai-factory",
-  "license": "MIT"
+  "license": "MIT",
+  "homepage": "https://github.com/correaschneider/ai-factory",
+  "privacyPolicyUrl": "https://github.com/correaschneider/ai-factory#privacidade"
 }
