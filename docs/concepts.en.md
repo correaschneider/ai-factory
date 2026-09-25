@@ -34,8 +34,9 @@ to the tracker only through **abstract operations** defined in `CONTRACT.md`:
 | `create_epic` · `create_story` · `link_dependency` · `update_epic` | authoring, used by the PO factory |
 
 What translates each operation into the real call is the **driver** chosen in `tracker.driver`. There are two axes
-of drivers, because the task and the code don't always live in the same system (task in ClickUp, MR in GitLab, for
-example):
+of drivers for external systems, because the task and the code don't always live in the same system (task
+in ClickUp, MR in GitLab, for example). A third axis, **E2E**, picks the frontend test tool used by the QA
+factory (Cypress or Playwright):
 
 ```mermaid
 flowchart LR
@@ -48,6 +49,9 @@ flowchart LR
     T --> M[markdown]
     S --> GL[gitlab · glab]
     S --> GH[github · gh]
+    C -->|E1–E7| E{{stack.frontend.e2e}}
+    E --> CY[cypress]
+    E --> PW[playwright]
 ```
 
 **Golden rule:** if you need to edit a command to support a new tracker, something is wrong.

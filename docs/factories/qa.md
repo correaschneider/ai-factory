@@ -56,11 +56,14 @@ código diverge do plano, testa o que foi implementado e documenta a divergênci
 
 ### 2b. QA Frontend: E2E com seletores reais
 
+Funciona com **Cypress ou Playwright**: `stack.frontend.e2e` escolhe o [driver de E2E](../reference/drivers.md#drivers-de-e2e),
+que define a sintaxe do teste, o login, a espera, os seletores, a evidência e o formato do resultado.
+
 Lê rotas, guards, templates e componentes antes de escrever e monta uma **tabela de seletores reais**
 (campos de formulário, botões, `data-testid`, textos). Seletor instável ganha um
 `// TODO: data-testid` em vez de um chute.
 
-- login **programático** por papel (`tests.frontend_cmds`, `tests.roles`), não pelo formulário;
+- login **programático** por papel (`tests.frontend_cmds`, `tests.roles`), não pelo formulário: custom command no Cypress, fixture ou `storageState` no Playwright;
 - vídeo sempre ligado e screenshot em falha;
 - limpeza dos dados criados via API ao final;
 - espera por asserção com timeout, nunca `sleep` fixo;

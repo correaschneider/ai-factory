@@ -26,7 +26,10 @@ Se nenhum argumento foi passado, pergunte qual task testar (formato em `config.i
 3. Confirme que `config.tracker.status.qa_gate` ≠ `config.tracker.status.in_qa` (seletores distintos).
    Se forem iguais: **PARE** — "qa_gate e in_qa precisam de seletor distinto (ver CONTRACT)."
 4. Carregue os bindings. Daqui pra frente **nunca** use valor fixo — sempre `config.<chave>`.
-5. **Tracker Driver:** carregue `${CLAUDE_PLUGIN_ROOT}/drivers/trackers/{config.tracker.driver}.md`. Toda chamada `tracker.<op>(...)`
+5. **Driver de E2E:** `<nome>` = primeira palavra de `config.stack.frontend.e2e` em minúsculas (ausente →
+   `cypress`). Confirme que `${CLAUDE_PLUGIN_ROOT}/drivers/e2e/<nome>.md` existe; senão **PARE** ("crie o driver").
+   Os workers de frontend e runner o carregam sozinhos.
+6. **Tracker Driver:** carregue `${CLAUDE_PLUGIN_ROOT}/drivers/trackers/{config.tracker.driver}.md`. Toda chamada `tracker.<op>(...)`
    abaixo roda por esse driver, conforme `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md`. O comando não conhece o tracker.
 
 ### Determinar pasta da iniciativa

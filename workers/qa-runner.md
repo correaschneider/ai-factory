@@ -26,6 +26,8 @@ Se vazio, pergunte qual task testar (formato em `config.issue.id_regex`).
 3. Carregue os bindings. Daqui pra frente **nunca** use valor fixo — sempre `config.<chave>`.
 4. **Tracker Driver:** carregue `{plugin}/drivers/trackers/{config.tracker.driver}.md`. Toda `tracker.<op>(...)`
    roda por esse driver, conforme `{plugin}/CONTRACT.md`.
+4b. **Driver de E2E:** `<nome>` = primeira palavra de `config.stack.frontend.e2e` em minúsculas (ausente →
+   `cypress`); carregue `{plugin}/drivers/e2e/<nome>.md` (usado em E5, E6 e E7). Não existe → **PARE**.
 5. `task = tracker.fetch({task_id})`.
    - Pasta da iniciativa: `task.parent_id` → `docs/initiatives/{nome-normalizado-do-pai}/`;
      senão → `docs/initiatives/{task_id}/`. `mkdir -p`.
@@ -106,11 +108,12 @@ TDIR={config.tests.dir}    # se "auto": existe qa-tests/ ? qa-tests : tests
 # rodar suite(s) com tee p/ $EVIDENCE_DIR/*.log
 # Evidências/qualidade de vídeo: exporte {config.evidence.mode_var}=true,
 #   {config.evidence.slowmo_var}={config.evidence.slowmo}, resolução {config.evidence.resolution}
+#   (como a ferramenta consome essas variáveis: E5 do driver de E2E)
 TEST_END=$(date +%s); DUR=$((TEST_END-TEST_START)); echo "⏱️ ${DUR}s"
 ```
 
-> Se o pipeline travar num spec de **outra** task (suites sequenciais), rode só os specs da feature
-> (`--spec '.../{feature}/**'`) e confirme `Spec Ran:` no log. Conflito de Xvfb → display alternativo (`:98`).
+> Se o pipeline travar num teste de **outra** task (suites sequenciais), rode só os testes da feature do
+> jeito do **E6** do driver de E2E e confirme no log o que rodou.
 
 ### 2.1 Coletar evidências (paths vêm do config — relativos a `workspace.root`)
 ```bash
@@ -124,7 +127,8 @@ Estrutura: `docs/initiatives/{nome}/evidencias/{RUN_TS}/{videos,screenshots,...}
 ### 2.2 Parsear totais
 - **Backend:** parse de `config.evidence.artifacts.backend_result` conforme `config.stack.backend.test`
   (jUnit XML → `tests`/`failures`/`errors`; JSON → `numTotalTests`/`numFailedTests`).
-- **Frontend:** parse de `config.evidence.artifacts.frontend_result` (Cypress JSON → `totalTests`/`totalPassed`/`totalFailed`).
+- **Frontend:** parse de `config.evidence.artifacts.frontend_result` conforme o **E7** do driver de E2E
+  (total, passou, falhou e, por falha, nome, mensagem e artefatos).
 - Para cada falha: nome completo, mensagem, stack (primeiras ~30 linhas), caminho do vídeo/screenshot.
 
 ---
@@ -185,4 +189,4 @@ Este comando **não** mapeia tracker. Chama `fetch`, `read_blueprint`, `transiti
 - **SEMPRE** coletar vídeos+screenshots e incluir tabela por cenário + métricas de tempo no relatório.
 - **1 bug por falha** (não agrupar), via `tracker.create_child_bug` (ligado à task, não ao épico).
 - **NUNCA** transicionar para `done` com qualquer falha. **NUNCA** mascarar falha ("flaky" não é desculpa).
-- Verifique `Spec Ran:` no log; pipeline travou em spec de outra task → rodar specs isolados.
+- Confirme no log quais testes rodaram (E6); pipeline travou em teste de outra task → rode só os da feature.

@@ -1,9 +1,11 @@
 # Drivers
 
-Um driver é um arquivo Markdown que ensina a fábrica a falar com um sistema. Há dois eixos:
+Um driver é um arquivo Markdown que ensina a fábrica a falar com um sistema. Há três eixos:
 
 - **tracker** (`drivers/trackers/`): onde vivem as tasks; escolhido por `tracker.driver`;
-- **SCM** (`drivers/scm/`): onde vivem os MRs/PRs, usado pela fábrica CR; escolhido por `scm.driver`.
+- **SCM** (`drivers/scm/`): onde vivem os MRs/PRs, usado pela fábrica CR; escolhido por `scm.driver`;
+- **E2E** (`drivers/e2e/`): a ferramenta de teste de frontend, usada pela fábrica QA; escolhida por
+  `stack.frontend.e2e`.
 
 ## Drivers incluídos
 
@@ -48,11 +50,31 @@ Dois detalhes que todo driver trata:
 | `mr_diff(repo, iid)` | diff unificado contra o destino, **sem checkout** |
 | `mr_comment(repo, iid, md)` | comenta no MR (diferente do `comment` do tracker, que é na task) |
 
+## Drivers de E2E
+
+| Driver | Quando | Arquivo de teste | Resultado lido pelo runner |
+|---|---|---|---|
+| `cypress` | `stack.frontend.e2e` começa com `cypress`, ou está ausente | `{feature}.cy.ts`, `describe`/`it` | JSON do `cypress run` (`totalTests`, `totalPassed`, `totalFailed`) |
+| `playwright` | `stack.frontend.e2e` começa com `playwright` | `{feature}.spec.ts`, `test.describe`/`test` | reporter JSON (`stats.expected`, `stats.unexpected`, `stats.flaky`, `stats.skipped`) |
+
+O nome do driver é a primeira palavra de `stack.frontend.e2e` em minúsculas: `"Playwright 1.5x"` usa
+`playwright`. Cada driver declara sete seções que os workers de QA seguem:
+
+| Seção | O que define |
+|---|---|
+| E1 `files` | extensão, layout e sintaxe de suite e de teste, com o ID do cenário no nome |
+| E2 `auth` | login programático por papel e limpeza via API |
+| E3 `wait` | espera por asserção com timeout, nunca sleep fixo |
+| E4 `selectors` | ordem de preferência de seletores e fallback |
+| E5 `evidence` | como ligar vídeo, screenshot, *slow motion* e resolução a partir de `evidence.*` |
+| E6 `run` | como rodar só os testes da feature e conferir no log |
+| E7 `result` | formato do resultado e como extrair totais e falhas |
+
 ## Escrevendo um driver novo
 
-Tracker novo é **um arquivo novo**, nenhum command muda:
+Tracker, code host ou ferramenta de E2E nova é **um arquivo novo**, nenhum command muda:
 
-1. Crie `drivers/trackers/<nome>.md` (ou `drivers/scm/<nome>.md`).
+1. Crie `drivers/trackers/<nome>.md` (ou `drivers/scm/<nome>.md`, ou `drivers/e2e/<nome>.md` com as seções E1–E7).
 2. Declare três coisas:
     - **chaves de config** que o driver lê (por exemplo, `tracker.workspace_id`);
     - **capacidades** e o **fallback** de cada operação sem equivalente nativo (sem sub-issue, por
