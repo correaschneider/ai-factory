@@ -8,7 +8,7 @@ Laravel, NestJS, Next.js and Angular out of the box; other stacks it detects fro
 
 ## And with my tracker?
 
-Jira, ClickUp and GitLab Issues have a ready-made driver, and the `markdown` driver works with no tracker at all. Any other
+Jira, ClickUp, GitLab Issues and GitHub Issues have a ready-made driver, and the `markdown` driver works with no tracker at all. Any other
 system needs a [new driver](reference/drivers.md): a Markdown file, without touching the commands.
 
 ## Do I need to use all four factories?

@@ -32,7 +32,7 @@ The factory replaces the loose request with a **process**:
   work progresses, comments record what was done, QA bugs become issues linked to the task.
 - **Nothing is project-specific.** Stack, paths, branches, tracker and statuses come from a
   configuration file per repository. The same factory serves projects in Laravel, NestJS, Angular or
-  Next.js, with Jira, ClickUp, GitLab or a Markdown kanban.
+  Next.js, with Jira, ClickUp, GitLab, GitHub or a Markdown kanban.
 
 ## The factories
 

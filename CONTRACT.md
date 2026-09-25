@@ -42,6 +42,7 @@ Nenhum comando sabe se é Jira, GitLab, CRM, etc. — ele chama a operação e o
 |--------|------------------|---------|
 | jira | nome do status (string) | `qa_gate: "PR"` |
 | gitlab | `{ state: opened\|closed, label?: <stage> }` | `qa_gate: {state: opened, label: ready-for-qa}` |
+| github | `{ state: open\|closed, label?: <stage> }` | `qa_gate: {state: open, label: ready-for-qa}` |
 | markdown | `{ folder: <pasta>, label?: <stage> }` | `in_qa: {folder: em-qa, label: qa-iniciada}` |
 
 **REGRA:** `qa_gate` e `in_qa` **DEVEM** resolver pra seletores **distintos** (nome distinto, ou
@@ -74,24 +75,24 @@ campo apropriado — o comando nunca assume `{prefix}{id}`.
 ## Ops de autoria (fábrica PO — `po-tasks`)
 
 O `po-tasks` cria Epic + Stories no tracker por estas ops. O driver traduz: **markdown** = arquivos
-no kanban (`board_path`); **gitlab/jira** = Issues no servidor.
+no kanban (`board_path`); **gitlab/github/jira** = Issues no servidor.
 
 | # | Operação | Entrada | Saída / Efeito |
 |---|----------|---------|----------------|
 | A | `create_epic(slug, title, body, meta)` | slug, título, corpo, `{labels}` | cria o épico/iniciativa → `epic_ref` |
 | B | `create_story(title, body, meta)` | título, corpo (= bloco completo do blueprint), `{epic_ref, depends_on[], labels[], complexity, priority}` | cria a story (type=story) ligada ao épico → `story_ref` (inclui `id`) |
-| C | `link_dependency(story_ref, depends_on_ref)` | dois refs | registra a dependência **recíproca** (markdown: `blocks[]`/`depends_on[]`; gitlab/jira: link relates/blocks) |
+| C | `link_dependency(story_ref, depends_on_ref)` | dois refs | registra a dependência **recíproca** (markdown: `blocks[]`/`depends_on[]`; gitlab/jira: link relates/blocks; github: "blocked by" nativo) |
 | D | `update_epic(epic_ref, stories[])` | épico + lista de stories | atualiza o índice/tabela de stories no épico |
 
 **Como o driver resolve id e local:**
 - markdown → id sequencial via `issue.id_format` (varre `board_path` pelo maior número); grava em
   `tracker.epic_folder` (épico) e `tracker.story_folder` (stories).
-- gitlab/jira → id atribuído pelo servidor; grava no `project_path`/`project_key`; link nativo de issues.
+- gitlab/github/jira → id atribuído pelo servidor; grava no `project_path`/`repo`/`project_key`; link nativo de issues.
 
 **Chaves obrigatórias da fábrica PO (validar no ETAPA 0 do `/factory:po`):**
 `product.{domain,personas}` (+ `competitors`/`compliance` quando o domínio exigir) — researcher;
 `docs_map.codebase` — codemap; `stack.{backend,frontend}` — blueprint;
-tasks: markdown→`tracker.{board_path,epic_folder,story_folder}` + `issue.id_format`; gitlab→`project_path`.
+tasks: markdown→`tracker.{board_path,epic_folder,story_folder}` + `issue.id_format`; gitlab→`project_path`; github→`tracker.repo`.
 
 ---
 
@@ -153,7 +154,7 @@ tem status nativos, use uma **label/stage** discriminadora declarada no config.
 `tests.dir`, `tests.layout.{backend,frontend}`, `stack.backend.test`, `stack.frontend.e2e`,
 `env.{app_url,api_url}`, `docker.run`, `docker.ensure_up`, `evidence.{mode_var,slowmo_var,slowmo,resolution}`,
 `evidence.artifacts.{videos,screenshots,backend_result,frontend_result}`.
-(Drivers exigem chaves extras próprias: jira→`cloud_id,project_key`; markdown→`tracker.board_path`.)
+(Drivers exigem chaves extras próprias: jira→`cloud_id,project_key`; markdown→`tracker.board_path`; github→`tracker.repo`.)
 
 **Chaves opcionais do runner:** `docker.run_frontend` (presente → back/front são comandos separados rodados
 em paralelo; ausente → `docker.run` é o pipeline completo); `tests.smoke_script` (ausente → smoke por login +

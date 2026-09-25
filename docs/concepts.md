@@ -21,7 +21,7 @@ Veja todas as chaves em [Referência de configuração](reference/config.md).
 
 ## 2. O contrato e os drivers
 
-Os commands não sabem se a task está no Jira, no ClickUp, no GitLab ou num arquivo Markdown. Eles falam
+Os commands não sabem se a task está no Jira, no ClickUp, no GitLab, no GitHub ou num arquivo Markdown. Eles falam
 com o tracker só por **operações abstratas** definidas no `CONTRACT.md`:
 
 | Operação | O que faz |
@@ -43,6 +43,7 @@ flowchart LR
     C -->|find_mrs, mr_diff, mr_comment| S{{scm.driver}}
     T --> J[jira]
     T --> K[clickup]
+    T --> GI[github]
     T --> G[gitlab]
     T --> M[markdown]
     S --> GL[gitlab · glab]
@@ -67,7 +68,7 @@ o seu tracker entende:
 | `review_gate` · `in_review` | pronto para CR · CR em andamento | CR |
 | `review_approved` · `review_returned` | CR aprovou (avança) · CR reprovou (volta) | CR |
 
-O valor de cada um depende do driver: no Jira e no ClickUp é o nome do status (`"Em QA"`); no GitLab é
+O valor de cada um depende do driver: no Jira e no ClickUp é o nome do status (`"Em QA"`); no GitLab e no GitHub é
 um estado mais uma label (`{state: opened, label: ready-for-qa}`); no Markdown é uma pasta mais uma label.
 
 !!! warning "Portões precisam ser distinguíveis"

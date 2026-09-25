@@ -12,6 +12,7 @@ Um driver é um arquivo Markdown que ensina a fábrica a falar com um sistema. H
 | `jira` | tracker | servidor MCP da Atlassian | nome do status: `qa_gate: "PR"` |
 | `clickup` | tracker | servidor MCP do ClickUp | nome do status: `in_qa: "em qa"` |
 | `gitlab` | tracker | servidor MCP do GitLab | estado + label: `{state: opened, label: ready-for-qa}` |
+| `github` | tracker | CLI `gh` autenticada (ou servidor MCP do GitHub) | estado + label: `{state: open, label: ready-for-qa}` |
 | `markdown` | tracker | só arquivos, sem MCP | pasta + label: `{folder: em-qa, label: qa-iniciada}` |
 | `gitlab` | SCM | CLI `glab` autenticada | — |
 | `github` | SCM | CLI `gh` autenticada | — |

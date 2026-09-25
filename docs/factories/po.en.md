@@ -75,7 +75,7 @@ an assumption.
 
 ### 4. Tasks: Epic and Stories in the tracker
 
-Uses the contract's authoring operations, so it works the same in Jira, ClickUp, GitLab or Markdown:
+Uses the contract's authoring operations, so it works the same in Jira, ClickUp, GitLab, GitHub or Markdown:
 
 1. creates the **Epic** with a summary, the MVP scope and pointers to the three artifacts;
 2. creates **one Story per MVP feature**, with the **full blueprint block in the body** (without

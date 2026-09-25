@@ -6,6 +6,7 @@
 - **A git repository** for the project, with backend, frontend or both.
 - **Access to the tracker** where the tasks live:
     - Jira, ClickUp or GitLab: the tracker's MCP server configured in Claude Code;
+    - GitHub Issues: the `gh` CLI, authenticated;
     - `markdown` driver: nothing, the tasks are files in the repository itself.
 - **The code host CLI**, if you are going to use the CR factory: `glab` (GitLab) or `gh` (GitHub), already authenticated.
 - **Docker**, if the QA factory is going to bring up the local stack to run the tests.

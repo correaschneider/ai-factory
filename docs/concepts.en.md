@@ -21,7 +21,7 @@ See every key in the [Configuration reference](reference/config.md).
 
 ## 2. The contract and the drivers
 
-The commands don't know whether the task is in Jira, ClickUp, GitLab or a Markdown file. They talk
+The commands don't know whether the task is in Jira, ClickUp, GitLab, GitHub or a Markdown file. They talk
 to the tracker only through **abstract operations** defined in `CONTRACT.md`:
 
 | Operation | What it does |
@@ -43,6 +43,7 @@ flowchart LR
     C -->|find_mrs, mr_diff, mr_comment| S{{scm.driver}}
     T --> J[jira]
     T --> K[clickup]
+    T --> GI[github]
     T --> G[gitlab]
     T --> M[markdown]
     S --> GL[gitlab · glab]
@@ -67,7 +68,7 @@ your tracker understands:
 | `review_gate` · `in_review` | ready for CR · CR in progress | CR |
 | `review_approved` · `review_returned` | CR approved (moves forward) · CR rejected (goes back) | CR |
 
-The value of each one depends on the driver: in Jira and ClickUp it is the status name (`"Em QA"`); in GitLab it is
+The value of each one depends on the driver: in Jira and ClickUp it is the status name (`"Em QA"`); in GitLab and GitHub it is
 a state plus a label (`{state: opened, label: ready-for-qa}`); in Markdown it is a folder plus a label.
 
 !!! warning "Gates must be distinguishable"
