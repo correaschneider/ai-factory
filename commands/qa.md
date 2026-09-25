@@ -146,7 +146,7 @@ Resultado: ✅ DONE / ❌ W BUGS
 
 Este comando **não** mapeia tracker. Chama as 6 ops abstratas (`fetch`, `read_blueprint`,
 `transition`, `comment`, `create_child_bug`, `label`) do `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md`; o driver de
-`config.tracker.driver` traduz. Drivers: `jira`, `clickup`, `gitlab`, `markdown`.
+`config.tracker.driver` traduz. Drivers: `jira`, `clickup`, `gitlab`, `github`, `markdown`.
 **Adicionar tracker = criar `drivers/trackers/<nome>.md` + setar `tracker.driver`. Nenhuma linha daqui muda.**
 
 ## REGRAS (genéricas)

@@ -12,6 +12,7 @@ A driver is a Markdown file that teaches the factory how to talk to a system. Th
 | `jira` | tracker | Atlassian MCP server | status name: `qa_gate: "PR"` |
 | `clickup` | tracker | ClickUp MCP server | status name: `in_qa: "em qa"` |
 | `gitlab` | tracker | GitLab MCP server | state + label: `{state: opened, label: ready-for-qa}` |
+| `github` | tracker | `gh` CLI, authenticated (or the GitHub MCP server) | state + label: `{state: open, label: ready-for-qa}` |
 | `markdown` | tracker | files only, no MCP | folder + label: `{folder: em-qa, label: qa-iniciada}` |
 | `gitlab` | SCM | authenticated `glab` CLI | — |
 | `github` | SCM | authenticated `gh` CLI | — |

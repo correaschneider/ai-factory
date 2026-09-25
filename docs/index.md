@@ -32,7 +32,7 @@ A fábrica troca o pedido solto por um **processo**:
   anda, comentários registram o que foi feito, bugs de QA viram issues ligadas à task.
 - **Nada é específico de projeto.** Stack, caminhos, branches, tracker e status vêm de um arquivo de
   configuração por repositório. A mesma fábrica serve projetos em Laravel, NestJS, Angular ou Next.js,
-  com Jira, ClickUp, GitLab ou um kanban em Markdown.
+  com Jira, ClickUp, GitLab, GitHub ou um kanban em Markdown.
 
 ## As fábricas
 

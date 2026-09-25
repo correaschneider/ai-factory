@@ -15,7 +15,7 @@ company:  My Company
 language: en-US
 
 tracker:
-  driver: gitlab                      # jira | clickup | gitlab | markdown
+  driver: gitlab                      # jira | clickup | gitlab | github | markdown
   project_path: group/my-app          # gitlab driver key
   status:
     backlog:         { state: opened, label: backlog }
@@ -129,7 +129,7 @@ models:                               # optional
 === "All"
     `project`, `company`, `tracker.driver`, `tracker.status.{qa_gate, in_qa, done}` (distinct),
     `tracker.labels.approved`, `issue.id_regex`, `git.base_branch`, `workspace.root`,
-    `workspace.repos.{backend, frontend}.path`, plus the driver keys (`project_path` in GitLab,
+    `workspace.repos.{backend, frontend}.path`, plus the driver keys (`project_path` in GitLab, `repo` in GitHub,
     `cloud_id` and `project_key` in Jira, `board_path` in Markdown).
 
 === "PO"

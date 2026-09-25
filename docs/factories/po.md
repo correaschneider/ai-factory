@@ -75,7 +75,7 @@ suposição.
 
 ### 4. Tasks: Epic e Stories no tracker
 
-Usa as operações de autoria do contrato, então funciona igual em Jira, ClickUp, GitLab ou Markdown:
+Usa as operações de autoria do contrato, então funciona igual em Jira, ClickUp, GitLab, GitHub ou Markdown:
 
 1. cria o **Epic** com resumo, escopo MVP e ponteiros para os três artefatos;
 2. cria **uma Story por funcionalidade do MVP**, com o **bloco completo do blueprint no corpo** (sem

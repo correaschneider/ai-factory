@@ -61,12 +61,14 @@ evidência clara, marque `TBD`.
 ---
 
 ## ETAPA 2 — Tracker (driver + mapeamento)
-1. **Detectar candidato:** remote contém `gitlab`→`gitlab` · `.gitlab-ci.yml` idem · pasta kanban de MDs
+1. **Detectar candidato:** remote contém `gitlab`→`gitlab` · `.gitlab-ci.yml` idem · remote em `github.com` com issues habilitadas→`github` · pasta kanban de MDs
    (ex.: `tasks/{todo,in-progress,em-qa,done}`)→`markdown` · projeto Jira conhecido→`jira`.
 2. **CONFIRME com o humano** o driver (é a escolha de maior impacto — não decida sozinho se houver dúvida).
    Tracker que ainda não tem driver = criar `drivers/trackers/<nome>.md` (modelo B) — avise, não improvise no config.
 3. Preencha as chaves do driver (ver CONTRACT) e o **mapa de status lógico**:
    - `gitlab` → `project_path`; status = `{state, label?}`; **`qa_gate` ≠ `in_qa`** (mesma `state` + label distinta).
+   - `github` → `repo` (`owner/repo` do remote); status = `{state: open|closed, label?}`, mesma regra de label distinta;
+     `epic_type` só se a organização usar *issue types* (`gh api repos/{repo} --jq .has_issues` confirma issues ligadas).
    - `jira` → `cloud_id`, `project_key`; status = nome nativo (`qa_gate:"PR"`, `in_qa:"Em QA"`, `done:"Done"`).
    - `markdown` → `board_path`, `epic_folder`, `story_folder`, `backlog_folder`; status = `{folder, label?}`;
      `issue.id_format` (ex.: `APP-%03d`). `qa_gate`/`in_qa` podem dividir folder se a label os distinguir.
@@ -98,7 +100,7 @@ company:   <empresa>
 language:  pt-BR
 
 tracker:
-  driver:   <gitlab|jira|markdown|...>
+  driver:   <gitlab|github|jira|clickup|markdown|...>
   # + chaves do driver (project_path | cloud_id+project_key | board_path+epic/story_folder)
   status:
     backlog:     <seletor>     # só obrigatório p/ fábrica DEV
@@ -180,7 +182,7 @@ dev:                           # mecânica da fábrica DEV
    `workspace.repos.{backend,frontend}.path`, `tests.dir`, `tests.layout.{backend,frontend}`,
    `stack.backend.test`, `stack.frontend.e2e`, `env.{app_url,api_url}`, `docker.{run,ensure_up}`,
    `evidence.{mode_var,slowmo_var,slowmo,resolution}`, `evidence.artifacts.*`
-   (+ extras do driver: jira→`cloud_id,project_key`; markdown→`board_path`; gitlab→`project_path`).
+   (+ extras do driver: jira→`cloud_id,project_key`; markdown→`board_path`; gitlab→`project_path`; github→`repo`).
 2. Liste, por fábrica, o que ainda falta pra cada uma rodar limpa:
    - **PO:** `product.{domain,personas}`, `docs_map.codebase`, `stack.{backend,frontend}`, autoria do tracker.
    - **DEV:** `tracker.status.{backlog,in_progress,qa_gate}`, `git.{dev_base,protected,branch_prefix,commit_format,remote}`,

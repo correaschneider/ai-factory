@@ -13,7 +13,7 @@ Se vazio, use o `blueprint.md` mais recente em `docs/initiatives/`.
 
 ## ETAPA 0 — Config
 Leia `docs/factory.config.md`. Valide as chaves de autoria (`{plugin}/CONTRACT.md`): markdown→
-`tracker.{board_path,epic_folder,story_folder}` + `issue.id_format`; gitlab→`tracker.project_path`.
+`tracker.{board_path,epic_folder,story_folder}` + `issue.id_format`; gitlab→`tracker.project_path`; github→`tracker.repo`.
 Faltou/`TBD` → **PARE**. Carregue `{plugin}/drivers/trackers/{config.tracker.driver}.md`.
 
 ## PRIMEIRO PASSO
@@ -29,11 +29,11 @@ Para CADA funcionalidade:
 `story_ref = tracker.create_story(title="{Funcionalidade}", body, meta={epic_ref, depends_on:[…], labels:[generated], complexity, priority})`
 - **CRÍTICO:** `body` = o **bloco completo da funcionalidade do blueprint** (contexto + backend + frontend
   + error handling + critérios de aceite + compliance). É o que o tech-lead/DEV vai consumir. **Não resumir.**
-- O driver resolve id e local (markdown: próximo `issue.id_format` em `story_folder`; gitlab/jira: servidor).
+- O driver resolve id e local (markdown: próximo `issue.id_format` em `story_folder`; gitlab/github/jira: servidor).
 
 ## 3. Resolver dependências (recíprocas)
 Para cada Story com `depends_on:[Y]`: `tracker.link_dependency(story_ref, Y)` (o driver registra o inverso —
-`blocks[]` no markdown, issue link no gitlab/jira). Validar ausência de ciclos.
+`blocks[]` no markdown, issue link no gitlab/jira, "blocked by" no github). Validar ausência de ciclos.
 
 ## 4. Atualizar o Epic
 `tracker.update_epic(epic_ref, stories[])` — índice/tabela das Stories (ID, título, complexidade, status, deps).

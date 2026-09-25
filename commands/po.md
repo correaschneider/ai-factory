@@ -17,7 +17,7 @@ recente em `docs/initiatives/<x>/`.
 ## ETAPA 0 — Carregar e validar config (OBRIGATÓRIO)
 1. Leia `docs/factory.config.md`. Não existe → **PARE** ("Rode `/factory:init`").
 2. Valide as **chaves da fábrica PO** (`${CLAUDE_PLUGIN_ROOT}/CONTRACT.md`): `product.{domain,personas}`, `docs_map.codebase`,
-   `stack.{backend,frontend}`, e as de autoria do tracker (markdown→`tracker.{board_path,epic_folder,story_folder}`+`issue.id_format`; gitlab→`tracker.project_path`). Faltou/`TBD` → **PARE** dizendo qual.
+   `stack.{backend,frontend}`, e as de autoria do tracker (markdown→`tracker.{board_path,epic_folder,story_folder}`+`issue.id_format`; gitlab→`tracker.project_path`; github→`tracker.repo`). Faltou/`TBD` → **PARE** dizendo qual.
 3. Carregue bindings (nunca valor fixo). Carregue `${CLAUDE_PLUGIN_ROOT}/drivers/trackers/{config.tracker.driver}.md` (usado no passo 4).
 4. Pasta da iniciativa: `nome = kebab-case($ARGUMENTS)` → `docs/initiatives/{nome}/`. `mkdir -p`.
 
@@ -82,5 +82,5 @@ Leia e siga `${CLAUDE_PLUGIN_ROOT}/workers/po-tasks.md`. Iniciativa: $ARGUMENTS 
 - Cada sub-agent em **próprio contexto** (Task). Ordem fixa: Researcher → Code Map → Blueprint → Tasks.
 - Gate reprovado em qualquer etapa → **PARE** e reporte; não pule nem invente artefato ausente.
 - Todos os intermediários em `docs/initiatives/{nome}/` (rastreabilidade).
-- Stories **nascem no backlog** do tracker (markdown: `story_folder`; gitlab: issue aberta) — promover é da fábrica DEV.
+- Stories **nascem no backlog** do tracker (markdown: `story_folder`; gitlab/github: issue aberta) — promover é da fábrica DEV.
 - A fábrica **cria e organiza, não prioriza** Sprint (decisão humana).
