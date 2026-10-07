@@ -136,6 +136,30 @@ Opcionais: `scm.exclude_branch_suffix`; `tracker.labels.{approved,needs_human}`.
 
 ---
 
+## Eixo E2E (ferramenta de teste de frontend) — fábrica QA
+
+O que muda entre Cypress, Playwright e outras ferramentas (sintaxe do teste, login, espera, seletores,
+evidência, execução e formato do resultado) vive num **driver de E2E** em `drivers/e2e/<nome>.md`. Os
+workers `qa-frontend` e `qa-runner` não conhecem a ferramenta: seguem o driver.
+
+**Seleção:** `<nome>` = primeira palavra de `config.stack.frontend.e2e` em minúsculas (`"Playwright 1.5x"` →
+`playwright`). Chave ausente → `cypress` (compatibilidade). Arquivo do driver inexistente → **PARE**
+("crie `drivers/e2e/<nome>.md`").
+
+> **Mesma regra de ouro:** ferramenta nova = **novo `drivers/e2e/<nome>.md`** + `stack.frontend.e2e`. Nenhum worker muda.
+
+| # | Seção do driver | O que declara |
+|---|---|---|
+| E1 | `files` | extensão e layout do arquivo de teste; como agrupar (suite) e declarar 1 teste com o ID do cenário no nome |
+| E2 | `auth` | login **programático** por papel (sem formulário) e cleanup via API; onde ficam os helpers do projeto (`config.tests.frontend_cmds`) |
+| E3 | `wait` | como esperar estado da UI por **asserção com timeout** (nunca sleep fixo) |
+| E4 | `selectors` | ordem de preferência de seletores e o fallback; como marcar seletor instável |
+| E5 | `evidence` | como ligar vídeo, screenshot em falha, *slow motion* e resolução a partir de `config.evidence.*` |
+| E6 | `run` | como rodar só os testes da feature e como reconhecer no log o que rodou |
+| E7 | `result` | formato do arquivo em `evidence.artifacts.frontend_result` e como extrair total, passou, falhou e, por falha, nome, mensagem e artefatos |
+
+---
+
 ## O que cada driver DEVE declarar
 1. **`Config keys`** que lê. 2. **`Capabilities`** + **fallback** quando falta equivalente nativo
    (ex.: sem sub-issue → bug irmão + link). 3. **Pré-requisito de acesso** (MCP/CLI/API).

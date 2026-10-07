@@ -32,7 +32,8 @@ evidência clara, marque `TBD`.
   - `composer.json` + `artisan` → Laravel/PHP (orm Eloquent, test PHPUnit, pkg composer).
   - `package.json`: `@nestjs/*`→NestJS · `next`→Next.js · `@angular/core`→Angular.
     ORM: `prisma`→Prisma · `@mikro-orm`/`typeorm` idem · `waterline`→Waterline.
-    Test: `vitest`/`jest` (dev-deps); E2E: `cypress`/`playwright`.
+    Test: `vitest`/`jest` (dev-deps); E2E: `cypress`→`e2e: cypress` · `@playwright/test`→`e2e: playwright`
+    (o valor escolhe o driver `drivers/e2e/<nome>.md`; ferramenta sem driver → avisar, como no tracker).
   - `build`: leia `scripts` do `package.json` (`build`/`lint`) ou os artisan equivalentes; preencha o
     comando real (ex.: `pnpm build`). Não souber o boot-check → `TBD`.
   - **Fora da lista acima → sugestão por evidência** (não deixe `TBD` mudo). Colete sinais e escolha o
@@ -127,7 +128,7 @@ workspace:
 
 stack:
   backend:  { framework: "<...>", orm: <...>, db: <...>, pkg: <...>, test: "<...>", build: '<...>' }
-  frontend: { framework: "<...>", ui: "<...>", e2e: <Cypress|...>, build: '<...>', lint: '<...>' }
+  frontend: { framework: "<...>", ui: "<...>", e2e: <cypress|playwright|...>, build: '<...>', lint: '<...>' }
   arch_notes_doc: <...>
 
 env:    { app_url: <...>, api_url: <...> }

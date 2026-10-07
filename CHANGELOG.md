@@ -3,6 +3,9 @@
 Semver: **major** = quebra de config/contrato (chave obrigatória nova no `CONTRACT.md`, op de driver com
 assinatura nova); **minor** = fábrica, driver ou op nova; **patch** = ajuste de prompt/correção.
 
+## 1.2.0 — 2026-09-25
+- QA agnóstica de ferramenta de E2E: novo eixo de drivers `drivers/e2e/` (`cypress`, `playwright`) com as seções E1–E7; `stack.frontend.e2e` escolhe o driver (ausente → `cypress`, sem quebrar configs existentes). `qa-frontend` e `qa-runner` deixam de assumir Cypress. (#4)
+
 ## 1.1.0 — 2026-09-25
 - Driver de tracker **GitHub Issues** (`drivers/trackers/github.md`, via `gh`): status por estado + label de estágio, sub-issues e dependências "blocked by" nativas, com fallback por referência cruzada. `/factory:init` propõe o driver para remotes no github.com. (#5)
 

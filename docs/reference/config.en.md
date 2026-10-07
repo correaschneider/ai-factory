@@ -59,7 +59,7 @@ workspace:
 stack:
   backend:  { framework: "NestJS 12", orm: Prisma, db: PostgreSQL, pkg: pnpm,
               test: "Vitest", build: 'pnpm build' }
-  frontend: { framework: "Next.js 16", ui: "MUI", e2e: Cypress,
+  frontend: { framework: "Next.js 16", ui: "MUI", e2e: cypress,
               build: 'pnpm build', lint: 'pnpm lint' }
 
 env:    { app_url: http://localhost:3000, api_url: http://localhost:4000 }
@@ -114,7 +114,7 @@ models:                               # optional
 | `scm` | code host, repositories, MR target branch, branch convention | CR |
 | `git` | QA base branch, branch DEV starts from, protected branches, commit format | DEV, QA |
 | `workspace` | root and paths of backend and frontend, repository layout | all |
-| `stack` | framework, ORM, database, tests, E2E, build and lint commands | all |
+| `stack` | framework, ORM, database, tests, E2E (`cypress` or `playwright`: picks the E2E driver), build and lint commands | all |
 | `env` | application and API URLs for smoke and E2E | QA |
 | `docker` | how to bring up the stack and run the tests | DEV, QA |
 | `evidence` | evidence variables and where videos, screenshots and results go | QA |

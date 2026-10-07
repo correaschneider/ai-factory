@@ -56,11 +56,14 @@ code diverges from the plan, it tests what was implemented and documents the div
 
 ### 2b. QA Frontend: E2E with real selectors
 
+Works with **Cypress or Playwright**: `stack.frontend.e2e` picks the [E2E driver](../reference/drivers.md#e2e-drivers),
+which defines the test syntax, login, waiting, selectors, evidence and result format.
+
 Reads routes, guards, templates and components before writing and builds a **table of real selectors**
 (form fields, buttons, `data-testid`, texts). An unstable selector gets a
 `// TODO: data-testid` instead of a guess.
 
-- **programmatic** login per role (`tests.frontend_cmds`, `tests.roles`), not through the form;
+- **programmatic** login per role (`tests.frontend_cmds`, `tests.roles`), not through the form: a custom command in Cypress, a fixture or `storageState` in Playwright;
 - video always on and screenshot on failure;
 - cleanup of the created data via the API at the end;
 - waits on assertions with a timeout, never a fixed `sleep`;
