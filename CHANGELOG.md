@@ -3,6 +3,10 @@
 Semver: **major** = quebra de config/contrato (chave obrigatória nova no `CONTRACT.md`, op de driver com
 assinatura nova); **minor** = fábrica, driver ou op nova; **patch** = ajuste de prompt/correção.
 
+## 1.2.1 — 2026-10-07
+- Páginas de **política de privacidade** e **termos de uso** no site (PT/EN).
+- `plugin.json`: `documentationUrl`, `supportUrl`, `privacyPolicyUrl` e `termsOfServiceUrl` apontando pro site, e `keywords` para a busca do diretório.
+
 ## 1.2.0 — 2026-09-25
 - QA agnóstica de ferramenta de E2E: novo eixo de drivers `drivers/e2e/` (`cypress`, `playwright`) com as seções E1–E7; `stack.frontend.e2e` escolhe o driver (ausente → `cypress`, sem quebrar configs existentes). `qa-frontend` e `qa-runner` deixam de assumir Cypress. (#4)
 
