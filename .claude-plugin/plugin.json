@@ -1,6 +1,6 @@
 {
   "name": "factory",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Fábricas de agentes config-driven: PO (iniciativa → stories), DEV (task → código), QA (testes + evidências) e CR (code review), com drivers de tracker e code host.",
   "author": {
     "name": "Pedro Schneider"
@@ -8,5 +8,22 @@
   "repository": "https://github.com/correaschneider/ai-factory",
   "license": "MIT",
   "homepage": "https://correaschneider.github.io/ai-factory/",
-  "privacyPolicyUrl": "https://github.com/correaschneider/ai-factory#privacidade"
+  "privacyPolicyUrl": "https://correaschneider.github.io/ai-factory/privacy/",
+  "documentationUrl": "https://correaschneider.github.io/ai-factory/",
+  "supportUrl": "https://github.com/correaschneider/ai-factory/issues",
+  "termsOfServiceUrl": "https://correaschneider.github.io/ai-factory/terms/",
+  "keywords": [
+    "agents",
+    "sdlc",
+    "product-owner",
+    "code-review",
+    "qa",
+    "e2e",
+    "jira",
+    "clickup",
+    "gitlab",
+    "github",
+    "automation",
+    "workflow"
+  ]
 }

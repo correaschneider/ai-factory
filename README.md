@@ -74,6 +74,8 @@ que essa pessoa configurou.
 - **Retenção:** o plugin não retém nada. O que fica gravado segue as regras do repositório, do tracker e do
   code host do usuário; apagar o artefato ou a task apaga o dado.
 
+Versão completa: [política de privacidade](https://correaschneider.github.io/ai-factory/privacy/) · [termos de uso](https://correaschneider.github.io/ai-factory/terms/).
+
 Dúvidas ou pedidos sobre privacidade: abra uma issue em
 [github.com/correaschneider/ai-factory/issues](https://github.com/correaschneider/ai-factory/issues).
 

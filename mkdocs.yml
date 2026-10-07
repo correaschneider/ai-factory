@@ -59,6 +59,8 @@ plugins:
             Drivers: Drivers
             Modelos por papel: Models per role
             Perguntas frequentes: FAQ
+            Política de privacidade: Privacy policy
+            Termos de uso: Terms of use
 
 nav:
   - Início: index.md
@@ -75,6 +77,9 @@ nav:
       - Drivers: reference/drivers.md
       - Modelos por papel: reference/models.md
   - Perguntas frequentes: faq.md
+  - Legal:
+      - Política de privacidade: privacy.md
+      - Termos de uso: terms.md
 
 markdown_extensions:
   - admonition
