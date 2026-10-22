@@ -1,81 +1,82 @@
-# QA Frontend — Criação de Testes E2E (lê código real, genérico/config-driven)
-> **Worker do plugin `factory`** — lido por caminho, não é command. `{plugin}` = caminho que vem no prompt do
-> orquestrador como `Plugin: ...`; `{task_id}` = valor que vem como `Task: ...`.
+# QA Frontend — E2E Test Creation (reads real code, generic/config-driven)
+> **Worker of the `factory` plugin** — read by path, not a command. `{plugin}` = path that comes in the
+> orchestrator prompt as `Plugin: ...`; `{task_id}` = value that comes as `Task: ...`.
+> Write everything you produce in `config.language` (absent → the language of the task).
 
-Cria os testes E2E extraindo **seletores, rotas e fluxos do CÓDIGO IMPLEMENTADO**. Rodam via Docker
-apontando para `config.env`. **Nada específico de projeto nem de ferramenta**: paths e helpers vêm do
-`factory.config.md`; sintaxe, login, espera, seletores e evidência vêm do **driver de E2E**.
+Creates the E2E tests by extracting **selectors, routes and flows from the IMPLEMENTED CODE**. They run via Docker
+pointing at `config.env`. **Nothing project- or tool-specific**: paths and helpers come from
+`factory.config.md`; syntax, login, waiting, selectors and evidence come from the **E2E driver**.
 
 ## Task ID: `{task_id}`
-Se vazio, pergunte qual task (formato em `config.issue.id_regex`).
+If empty, ask which task (format in `config.issue.id_regex`).
 
 ---
 
-## ETAPA 0 — Carregar e validar config (OBRIGATÓRIO)
-1. Leia `docs/factory.config.md`. Não existe → **PARE**.
-2. Valide chaves obrigatórias (`{plugin}/CONTRACT.md`) + as do frontend: `tests.layout.frontend`,
-   `stack.frontend.e2e`, `workspace.repos.frontend.path`, `env.{app_url,api_url}`. Faltou/`TBD` → **PARE**.
-3. Carregue bindings (nunca valor fixo).
-4. **Driver de E2E:** `<nome>` = primeira palavra de `config.stack.frontend.e2e` em minúsculas (ausente →
-   `cypress`). Carregue `{plugin}/drivers/e2e/<nome>.md`; não existe → **PARE** ("crie `drivers/e2e/<nome>.md`").
-   Daqui pra frente, **E1–E5** = seções desse driver.
+## STEP 0 — Load and validate config (MANDATORY)
+1. Read `docs/factory.config.md`. Does not exist → **STOP**.
+2. Validate required keys (`{plugin}/CONTRACT.md`) + the frontend ones: `tests.layout.frontend`,
+   `stack.frontend.e2e`, `workspace.repos.frontend.path`, `env.{app_url,api_url}`. Missing/`TBD` → **STOP**.
+3. Load bindings (never a hardcoded value).
+4. **E2E driver:** `<name>` = first word of `config.stack.frontend.e2e` in lowercase (absent →
+   `cypress`). Load `{plugin}/drivers/e2e/<name>.md`; does not exist → **STOP** ("create `drivers/e2e/<name>.md`").
+   From here on, **E1–E5** = sections of that driver.
 
 ---
 
-## 1. Ler o plano
-`qa-plan-{task_id}.md` mais recente em `docs/initiatives/*/`. Entenda os cenários E-XX (e G-XX).
+## 1. Read the plan
+Most recent `qa-plan-{task_id}.md` in `docs/initiatives/*/`. Understand the E-XX (and G-XX) scenarios.
 
-## 2. Ler o CÓDIGO REAL (seletores/rotas/guards reais)
+## 2. Read the REAL CODE (real selectors/routes/guards)
 ```bash
 cd {config.workspace.root}/{config.workspace.repos.frontend.path}
 git diff --name-only {config.git.base_branch}..HEAD
 ```
-- **Rotas/roteamento:** path real + guards + componente. Respeite o **modo de roteamento da stack**
-  (ex.: hash routing → `/#/path`) — ver `config.stack.frontend`.
-- **Templates:** nomes de campos de form (`formControlName`/`name`), classes de botões, estrutura de
-  modal/dialog, `data-testid`, textos visíveis (para seletor por texto).
-- **Componentes:** form group, métodos dos botões (submit/delete), libs de modal/notificação usadas,
-  checks de role/perfil.
+- **Routes/routing:** real path + guards + component. Respect the **stack's routing mode**
+  (e.g. hash routing → `/#/path`) — see `config.stack.frontend`.
+- **Templates:** form field names (`formControlName`/`name`), button classes, modal/dialog
+  structure, `data-testid`, visible texts (for text selectors).
+- **Components:** form group, button methods (submit/delete), modal/notification libs used,
+  role/profile checks.
 
-Consulte `config.docs_map.codebase` para quirks da UI da stack (componentes shared, overlays, etc.).
+Check `config.docs_map.codebase` for the stack's UI quirks (shared components, overlays, etc.).
 
-## 3. Ler os helpers de teste do projeto
-`config.tests.frontend_cmds` (login programático, request autenticada, navegação: custom commands,
-fixtures ou setup, conforme a ferramenta) + a base de testes existente (`config.tests.layout.frontend`)
-para reusar o padrão. Login: **sempre** programático, como manda o **E2** (não pelo formulário, que é lento).
+## 3. Read the project's test helpers
+`config.tests.frontend_cmds` (programmatic login, authenticated request, navigation: custom commands,
+fixtures or setup, depending on the tool) + the existing test base (`config.tests.layout.frontend`)
+to reuse the pattern. Login: **always** programmatic, as **E2** dictates (not through the form, which is slow).
 Roles: `config.tests.roles`.
 
-## 4. Mapear seletores reais (tabela ANTES de escrever)
-| Elemento | Seletor real (do template) | Fallback |
+## 4. Map real selectors (table BEFORE writing)
+| Element | Real selector (from the template) | Fallback |
 |---|---|---|
-Ordem de preferência e fallback: **E4**. Seletor instável → `// TODO: adicionar data-testid="…"`.
-**Não** chutar seletor sem ler o template.
+Preference order and fallback: **E4**. Unstable selector → `// TODO: add data-testid="…"`.
+Do **not** guess a selector without reading the template.
 
-## ONDE CRIAR
-Em `config.tests.layout.frontend`, com o nome e a extensão do **E1**. Vídeo ativo e screenshot em falha,
-como o **E5** liga a partir de `config.evidence`.
+## WHERE TO CREATE
+In `config.tests.layout.frontend`, with the name and extension from **E1**. Video on and screenshot on failure,
+as **E5** enables them from `config.evidence`.
 
-## TEMPLATE (esqueleto agnóstico — adapte aos idioms da stack)
+## TEMPLATE (agnostic skeleton — adapt to the stack's idioms)
 ```
-// Cabeçalho: Feature, Task {task_id}, plano de origem, arquivos de onde vieram os seletores, divergências
-// antes de cada teste: login programático por role (E2, via config.tests.frontend_cmds)
-// depois: cleanup dos dados criados via API (E2), usando prefixo de dado p/ filtrar
-// 1 cenário do plano = 1 teste na sintaxe do E1; nome começa pelo ID (E-01, …)
-// Cobertura: carrega autenticada · não-autenticado redireciona · criar · validação form
-//            · editar · excluir c/ confirmação · erro backend exibido (notificação) · permissão por role
-//            · G-XX regression (se no plano)
-// Esperas com asserção e timeout (E3), NÃO sleep fixo para UI; seletores REAIS do template (E4)
+// Header: Feature, Task {task_id}, source plan, files the selectors came from, divergences
+// before each test: programmatic login per role (E2, via config.tests.frontend_cmds)
+// after: cleanup of created data via API (E2), using a data prefix to filter
+// 1 plan scenario = 1 test in E1 syntax; name starts with the ID (E-01, …)
+// Coverage: loads authenticated · unauthenticated redirects · create · form validation
+//            · edit · delete w/ confirmation · backend error shown (notification) · permission by role
+//            · G-XX regression (if in the plan)
+// Waits with assertion and timeout (E3), NOT fixed sleep for UI; REAL selectors from the template (E4)
 ```
-> Idioms de framework (overlays headless, checkbox custom, esperar componente habilitar, normalizar
-> resposta de lista, roteamento hash) variam por stack — siga `config.stack.frontend` e
-> `config.docs_map.codebase`. **Não** copie literais de outro projeto.
+> Framework idioms (headless overlays, custom checkbox, waiting for a component to become enabled, normalizing
+> a list response, hash routing) vary by stack — follow `config.stack.frontend` and
+> `config.docs_map.codebase`. Do **not** copy literals from another project.
 
-## REGRAS
-- **SEMPRE** ler templates + roteamento ANTES; usar `formControlName`/seletores/rotas **reais**.
-- **SEMPRE** login programático por role (E2, `config.tests.frontend_cmds`).
-- **SEMPRE** referenciar o cenário do plano no nome do teste (E-01, …); documentar divergências como comentário.
-- **SEMPRE** cleanup via request de API no `after` (com prefixo de dado p/ evitar colisão).
-- **SEMPRE** marcar seletor instável com `// TODO: data-testid`.
-- **NUNCA** chutar seletor/rota inexistente; **NUNCA** hardcode de ID; **NUNCA** mocar HTTP (vai contra backend real).
-- **NUNCA** usar sleep fixo para esperar UI — usar asserção com timeout (E3; sleep só para estado async pós-mutação).
-- Cada critério de aceite = ≥1 teste (o E-XX correspondente).
+## RULES
+- **ALWAYS** read templates + routing BEFORE; use **real** `formControlName`/selectors/routes.
+- **ALWAYS** programmatic login per role (E2, `config.tests.frontend_cmds`).
+- **ALWAYS** reference the plan scenario in the test name (E-01, …); document divergences as a comment.
+- **ALWAYS** cleanup via API request in `after` (with a data prefix to avoid collisions).
+- **ALWAYS** mark an unstable selector with `// TODO: data-testid`.
+- **NEVER** guess a nonexistent selector/route; **NEVER** hardcode IDs; **NEVER** mock HTTP (it runs against the real backend).
+- **NEVER** use a fixed sleep to wait for the UI — use an assertion with timeout (E3; sleep only for async state after a mutation).
+- Each acceptance criterion = ≥1 test (the corresponding E-XX).

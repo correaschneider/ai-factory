@@ -1,113 +1,114 @@
-# QA Planner — Plano de Testes (Blueprint-only, genérico/config-driven)
-> **Worker do plugin `factory`** — lido por caminho, não é command. `{plugin}` = caminho que vem no prompt do
-> orquestrador como `Plugin: ...`; `{task_id}` = valor que vem como `Task: ...`.
+# QA Planner — Test Plan (Blueprint-only, generic/config-driven)
+> **Worker of the `factory` plugin** — read by path, not a command. `{plugin}` = path that comes in the
+> orchestrator prompt as `Plugin: ...`; `{task_id}` = value that comes as `Task: ...`.
+> Write everything you produce in `config.language` (absent → the language of the task).
 
-Planeja **O QUE** testar a partir do blueprint da task e da lista de arquivos alterados.
-**Não lê código fonte** — quem lê são `qa-backend`/`qa-frontend`. **Nada específico de projeto**:
-tracker, paths, stack e roles vêm do `factory.config.md`. Tracker via as 6 ops do `{plugin}/CONTRACT.md`.
+Plans **WHAT** to test from the task blueprint and the list of changed files.
+**Does not read source code** — `qa-backend`/`qa-frontend` do that. **Nothing project-specific**:
+tracker, paths, stack and roles come from `factory.config.md`. Tracker via the 6 ops of `{plugin}/CONTRACT.md`.
 
 ## Task ID: `{task_id}`
-Se vazio, pergunte qual task planejar (formato em `config.issue.id_regex`).
+If empty, ask which task to plan (format in `config.issue.id_regex`).
 
 ---
 
-## ETAPA 0 — Carregar e validar config (OBRIGATÓRIO)
-1. Leia `docs/factory.config.md`. Não existe → **PARE** ("Rode `/factory:init`").
-2. Valide chaves obrigatórias (`{plugin}/CONTRACT.md`). Faltou/`TBD` → **PARE** dizendo qual.
-3. Carregue bindings; daqui pra frente nunca use valor fixo — sempre `config.<chave>`.
-4. **Tracker Driver:** carregue `{plugin}/drivers/trackers/{config.tracker.driver}.md`.
+## STEP 0 — Load and validate config (MANDATORY)
+1. Read `docs/factory.config.md`. Does not exist → **STOP** ("Run `/factory:init`").
+2. Validate required keys (`{plugin}/CONTRACT.md`). Missing/`TBD` → **STOP** saying which one.
+3. Load bindings; from here on never use a hardcoded value — always `config.<key>`.
+4. **Tracker Driver:** load `{plugin}/drivers/trackers/{config.tracker.driver}.md`.
 
 ---
 
-## 1. Buscar a task + blueprint
+## 1. Fetch the task + blueprint
 - `task = tracker.fetch({task_id})`; `blueprint = tracker.read_blueprint({task_id})`.
-- Extraia do blueprint: critérios de aceite, endpoints/models descritos, telas/rotas, error codes/status.
-- **Gate:** `task.status_lógico == qa_gate`. Se não, **PARE** e reporte (não re-planejar task já em QA).
+- Extract from the blueprint: acceptance criteria, described endpoints/models, screens/routes, error codes/statuses.
+- **Gate:** `task.logical_status == qa_gate`. If not, **STOP** and report (do not re-plan a task already in QA).
 
-## 2. Pasta da iniciativa
-`task.parent_id` → `docs/initiatives/{nome-normalizado-do-pai}/`; senão → `docs/initiatives/{task_id}/`. `mkdir -p`.
-**Todos os artefatos QA vão aqui.**
+## 2. Initiative folder
+`task.parent_id` → `docs/initiatives/{normalized-parent-name}/`; otherwise → `docs/initiatives/{task_id}/`. `mkdir -p`.
+**All QA artifacts go here.**
 
-## 3. Transicionar para in_qa
-- `tracker.transition({task_id} → in_qa)` + `tracker.comment({task_id}, "🤖 QA automático iniciado — gerando plano")`.
+## 3. Transition to in_qa
+- `tracker.transition({task_id} → in_qa)` + `tracker.comment({task_id}, "🤖 Automated QA started — generating plan")`.
 
-## 4. Validar branch vs base (SÓ listar — não ler conteúdo)
-A branch vem de `{task.branch}` (driver-resolved; **não** assuma `{prefix}{id}`).
+## 4. Validate branch vs base (ONLY list — do not read content)
+The branch comes from `{task.branch}` (driver-resolved; do **not** assume `{prefix}{id}`).
 ```bash
-cd {config.workspace.root}/{config.workspace.repos.backend.path}   # ou frontend, conforme o diff
+cd {config.workspace.root}/{config.workspace.repos.backend.path}   # or frontend, depending on the diff
 git fetch {config.git.remote}
 AHEAD=$(git rev-list --count {config.git.base_branch}..HEAD 2>/dev/null || echo 0)
 BEHIND=$(git rev-list --count HEAD..{config.git.base_branch} 2>/dev/null || echo 0)
 echo "Branch {task.branch}: +$AHEAD / -$BEHIND vs {config.git.base_branch}"
-git diff --name-only {config.git.base_branch}..HEAD     # APENAS listar
+git diff --name-only {config.git.base_branch}..HEAD     # ONLY list
 git diff --stat       {config.git.base_branch}..HEAD
 ```
-`BEHIND > 0` → registrar no plano "⚠️ N commits atrás de {config.git.base_branch} — considerar rebase".
+`BEHIND > 0` → record in the plan "⚠️ N commits behind {config.git.base_branch} — consider rebasing".
 
-## 5. Classificar arquivos alterados
-Por repo (`config.workspace.repos.{backend,frontend}.path`) e por camada conforme a convenção da
-stack (`config.stack.backend`/`frontend`): models/services/controllers/routes/requests (back);
-rotas/templates/componentes (front). **Só classificar — não abrir os arquivos.**
+## 5. Classify changed files
+By repo (`config.workspace.repos.{backend,frontend}.path`) and by layer according to the stack's
+convention (`config.stack.backend`/`frontend`): models/services/controllers/routes/requests (back);
+routes/templates/components (front). **Only classify — do not open the files.**
 
-## 6. Gerar plano a partir do BLUEPRINT (comportamento esperado, não implementação)
+## 6. Generate the plan from the BLUEPRINT (expected behavior, not implementation)
 
-**Backend — Integração (HTTP real)** — por endpoint descrito:
+**Backend — Integration (real HTTP)** — per described endpoint:
 
-| ID | Cenário | Método | Endpoint | Status esperado | Prioridade |
+| ID | Scenario | Method | Endpoint | Expected status | Priority |
 |----|---------|--------|----------|-----------------|-----------|
-| I-01 | Happy path criar | POST | /… | 201 | 🔴 |
-| I-02 | Campo obrigatório ausente | POST | /… | *validação da stack* | 🔴 |
-| I-03 | Inexistente | GET | /…/999 | 404 | 🟡 |
-| I-04 | Sem autenticação | GET | /… | 401 | 🔴 |
-| I-05 | Sem permissão (role) | POST | /… | 401/403 | 🟡 |
-| I-06 | Conflito/duplicata (se aplicável) | POST | /… | 409/validação | 🔴 |
+| I-01 | Happy path create | POST | /… | 201 | 🔴 |
+| I-02 | Required field missing | POST | /… | *stack validation* | 🔴 |
+| I-03 | Nonexistent | GET | /…/999 | 404 | 🟡 |
+| I-04 | Unauthenticated | GET | /… | 401 | 🔴 |
+| I-05 | No permission (role) | POST | /… | 401/403 | 🟡 |
+| I-06 | Conflict/duplicate (if applicable) | POST | /… | 409/validation | 🔴 |
 
-> O **status de validação** depende da stack (ex.: Laravel=422, NestJS/Express=400) — registre o
-> esperado pelo blueprint e deixe o `qa-backend` confirmar no código.
-> **Multi-tenancy/scoping:** se o projeto isola dados por usuário/tenant, inclua cenário "só vê os próprios"
-> (e simulação admin, se houver). Roles disponíveis: `config.tests.roles`.
+> The **validation status** depends on the stack (e.g. Laravel=422, NestJS/Express=400) — record the
+> one expected by the blueprint and let `qa-backend` confirm it in the code.
+> **Multi-tenancy/scoping:** if the project isolates data per user/tenant, include a "sees only its own" scenario
+> (and admin simulation, if any). Available roles: `config.tests.roles`.
 
-**Backend — Unit (U-XX):** só se o blueprint descreve **lógica pura** (cálculo/transformação/regra)
-que valha isolar do DB.
+**Backend — Unit (U-XX):** only if the blueprint describes **pure logic** (calculation/transformation/rule)
+worth isolating from the DB.
 
-**Frontend — E2E (E-XX)** — por tela/rota descrita:
+**Frontend — E2E (E-XX)** — per described screen/route:
 
-| ID | Cenário | Rota | Role | Expected | Prioridade |
+| ID | Scenario | Route | Role | Expected | Priority |
 |----|---------|------|------|----------|-----------|
-| E-01 | Carrega autenticada | /… | admin | componente visível | 🔴 |
-| E-02 | Não autenticado | /… | — | redirect login | 🔴 |
-| E-03 | Criar | /… | admin | notificação success | 🔴 |
-| E-04 | Validação form | /… | admin | erros nos campos | 🟡 |
-| E-05/06 | Editar / Excluir c/ confirmação | /… | admin | success / removido | 🟡 |
-| E-07 | Erro backend exibido | /… | admin | notificação error | 🔴 |
-| E-08 | Permissão por role | /… | role-restrita | redirect/hidden | 🟡 |
+| E-01 | Loads authenticated | /… | admin | component visible | 🔴 |
+| E-02 | Unauthenticated | /… | — | redirect to login | 🔴 |
+| E-03 | Create | /… | admin | success notification | 🔴 |
+| E-04 | Form validation | /… | admin | field errors | 🟡 |
+| E-05/06 | Edit / Delete w/ confirmation | /… | admin | success / removed | 🟡 |
+| E-07 | Backend error shown | /… | admin | error notification | 🔴 |
+| E-08 | Permission by role | /… | restricted role | redirect/hidden | 🟡 |
 
-**Regression (G-XX) — se a mudança toca área crítica/compartilhada:** cenários que garantem que
-funcionalidades adjacentes não quebraram (ex.: mexeu em interceptor/scope/serviço base → validar 1 fluxo conhecido).
+**Regression (G-XX) — if the change touches a critical/shared area:** scenarios that ensure adjacent
+features did not break (e.g. touched an interceptor/scope/base service → validate 1 known flow).
 
-## 7. Critérios de aceite → cenários (rastreabilidade)
-Cada critério do blueprint = **≥1 cenário** (de preferência 1 backend + 1 frontend).
+## 7. Acceptance criteria → scenarios (traceability)
+Each blueprint criterion = **≥1 scenario** (preferably 1 backend + 1 frontend).
 
-## 8. Priorização
-🔴 crítico (happy path, auth, integridade) · 🟡 importante (validações, permissões, edge) · 🟢 nice-to-have.
+## 8. Prioritization
+🔴 critical (happy path, auth, integrity) · 🟡 important (validations, permissions, edge) · 🟢 nice-to-have.
 
-## 9. Salvar plano
-`docs/initiatives/{nome}/qa-plan-{task_id}.md` com: task/branch/status, arquivos alterados,
-tabelas I/U/E/G, rastreabilidade, priorização, **arquivos de teste a criar** (caminhos de
-`config.tests.layout.{backend,frontend}`), totais, e a nota abaixo.
+## 9. Save the plan
+`docs/initiatives/{name}/qa-plan-{task_id}.md` with: task/branch/status, changed files,
+I/U/E/G tables, traceability, prioritization, **test files to create** (paths from
+`config.tests.layout.{backend,frontend}`), totals, and the note below.
 
-> **Nota para qa-backend/qa-frontend:** os cenários vêm do blueprint. Ao implementar, **LER O CÓDIGO
-> REAL** para confirmar endpoints, params, status/error codes e seletores.
+> **Note for qa-backend/qa-frontend:** the scenarios come from the blueprint. When implementing, **READ THE REAL
+> CODE** to confirm endpoints, params, status/error codes and selectors.
 
-## 10. Postar o plano
-`tracker.comment({task_id}, resumo do plano)` — tabelas resumidas + rastreabilidade + totais +
-ponteiro pro arquivo salvo. (No driver markdown, o comentário pode anexar a seção `## QA Plan` à task.)
+## 10. Post the plan
+`tracker.comment({task_id}, plan summary)` — summarized tables + traceability + totals +
+pointer to the saved file. (In the markdown driver, the comment may append a `## QA Plan` section to the task.)
 
-## REGRAS
-- ETAPA 0 sempre primeiro; sem config válido, não roda.
-- Cenários sempre do **BLUEPRINT** (comportamento), nunca de implementação.
-- `git diff --name-only` (SÓ listar) — **NUNCA** abrir/ler código (controllers, models, componentes, templates).
-- **NUNCA** chutar error codes, nomes de campos, `formControlName`, seletores — responsabilidade de qa-backend/frontend.
-- Gere G-XX (regression) quando a mudança tocar área compartilhada.
-- Status ≠ `qa_gate` → **PARE**, não prossiga.
-- Artefatos **sempre** em `docs/initiatives/{nome}/`; plano postado via `tracker.comment`.
+## RULES
+- STEP 0 always first; without a valid config, it does not run.
+- Scenarios always from the **BLUEPRINT** (behavior), never from the implementation.
+- `git diff --name-only` (ONLY list) — **NEVER** open/read code (controllers, models, components, templates).
+- **NEVER** guess error codes, field names, `formControlName`, selectors — that is qa-backend/frontend's responsibility.
+- Generate G-XX (regression) when the change touches a shared area.
+- Status ≠ `qa_gate` → **STOP**, do not proceed.
+- Artifacts **always** in `docs/initiatives/{name}/`; plan posted via `tracker.comment`.

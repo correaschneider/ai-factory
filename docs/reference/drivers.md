@@ -26,7 +26,7 @@ uma pasta. Serve para projetos sem tracker ou para testar a fábrica.
 
 | Operação | Entrada | Efeito |
 |---|---|---|
-| `fetch(id)` | id | devolve `{id, title, type, status_lógico, parent_id, branch, linked_mr, description, assignee}` |
+| `fetch(id)` | id | devolve `{id, title, type, logical_status, parent_id, branch, linked_mr, description, assignee}` |
 | `read_blueprint(id)` | id | a especificação da task; por padrão, a própria descrição |
 | `transition(id, alvo)` | id, status lógico | leva a task ao seletor de `tracker.status[alvo]`, trocando estado, pasta ou labels |
 | `comment(id, md)` | id, Markdown | comenta; o driver converte o Markdown para o formato do sistema |

@@ -1,19 +1,19 @@
 # Tracker Driver — GitHub Issues (gh CLI)
 
-**Config keys:** `tracker.repo` (`owner/repo`; ausente → o remote `origin`), `status{}` no formato
-`{state, label?}` com `state` ∈ `open|closed`, `labels{}`, `git.branch_prefix`. Opcional:
-`tracker.epic_type` (nome do *issue type* usado para épico, ex.: `Epic`; ausente → label `epic`).
-**Acesso:** `gh` autenticada (`gh auth status`), numa versão que tenha as flags `--parent` e `--add-blocked-by` (confira em `gh issue create --help`). O plugin
-nunca lê arquivo de credencial: usa só a CLI. Sem `gh`, o servidor MCP do GitHub serve para as mesmas
-chamadas.
-**Capabilities:** GitHub não tem status arbitrário → status lógico = `state` (open/closed) **+ label de
-estágio** (obrigatória para distinguir `qa_gate` de `in_qa`, ambos `open`). Tem **sub-issues** e
-**dependências** ("blocked by") nativos; onde o repositório não tiver (GitHub Enterprise antigo, recurso
-desligado), o fallback é **referência cruzada** no corpo das duas issues.
-⚠️ As labels de estágio são **mutuamente exclusivas**: `transition` remove as dos outros status lógicos
-ao aplicar a nova.
+**Config keys:** `tracker.repo` (`owner/repo`; absent → the `origin` remote), `status{}` in the format
+`{state, label?}` with `state` ∈ `open|closed`, `labels{}`, `git.branch_prefix`. Optional:
+`tracker.epic_type` (name of the *issue type* used for epics, e.g. `Epic`; absent → label `epic`).
+**Access:** authenticated `gh` (`gh auth status`), in a version that has the `--parent` and `--add-blocked-by` flags (check with `gh issue create --help`). The plugin
+never reads a credential file: it only uses the CLI. Without `gh`, the GitHub MCP server works for the same
+calls.
+**Capabilities:** GitHub has no arbitrary status → logical status = `state` (open/closed) **+ stage
+label** (required to distinguish `qa_gate` from `in_qa`, both `open`). It has native **sub-issues** and
+**dependencies** ("blocked by"); where the repository lacks them (old GitHub Enterprise, feature
+disabled), the fallback is a **cross-reference** in the body of both issues.
+⚠️ Stage labels are **mutually exclusive**: `transition` removes those of the other logical statuses
+when applying the new one.
 
-Em todo comando abaixo, `-R {repo}` com `repo = config.tracker.repo`.
+In every command below, `-R {repo}` with `repo = config.tracker.repo`.
 
 ---
 
@@ -21,66 +21,66 @@ Em todo comando abaixo, `-R {repo}` com `repo = config.tracker.repo`.
 ```bash
 gh issue view {id} -R {repo} --json number,title,body,state,labels,assignees,parent,closedByPullRequestsReferences,issueType
 ```
-- `type` = `bug` se tiver a label `bug` (ou `issueType.name == "Bug"`), senão `story`.
-- `status_lógico` = casar `{state, labels}` contra `config.tracker.status` pelo seletor **mais específico**
-  (o que exige label vence). Ex.: open+`ready-for-qa`→`qa_gate`; open+`in-qa`→`in_qa`; closed→`done`.
-- `parent_id` = `parent.number` (sub-issue de um épico), senão vazio.
-- `branch`, na ordem:
-  1. branch ligada à issue: `gh issue develop --list {id} -R {repo}` (primeira da lista);
-  2. branch do PR que fecha a issue: `closedByPullRequestsReferences[0]` →
+- `type` = `bug` if it has the `bug` label (or `issueType.name == "Bug"`), otherwise `story`.
+- `logical_status` = match `{state, labels}` against `config.tracker.status` by the **most specific** selector
+  (the one requiring a label wins). E.g.: open+`ready-for-qa`→`qa_gate`; open+`in-qa`→`in_qa`; closed→`done`.
+- `parent_id` = `parent.number` (sub-issue of an epic), otherwise empty.
+- `branch`, in order:
+  1. branch linked to the issue: `gh issue develop --list {id} -R {repo}` (first in the list);
+  2. branch of the PR that closes the issue: `closedByPullRequestsReferences[0]` →
      `gh pr view <n> -R {repo} --json headRefName`;
-  3. convenção `{git.branch_prefix[type]}{id}` (ou `issue.branch_field`, se o config definir).
+  3. convention `{git.branch_prefix[type]}{id}` (or `issue.branch_field`, if the config defines it).
 
-### 2. read_blueprint(id)  → `body` da issue (= `fetch().description`).
+### 2. read_blueprint(id)  → the issue's `body` (= `fetch().description`).
 
-### 3. transition(id, alvo)
-- `sel = config.tracker.status[alvo]`.
-- Labels: remover as labels de estágio dos **outros** status lógicos presentes na issue e adicionar
-  `sel.label` (se houver), numa chamada:
+### 3. transition(id, target)
+- `sel = config.tracker.status[target]`.
+- Labels: remove the stage labels of the **other** logical statuses present on the issue and add
+  `sel.label` (if any), in one call:
   `gh issue edit {id} -R {repo} --remove-label <l1> --remove-label <l2> --add-label {sel.label}`.
-- Estado: `sel.state == closed` e issue aberta → `gh issue close {id} -R {repo}`;
-  `sel.state == open` e issue fechada → `gh issue reopen {id} -R {repo}`.
-- Label inexistente no repositório → criar antes: `gh label create {label} -R {repo}` (sem sobrescrever).
+- State: `sel.state == closed` and issue open → `gh issue close {id} -R {repo}`;
+  `sel.state == open` and issue closed → `gh issue reopen {id} -R {repo}`.
+- Label missing in the repository → create it first: `gh label create {label} -R {repo}` (without overwriting).
 
 ### 4. comment(id, md)
-`gh issue comment {id} -R {repo} --body-file -` (Markdown nativo, passado pela entrada padrão).
+`gh issue comment {id} -R {repo} --body-file -` (native Markdown, passed via standard input).
 
 ### 5. create_child_bug(task, title, md)
 ```bash
 gh issue create -R {repo} --title "{title}" --body-file - --label bug --parent {task}
 ```
-- `--parent` faz o bug nascer como **sub-issue da task** (não do épico).
-- Sem suporte a sub-issue → criar sem `--parent` e comentar na task `Bug relacionado: #<n>`; o corpo do bug
-  começa com `Relacionado a #{task}`.
-- Retornar o número criado (a URL que o `gh` imprime termina nele).
+- `--parent` makes the bug a **sub-issue of the task** (not of the epic).
+- No sub-issue support → create without `--parent` and comment on the task `Related bug: #<n>`; the bug's body
+  starts with `Related to #{task}`.
+- Return the created number (the URL `gh` prints ends with it).
 
-### 6. label(id, alvo)  → `gh issue edit {id} -R {repo} --add-label {config.tracker.labels[alvo]}`.
+### 6. label(id, target)  → `gh issue edit {id} -R {repo} --add-label {config.tracker.labels[target]}`.
 
 ---
 
-## Ops de autoria (fábrica PO)
-**Chaves extras:** `tracker.repo`. O GitHub atribui o número (sem next-id manual).
+## Authoring ops (PO factory)
+**Extra keys:** `tracker.repo`. GitHub assigns the number (no manual next-id).
 
 ### A. create_epic(slug, title, body, meta)
-- `gh issue create -R {repo} --title "{title}" --body-file - --label factory-generated` mais
-  `--type {tracker.epic_type}` se configurado, senão `--label epic`.
-- Retornar `epic_ref` = número.
+- `gh issue create -R {repo} --title "{title}" --body-file - --label factory-generated` plus
+  `--type {tracker.epic_type}` if configured, otherwise `--label epic`.
+- Return `epic_ref` = number.
 
 ### B. create_story(title, body, meta)
 - `gh issue create -R {repo} --title "{title}" --body-file - --parent {meta.epic_ref} --label factory-generated`
-  (+ `--label complexity:{x}` quando houver complexidade).
-- Sem sub-issue → criar sem `--parent`; a ligação fica pela tabela do épico (op D) e por
-  `Épico: #{epic_ref}` no topo do corpo.
-- Retornar `story_ref` = número.
+  (+ `--label complexity:{x}` when there is a complexity).
+- No sub-issues → create without `--parent`; the link is kept by the epic's table (op D) and by
+  `Epic: #{epic_ref}` at the top of the body.
+- Return `story_ref` = number.
 
 ### C. link_dependency(story_ref, depends_on_ref)
-- `gh issue edit {story_ref} -R {repo} --add-blocked-by {depends_on_ref}` (o GitHub mostra o inverso,
-  "blocking", na outra issue).
-- Sem dependência nativa → acrescentar `Depende de #{depends_on_ref}` no corpo da story e
-  `Bloqueia #{story_ref}` no corpo da dependência.
+- `gh issue edit {story_ref} -R {repo} --add-blocked-by {depends_on_ref}` (GitHub shows the inverse,
+  "blocking", on the other issue).
+- No native dependency → append `Depends on #{depends_on_ref}` to the story's body and
+  `Blocks #{story_ref}` to the dependency's body.
 
 ### D. update_epic(epic_ref, stories[])
-- Reescrever só a seção de stories do corpo do épico (ler com `gh issue view --json body`, editar,
-  `gh issue edit {epic_ref} -R {repo} --body-file -`): tabela `| # | Título | Complexidade | Depende de |`
-  com `#<n>` em cada linha. As sub-issues já aparecem no painel do épico; a tabela garante o índice
-  mesmo sem sub-issues.
+- Rewrite only the stories section of the epic's body (read with `gh issue view --json body`, edit,
+  `gh issue edit {epic_ref} -R {repo} --body-file -`): table `| # | Title | Complexity | Depends on |`
+  with `#<n>` on each row. Sub-issues already show up in the epic's panel; the table guarantees the index
+  even without sub-issues.

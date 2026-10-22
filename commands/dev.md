@@ -1,124 +1,127 @@
 ---
-description: Factory DEV — leva uma task do backlog ao handoff de QA
-argument-hint: <task-id> [--model papel=valor]
+description: Factory DEV — takes a task from the backlog to the QA handoff
+argument-hint: <task-id> [--model role=value]
 ---
-# Factory DEV — Orquestrador da fábrica DEV (genérico/config-driven)
+# Factory DEV — Orchestrator of the DEV factory (generic/config-driven)
 
-Leva uma task do backlog ao handoff de QA: prepara o ambiente, implementa via **agents isolados**
-(`factory:dev-*`), revisa, valida e faz commit/handoff. **Nada específico de projeto**: tracker, paths, stack,
-branch e mecânica de commit vêm do `factory.config.md`. Tracker via as ops do `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md`.
+Takes a task from the backlog to the QA handoff: prepares the environment, implements through **isolated agents**
+(`factory:dev-*`), reviews, validates and does the commit/handoff. **Nothing project-specific**: tracker, paths, stack,
+branch and commit mechanics come from `factory.config.md`. Tracker through the ops of `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md`.
 
-> **Você é o único que fala com o tracker e com o humano.** Os workers são agents (`agents/dev-*.md` do plugin):
-> não têm driver de tracker nem canal para perguntar. Você resolve a task, passa os campos no briefing e
-> trata os retornos `STATUS:` deles.
+> **You are the only one who talks to the tracker and to the human.** The workers are agents (`agents/dev-*.md` in the plugin):
+> they have no tracker driver and no channel to ask questions. You resolve the task, pass the fields in the briefing and
+> handle their `STATUS:` returns.
 
 ## Task ID: $ARGUMENTS
-Se vazio, pergunte qual task processar (formato em `config.issue.id_regex`).
+If empty, ask which task to process (format in `config.issue.id_regex`).
 
 ---
 
-## ETAPA 0 — Preparação
-1. **Config:** leia `docs/factory.config.md`; valide as **chaves da fábrica DEV** (`${CLAUDE_PLUGIN_ROOT}/CONTRACT.md`).
-   Faltou/`TBD` → **PARE**. Carregue `${CLAUDE_PLUGIN_ROOT}/drivers/trackers/{config.tracker.driver}.md`.
-2. **Task + gate:** `task = tracker.fetch($ARGUMENTS)`. Status deve ser `backlog` ou `in_progress`
-   (≠ → **PARE**/ALERTE: pode ser retrabalho ou retorno de QA). `nome = task.parent_id ? kebab(parent) : $ARGUMENTS`;
-   `DIR = docs/initiatives/{nome}/`; `mkdir -p {DIR}`.
-3. **Branch:** `BRANCH = task.branch` (driver-resolved; ex. ClickUp = `CU-{clickup_id}`, compartilhada entre Stories
-   do mesmo épico; PHCS = `{branch_prefix}{slug}`). **Não** assuma `{prefix}{id}`.
-4. **Repos afetados:** detecte backend/frontend pelo corpo da task (paths/keywords das convenções de
-   `config.stack` + `config.workspace.repos`). Nenhum detectado → **PERGUNTE** ao humano.
-5. **Subir a stack** se `config.docker.ensure_up: true` (`docker compose -f {config.docker.compose} up -d` + health em `config.env`).
-6. **Stash WIP** em cada repo afetado (`git stash push -u -m "auto-stash {id}"`) — preserva, não descarta.
-7. **Transição:** `tracker.transition($ARGUMENTS → in_progress)`.
-8. **Branch em cada repo afetado:** `git fetch {config.git.remote}`; checkout de `BRANCH` se existir
-   (local/origin), senão **criar a partir de `config.git.dev_base`** (⚠️ `dev_base`, não `base_branch`).
+## STEP 0 — Preparation
+1. **Config:** read `docs/factory.config.md`; validate the **DEV factory keys** (`${CLAUDE_PLUGIN_ROOT}/CONTRACT.md`).
+   Missing/`TBD` → **STOP**. Load `${CLAUDE_PLUGIN_ROOT}/drivers/trackers/{config.tracker.driver}.md`.
+2. **Task + gate:** `task = tracker.fetch($ARGUMENTS)`. Status must be `backlog` or `in_progress`
+   (otherwise → **STOP**/WARN: it may be rework or a return from QA). `name = task.parent_id ? kebab(parent) : $ARGUMENTS`;
+   `DIR = docs/initiatives/{name}/`; `mkdir -p {DIR}`.
+3. **Branch:** `BRANCH = task.branch` (driver-resolved; e.g. ClickUp = `CU-{clickup_id}`, shared between Stories
+   of the same epic; PHCS = `{branch_prefix}{slug}`). Do **not** assume `{prefix}{id}`.
+4. **Affected repos:** detect backend/frontend from the task body (paths/keywords from the conventions in
+   `config.stack` + `config.workspace.repos`). None detected → **ASK** the human.
+5. **Bring up the stack** if `config.docker.ensure_up: true` (`docker compose -f {config.docker.compose} up -d` + health in `config.env`).
+6. **Stash WIP** in each affected repo (`git stash push -u -m "auto-stash {id}"`) — preserves it, does not discard it.
+7. **Transition:** `tracker.transition($ARGUMENTS → in_progress)`.
+8. **Branch in each affected repo:** `git fetch {config.git.remote}`; checkout `BRANCH` if it exists
+   (local/origin), otherwise **create it from `config.git.dev_base`** (⚠️ `dev_base`, not `base_branch`).
+9. **Output language:** write every artifact, tracker comment, MR/PR comment and message to the user in
+   `config.language` (e.g. `pt-BR`, `en`); if the key is absent, use the language the user is writing in. These
+   instructions are in English; the output is not.
 
-### Briefing comum (monte uma vez; entra no prompt de todo agent)
+### Common briefing (build it once; it goes into every agent's prompt)
 ```
 task_id: $ARGUMENTS | config_path: docs/factory.config.md | initiative_dir: {DIR}
-branch: {BRANCH} | repos: {afetados, com path de cada um}
+branch: {BRANCH} | repos: {affected, with each one's path}
 task: type={task.type} parent_id={task.parent_id} complexity={task.complexity}
-      depends_on={task.depends_on} description=<corpo da task>
+      depends_on={task.depends_on} description=<task body>
 ```
 
 
-**Modelos:** resolva o modelo de cada worker pela ordem do `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md` → "Modelos por
-papel" (arg `--model papel=valor` → `config.models.<papel>` → `config.models.default` → padrão do plugin) e
-passe-o no parâmetro `model` de **toda** subida de worker. Tire os `--model ...` do `$ARGUMENTS`
-antes de usá-lo como ID/iniciativa. Valor fora de `fable|opus|sonnet|haiku|inherit` → **PARE**.
+**Models:** resolve each worker's model following the order in `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md` → "Models per
+role" (arg `--model role=value` → `config.models.<role>` → `config.models.default` → plugin default) and
+pass it in the `model` parameter of **every** worker launch. Strip the `--model ...` from `$ARGUMENTS`
+before using it as ID/initiative. Value outside `fable|opus|sonnet|haiku|inherit` → **STOP**.
 
 ---
 
-## PIPELINE (agents; cada um em contexto próprio)
-Ordem-base: **tech-lead → developer(s) → [doc-sync] → code-review → self-test → [doc-sync]**.
-O **doc-sync** entra no ponto definido por `config.dev.doc_sync_order` (`before_review` ou `after_self_test`).
+## PIPELINE (agents; each in its own context)
+Base order: **tech-lead → developer(s) → [doc-sync] → code-review → self-test → [doc-sync]**.
+**doc-sync** comes in at the point defined by `config.dev.doc_sync_order` (`before_review` or `after_self_test`).
 
-**Protocolo de retorno** — todo agent devolve `STATUS:`. Trate assim, sempre:
-| STATUS | Ação do orquestrador |
+**Return protocol** — every agent returns `STATUS:`. Handle it like this, always:
+| STATUS | Orchestrator action |
 |---|---|
-| `OK` / `PASSED` / `APPROVED` | segue para a próxima etapa |
-| `APPROVED_WITH_NOTES` | segue; carregue os 🟡 para o relatório final |
-| `REJECTED` / `FAILED` | volta ao developer com o relatório; **conta 1 retry** (`config.dev.retries`) |
-| `BLOCKED` | **PARE e PERGUNTE ao humano** usando `blocked_reason` (o agent não tem canal) |
-| `UPSTREAM_BUG` | escale ao humano; **não** consome retry |
+| `OK` / `PASSED` / `APPROVED` | move on to the next step |
+| `APPROVED_WITH_NOTES` | move on; carry the 🟡 into the final report |
+| `REJECTED` / `FAILED` | back to the developer with the report; **counts 1 retry** (`config.dev.retries`) |
+| `BLOCKED` | **STOP and ASK the human** using `blocked_reason` (the agent has no channel) |
+| `UPSTREAM_BUG` | escalate to the human; does **not** consume a retry |
 
-### ETAPA 1 — Tech Lead (agent `factory:dev-tech-lead`) → `{DIR}/tech-lead-$ARGUMENTS.md`
-Prompt = briefing comum. **Gate:** artefato salvo (mapa de impacto p/ Story, root-cause p/ Bug) e
-`scope` retornado (`backend`/`frontend`/`ambos`).
+### STEP 1 — Tech Lead (agent `factory:dev-tech-lead`) → `{DIR}/tech-lead-$ARGUMENTS.md`
+Prompt = common briefing. **Gate:** artifact saved (impact map for a Story, root cause for a Bug) and
+`scope` returned (`backend`/`frontend`/`both`).
 
-### ETAPA 2 — Developer (agent `factory:dev-developer`) → código nos repos
-Prompt = briefing comum + `plan_path: {DIR}/tech-lead-$ARGUMENTS.md` + `scope` + `repo_path`.
-- **`config.dev.developer_split: true`** e `scope == ambos` → suba **duas instâncias na mesma mensagem**
-  (uma `scope: backend`, outra `scope: frontend`), rodando em paralelo em repos distintos.
-- **`developer_split: false`** → uma instância com `scope: ambos`.
-- **Re-run** (após REJECTED/FAILED) → suba **só o `scope_to_fix`**, com `review_report` no prompt.
+### STEP 2 — Developer (agent `factory:dev-developer`) → code in the repos
+Prompt = common briefing + `plan_path: {DIR}/tech-lead-$ARGUMENTS.md` + `scope` + `repo_path`.
+- **`config.dev.developer_split: true`** and `scope == both` → launch **two instances in the same message**
+  (one `scope: backend`, the other `scope: frontend`), running in parallel in separate repos.
+- **`developer_split: false`** → one instance with `scope: both`.
+- **Re-run** (after REJECTED/FAILED) → launch **only the `scope_to_fix`**, with `review_report` in the prompt.
 
-**Gate:** `git diff --stat` coerente com o plano em cada repo. Developer **não** toca `docs/` nem commita.
+**Gate:** `git diff --stat` consistent with the plan in each repo. The developer does **not** touch `docs/` nor commit.
 
-### Doc Sync (posição = `config.dev.doc_sync_order`) → `{DIR}/doc-sync-report-$ARGUMENTS.md`
-Agent `factory:dev-doc-sync`; prompt = briefing comum. Se `config.dev.commit.by == doc_sync`, **ele commita**
-(código+docs + ponteiro de submódulo); senão só edita no disco.
+### Doc Sync (position = `config.dev.doc_sync_order`) → `{DIR}/doc-sync-report-$ARGUMENTS.md`
+Agent `factory:dev-doc-sync`; prompt = common briefing. If `config.dev.commit.by == doc_sync`, **it commits**
+(code+docs + submodule pointer); otherwise it only edits on disk.
 
-### ETAPA 3 — Code Review (agent `factory:dev-code-reviewer`, até `config.dev.retries` tentativas)
-Prompt = briefing comum + `plan_path` + `attempt` + `developer_notes`.
-`REJECTED` → ETAPA 2 com `scope_to_fix` + `review_report`. `rerun_doc_sync: sim` → re-rode o doc-sync.
-Esgotou retries → escale e **PARE**.
+### STEP 3 — Code Review (agent `factory:dev-code-reviewer`, up to `config.dev.retries` attempts)
+Prompt = common briefing + `plan_path` + `attempt` + `developer_notes`.
+`REJECTED` → STEP 2 with `scope_to_fix` + `review_report`. `rerun_doc_sync: yes` → re-run doc-sync.
+Retries exhausted → escalate and **STOP**.
 
-### ETAPA 4 — Self Test (agent `factory:dev-self-test`, até `config.dev.retries` tentativas)
-Prompt = briefing comum + `plan_path`.
-`FAILED` → ETAPA 2 com `scope_to_fix` + `failure`. Esgotou retries → escale e **PARE**.
-**Publique** o `self_test_section` devolvido na task: `tracker.comment($ARGUMENTS, self_test_section)`
-(ou `tracker.append`, conforme o driver) — o agent não escreve no tracker.
+### STEP 4 — Self Test (agent `factory:dev-self-test`, up to `config.dev.retries` attempts)
+Prompt = common briefing + `plan_path`.
+`FAILED` → STEP 2 with `scope_to_fix` + `failure`. Retries exhausted → escalate and **STOP**.
+**Publish** the returned `self_test_section` on the task: `tracker.comment($ARGUMENTS, self_test_section)`
+(or `tracker.append`, depending on the driver) — the agent does not write to the tracker.
 
 ---
 
-## ETAPA 5 — Finalização (commit + handoff)
-Conforme `config.dev.commit`:
-- **`by: pipeline`**: commit seletivo em cada repo afetado com `config.git.commit_format`
-  (`{key}`→$ARGUMENTS, prefixo por `task.type` via `config.git.branch_prefix`). Doc-sync já editou (não commitou).
-- **`by: doc_sync`** (PHCS): o doc-sync já commitou código+docs e bumpou o ponteiro do submódulo.
-- **Push** conforme `config.dev.commit.push`: `manual` → **não** faz push (skill `/push` à parte, após QA);
-  `mr` → abre Merge Request.
-- **Transição:** `tracker.transition($ARGUMENTS → qa_gate)` (handoff p/ a fábrica QA).
-- Restaure o WIP stashado se desejar (`git stash list | grep {id}`).
+## STEP 5 — Wrap-up (commit + handoff)
+According to `config.dev.commit`:
+- **`by: pipeline`**: selective commit in each affected repo with `config.git.commit_format`
+  (`{key}`→$ARGUMENTS, prefix by `task.type` via `config.git.branch_prefix`). Doc-sync has already edited (not committed).
+- **`by: doc_sync`** (PHCS): doc-sync has already committed code+docs and bumped the submodule pointer.
+- **Push** according to `config.dev.commit.push`: `manual` → does **not** push (separate `/push` skill, after QA);
+  `mr` → opens a Merge Request.
+- **Transition:** `tracker.transition($ARGUMENTS → qa_gate)` (handoff to the QA factory).
+- Restore the stashed WIP if desired (`git stash list | grep {id}`).
 
-### Relatório final
+### Final report
 ```markdown
-## Pipeline DEV — $ARGUMENTS — {data} — {config.project}
-Tipo: {task.type} | Branch: {BRANCH} | Repos: backend/frontend | Status: backlog → in_progress → qa_gate
-| Etapa | Status | Detalhe |
+## DEV Pipeline — $ARGUMENTS — {date} — {config.project}
+Type: {task.type} | Branch: {BRANCH} | Repos: backend/frontend | Status: backlog → in_progress → qa_gate
+| Step | Status | Detail |
 | 0 Prep · 1 Tech Lead · 2 Developer · Doc-Sync · 3 Review · 4 Self-Test · 5 Commit/Handoff |
-Ressalvas 🟡 pendentes: {de APPROVED_WITH_NOTES}
-Próximo: task em `qa_gate` → rodar a fábrica QA (`/factory:qa $ARGUMENTS`).
+Pending 🟡 caveats: {from APPROVED_WITH_NOTES}
+Next: task in `qa_gate` → run the QA factory (`/factory:qa $ARGUMENTS`).
 ```
 
-## REGRAS
-- Cada worker é um **agent** em contexto próprio; o corpo do papel é o system prompt dele — **não** repita as
-  regras do papel no prompt, passe só o briefing (task/paths/scope).
-- **Só você** fala com tracker e humano. `BLOCKED` de qualquer agent = pergunta ao humano, não improvise a resposta.
-- Etapa falhou `config.dev.retries`× → **PARE** e escale. `UPSTREAM_BUG` não consome retry.
-- Developer **NUNCA** edita `docs/` (doc-sync faz). Code-reviewer pode pedir re-run do doc-sync.
-- **NUNCA** commit/branch em `config.git.protected`. **NUNCA** `push --force` (o `/push` usa `--force-with-lease`).
-- Branch de dev sai de `config.git.dev_base`; pode ser **compartilhada** (vários commits acumulam) — ver `issue.branch_field`.
-- Push não é automático quando `commit.push == manual`. Movimento `qa_gate → in_qa → done` é da fábrica QA.
-- Em qualquer dúvida, **pergunte ao humano**.
+## RULES
+- Each worker is an **agent** in its own context; the role body is its system prompt — do **not** repeat the
+  role's rules in the prompt, pass only the briefing (task/paths/scope).
+- **Only you** talk to the tracker and the human. `BLOCKED` from any agent = a question to the human, do not improvise the answer.
+- Step failed `config.dev.retries`× → **STOP** and escalate. `UPSTREAM_BUG` does not consume a retry.
+- The developer **NEVER** edits `docs/` (doc-sync does). The code-reviewer may request a doc-sync re-run.
+- **NEVER** commit/branch on `config.git.protected`. **NEVER** `push --force` (`/push` uses `--force-with-lease`).
+- The dev branch comes from `config.git.dev_base`; it may be **shared** (several commits accumulate) — see `issue.branch_field`.
+- Push is not automatic when `commit.push == manual`. Moving `qa_gate → in_qa → done` is the QA factory's job.
+- When in any doubt, **ask the human**.

@@ -48,8 +48,8 @@ flowchart TD
 |---|---|
 | inferred safely | the concrete value |
 | guess you confirmed | the concrete value |
-| unconfirmed guess | `TBD   # sugestão: "X" — evidência: package.json:dependencies.x, …` |
-| no evidence | `TBD   # sem evidência` |
+| unconfirmed guess | `TBD   # suggestion: "X" — evidence: package.json:dependencies.x, …` |
+| no evidence | `TBD   # no evidence` |
 
 When a factory finds a `TBD` with a suggestion, it stops and **shows the suggestion**, so you only need to confirm it.
 

@@ -52,7 +52,7 @@ code diverges from the plan, it tests what was implemented and documents the div
 - isolates each test with the stack's mechanism (transaction, ephemeral database or cleanup in the teardown);
 - one scenario from the plan = one test, with the ID in the name (`I-01: …`);
 - **never** mocks the ORM or guesses a field name; a dispatched job or event is tested with the stack's *fake*;
-- found a bug while reading the code? It marks `// BUG POTENCIAL` and writes the test anyway.
+- found a bug while reading the code? It marks `// POTENTIAL BUG` and writes the test anyway.
 
 ### 2b. QA Frontend: E2E with real selectors
 
@@ -78,7 +78,7 @@ Reads routes, guards, templates and components before writing and builds a **tab
 4. **Smoke test:** the project's script or a login plus an endpoint. If it fails, it stops.
 5. **Runs** `docker.run` (and `docker.run_frontend`, if it exists, in parallel) with evidence mode on,
    *slow motion* and the resolution from the config.
-6. **Collects** videos, screenshots and results in `docs/initiatives/<name>/evidencias/<date-time>/`.
+6. **Collects** videos, screenshots and results in `docs/initiatives/<name>/evidence/<date-time>/`.
 7. **Reports:**
     - **everything passed:** comments the report, moves to **`done`** and applies the `approved` label;
     - **there was a failure:** opens **one bug per failed test**, linked to the task (not to the epic), and comments the summary. The

@@ -1,162 +1,166 @@
 ---
-description: Factory QA — plano, testes back/front, execução e evidências de uma task
-argument-hint: <task-id> [--model papel=valor]
+description: Factory QA — plan, back/front tests, execution and evidence for a task
+argument-hint: <task-id> [--model role=value]
 ---
-# Factory QA — Orquestrador da fábrica QA (genérico/config-driven)
+# Factory QA — Orchestrator of the QA factory (generic/config-driven)
 
-Executa o pipeline QA completo para uma task. **Não contém nada específico de projeto**:
-todos os bindings (tracker, paths, stack, docker, branches) vêm do `factory.config.md` do projeto.
+Runs the complete QA pipeline for a task. **Contains nothing project-specific**:
+all bindings (tracker, paths, stack, docker, branches) come from the project's `factory.config.md`.
 
-> **ESCOPO:** este comando é o **orquestrador**; os 4 sub-agents são workers do plugin em
-> `workers/`: `qa-planner.md`, `qa-backend.md`, `qa-frontend.md`, `qa-runner.md`. Cada ETAPA abaixo
-> delega ao worker correspondente (o bloco aqui é a instrução curta; o detalhe vive no worker).
+> **SCOPE:** this command is the **orchestrator**; the 4 sub-agents are plugin workers in
+> `workers/`: `qa-planner.md`, `qa-backend.md`, `qa-frontend.md`, `qa-runner.md`. Each STEP below
+> delegates to the corresponding worker (the block here is the short instruction; the detail lives in the worker).
 
 ## Task ID: $ARGUMENTS
 
-Se nenhum argumento foi passado, pergunte qual task testar (formato em `config.issue.id_regex`).
+If no argument was passed, ask which task to test (format in `config.issue.id_regex`).
 
 ---
 
-## ETAPA 0 — Carregar e validar config (OBRIGATÓRIO, antes de tudo)
+## STEP 0 — Load and validate config (MANDATORY, before anything else)
 
-1. Leia o **`factory.config.md`** do projeto (em `docs/factory.config.md` na raiz do repo).
-   - Se não existir: **PARE** — "Rode `/factory:init` para criar o config deste projeto."
-2. **Valide as chaves obrigatórias** (lista em `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md`). Se qualquer uma faltar
-   **ou** tiver valor `TBD`: **PARE** e diga exatamente qual chave preencher.
-3. Confirme que `config.tracker.status.qa_gate` ≠ `config.tracker.status.in_qa` (seletores distintos).
-   Se forem iguais: **PARE** — "qa_gate e in_qa precisam de seletor distinto (ver CONTRACT)."
-4. Carregue os bindings. Daqui pra frente **nunca** use valor fixo — sempre `config.<chave>`.
-5. **Driver de E2E:** `<nome>` = primeira palavra de `config.stack.frontend.e2e` em minúsculas (ausente →
-   `cypress`). Confirme que `${CLAUDE_PLUGIN_ROOT}/drivers/e2e/<nome>.md` existe; senão **PARE** ("crie o driver").
-   Os workers de frontend e runner o carregam sozinhos.
-6. **Tracker Driver:** carregue `${CLAUDE_PLUGIN_ROOT}/drivers/trackers/{config.tracker.driver}.md`. Toda chamada `tracker.<op>(...)`
-   abaixo roda por esse driver, conforme `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md`. O comando não conhece o tracker.
+1. Read the project's **`factory.config.md`** (at `docs/factory.config.md` in the repo root).
+   - If it does not exist: **STOP** — "Run `/factory:init` to create this project's config."
+2. **Validate the mandatory keys** (list in `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md`). If any of them is missing
+   **or** has the value `TBD`: **STOP** and say exactly which key to fill in.
+3. Confirm that `config.tracker.status.qa_gate` ≠ `config.tracker.status.in_qa` (distinct selectors).
+   If they are equal: **STOP** — "qa_gate and in_qa need distinct selectors (see CONTRACT)."
+4. Load the bindings. From here on **never** use a hardcoded value — always `config.<key>`.
+5. **E2E driver:** `<name>` = first word of `config.stack.frontend.e2e` in lowercase (absent →
+   `cypress`). Confirm that `${CLAUDE_PLUGIN_ROOT}/drivers/e2e/<name>.md` exists; otherwise **STOP** ("create the driver").
+   The frontend and runner workers load it on their own.
+6. **Tracker Driver:** load `${CLAUDE_PLUGIN_ROOT}/drivers/trackers/{config.tracker.driver}.md`. Every `tracker.<op>(...)` call
+   below runs through that driver, as per `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md`. The command does not know the tracker.
 
-### Determinar pasta da iniciativa
+### Determine the initiative folder
 - `task = tracker.fetch($ARGUMENTS)`
-- Se `task.parent_id` → `docs/initiatives/{nome-normalizado-do-pai}/`; senão → `docs/initiatives/$ARGUMENTS/`
-- `mkdir -p`. **TODOS os sub-agents salvam aqui** — nunca em `docs/` raiz.
+- If `task.parent_id` → `docs/initiatives/{normalized-parent-name}/`; otherwise → `docs/initiatives/$ARGUMENTS/`
+- `mkdir -p`. **ALL sub-agents save here** — never in the `docs/` root.
 
-### Gate de status
-- Confirme `task.status_lógico == qa_gate`. Se não, **PARE** e reporte (não re-rode task já em QA).
+### Status gate
+- Confirm `task.logical_status == qa_gate`. If not, **STOP** and report (do not re-run a task already in QA).
+
+**Output language:** write every artifact, tracker comment, MR/PR comment and message to the user in
+`config.language` (e.g. `pt-BR`, `en`); if the key is absent, use the language the user is writing in. These
+instructions are in English; the output is not.
 
 
-**Modelos:** resolva o modelo de cada worker pela ordem do `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md` → "Modelos por
-papel" (arg `--model papel=valor` → `config.models.<papel>` → `config.models.default` → padrão do plugin) e
-passe-o no parâmetro `model` de **toda** subida de worker. Tire os `--model ...` do `$ARGUMENTS`
-antes de usá-lo como ID/iniciativa. Valor fora de `fable|opus|sonnet|haiku|inherit` → **PARE**.
-
----
-
-## ETAPA 1 — QA Planner (sub-agent)
-
-```
-Você é o QA Planner da {config.company}. Leia e siga `${CLAUDE_PLUGIN_ROOT}/workers/qa-planner.md`.
-Task: $ARGUMENTS  |  Pasta: docs/initiatives/{nome}/  |  Config: docs/factory.config.md | Plugin: ${CLAUDE_PLUGIN_ROOT}
-
-1. tracker.fetch($ARGUMENTS) — confirme status_lógico == qa_gate
-2. tracker.transition($ARGUMENTS → in_qa) + tracker.comment("iniciando QA")
-3. Valide a branch da task ({task.branch}) vs {config.git.base_branch}
-4. Leia o blueprint (task.description / tracker.read_blueprint)
-5. git diff --name-only {config.git.base_branch}...{task.branch}   (SÓ listar arquivos)
-6. Gere o plano → salve em docs/initiatives/{nome}/qa-plan-$ARGUMENTS.md
-7. tracker.comment($ARGUMENTS, plano)
-```
-**Validação:** plano salvo + postado + task em `in_qa`.
-
-> Nota: o diff usa `{task.branch}` (resolvido pelo driver), **não** `{prefix}{id}` — trackers como o
-> markdown/ClickUp podem derivar a branch de `CU-{clickup_id}`, não da chave.
+**Models:** resolve each worker's model following the order in `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md` → "Models per
+role" (arg `--model role=value` → `config.models.<role>` → `config.models.default` → plugin default) and
+pass it in the `model` parameter of **every** worker launch. Strip the `--model ...` from `$ARGUMENTS`
+before using it as ID/initiative. Value outside `fable|opus|sonnet|haiku|inherit` → **STOP**.
 
 ---
 
-## ETAPA 2 — QA Backend + QA Frontend (EM PARALELO)
+## STEP 1 — QA Planner (sub-agent)
+
+```
+You are the QA Planner of {config.company}. Read and follow `${CLAUDE_PLUGIN_ROOT}/workers/qa-planner.md`.
+Task: $ARGUMENTS  |  Folder: docs/initiatives/{name}/  |  Config: docs/factory.config.md | Plugin: ${CLAUDE_PLUGIN_ROOT}
+
+1. tracker.fetch($ARGUMENTS) — confirm logical_status == qa_gate
+2. tracker.transition($ARGUMENTS → in_qa) + tracker.comment("starting QA")
+3. Validate the task branch ({task.branch}) vs {config.git.base_branch}
+4. Read the blueprint (task.description / tracker.read_blueprint)
+5. git diff --name-only {config.git.base_branch}...{task.branch}   (ONLY list files)
+6. Generate the plan → save to docs/initiatives/{name}/qa-plan-$ARGUMENTS.md
+7. tracker.comment($ARGUMENTS, plan)
+```
+**Validation:** plan saved + posted + task in `in_qa`.
+
+> Note: the diff uses `{task.branch}` (resolved by the driver), **not** `{prefix}{id}` — trackers such as
+> markdown/ClickUp may derive the branch from `CU-{clickup_id}`, not from the key.
+
+---
+
+## STEP 2 — QA Backend + QA Frontend (IN PARALLEL)
 
 **Backend:**
 ```
-Você é o QA Backend da {config.company}. Leia e siga `${CLAUDE_PLUGIN_ROOT}/workers/qa-backend.md`.
+You are the QA Backend of {config.company}. Read and follow `${CLAUDE_PLUGIN_ROOT}/workers/qa-backend.md`.
 Task: $ARGUMENTS  |  Config: docs/factory.config.md | Plugin: ${CLAUDE_PLUGIN_ROOT}
-1. Leia docs/initiatives/{nome}/qa-plan-$ARGUMENTS.md
-2. Helpers do projeto: {config.tests.backend_helpers}
-3. Código REAL em {config.workspace.root}/{config.workspace.repos.backend.path}  (NÃO supor)
-4. Compare plano × código real — documente divergências
-5. Crie testes em {config.tests.layout.backend}  (framework: {config.stack.backend.test})
-6. 1 cenário = 1 teste; cleanup completo no teardown
+1. Read docs/initiatives/{name}/qa-plan-$ARGUMENTS.md
+2. Project helpers: {config.tests.backend_helpers}
+3. REAL code in {config.workspace.root}/{config.workspace.repos.backend.path}  (do NOT assume)
+4. Compare plan × real code — document divergences
+5. Create tests in {config.tests.layout.backend}  (framework: {config.stack.backend.test})
+6. 1 scenario = 1 test; full cleanup in teardown
 ```
 **Frontend:**
 ```
-Você é o QA Frontend da {config.company}. Leia e siga `${CLAUDE_PLUGIN_ROOT}/workers/qa-frontend.md`.
+You are the QA Frontend of {config.company}. Read and follow `${CLAUDE_PLUGIN_ROOT}/workers/qa-frontend.md`.
 Task: $ARGUMENTS  |  Config: docs/factory.config.md | Plugin: ${CLAUDE_PLUGIN_ROOT}
-1. Leia o plano
-2. Custom commands do projeto: {config.tests.frontend_cmds}
-3. Código REAL (rotas/componentes) em {config.workspace.root}/{config.workspace.repos.frontend.path}
-4. Tabela de seletores reais ANTES de escrever
-5. Crie E2E em {config.tests.layout.frontend}  (e2e: {config.stack.frontend.e2e})
-6. 1 cenário = 1 teste; cleanup via API no after
+1. Read the plan
+2. Project custom commands: {config.tests.frontend_cmds}
+3. REAL code (routes/components) in {config.workspace.root}/{config.workspace.repos.frontend.path}
+4. Table of real selectors BEFORE writing
+5. Create E2E in {config.tests.layout.frontend}  (e2e: {config.stack.frontend.e2e})
+6. 1 scenario = 1 test; cleanup via API in the after hook
 ```
-**Validação:** ambos os arquivos de teste criados.
+**Validation:** both test files created.
 
 ---
 
-## ETAPA 3 — QA Runner (Docker + Execução + Evidências)
+## STEP 3 — QA Runner (Docker + Execution + Evidence)
 
 ```
-Você é o QA Runner da {config.company}. Leia e siga `${CLAUDE_PLUGIN_ROOT}/workers/qa-runner.md`.
+You are the QA Runner of {config.company}. Read and follow `${CLAUDE_PLUGIN_ROOT}/workers/qa-runner.md`.
 Task: $ARGUMENTS  |  Config: docs/factory.config.md | Plugin: ${CLAUDE_PLUGIN_ROOT}
 
-FASE 1 — Preparar:
-1. git pull da branch {task.branch}; valide vs {config.git.base_branch}
-2. Resolver tests dir: TDIR = (config.tests.dir == "auto" ? (existe qa-tests/ ? qa-tests : tests) : config.tests.dir)
-3. Serviços online: curl {config.env.api_url} e {config.env.app_url}
-4. Smoke ({config.tests.smoke_script} se definido; senão login + 1 endpoint via {config.env.api_url})
-5. Se falhar: tracker.comment(falha) e PARE
+PHASE 1 — Prepare:
+1. git pull of branch {task.branch}; validate vs {config.git.base_branch}
+2. Resolve tests dir: TDIR = (config.tests.dir == "auto" ? (qa-tests/ exists ? qa-tests : tests) : config.tests.dir)
+3. Services online: curl {config.env.api_url} and {config.env.app_url}
+4. Smoke ({config.tests.smoke_script} if defined; otherwise login + 1 endpoint via {config.env.api_url})
+5. If it fails: tracker.comment(failure) and STOP
 
-FASE 2 — Executar:
+PHASE 2 — Execute:
 6. cd {TDIR} && {config.docker.run}
-7. Evidências: {config.evidence.mode_var}=true, {config.evidence.slowmo_var}={config.evidence.slowmo}, {config.evidence.resolution}
-8. Colete vídeos/screenshots/logs
+7. Evidence: {config.evidence.mode_var}=true, {config.evidence.slowmo_var}={config.evidence.slowmo}, {config.evidence.resolution}
+8. Collect videos/screenshots/logs
 
-FASE 3 — Reportar:
-9. Relatório (tabela por cenário + métricas)
-10. ALL PASSED → tracker.comment(relatório) + tracker.transition(→ done) + tracker.label(approved)
-11. FAILED → para cada falha: tracker.create_child_bug(task=$ARGUMENTS, título, corpo) + comentário consolidado
-12. Salve em docs/initiatives/{nome}/qa-report-$ARGUMENTS.md
+PHASE 3 — Report:
+9. Report (table per scenario + metrics)
+10. ALL PASSED → tracker.comment(report) + tracker.transition(→ done) + tracker.label(approved)
+11. FAILED → for each failure: tracker.create_child_bug(task=$ARGUMENTS, title, body) + consolidated comment
+12. Save to docs/initiatives/{name}/qa-report-$ARGUMENTS.md
 
-FASE 4 — Limpeza: derrubar containers se aplicável.
+PHASE 4 — Cleanup: tear down containers if applicable.
 ```
 
 ---
 
-## ETAPA 4 — Relatório Final
+## STEP 4 — Final Report
 
 ```markdown
 ## QA Pipeline — $ARGUMENTS — {config.project}
 
-| Etapa | Status | Output |
-|-------|--------|--------|
-| Planner | ✅ | plano salvo + postado |
-| Backend | ✅ | X testes |
-| Frontend | ✅ | Y testes |
+| Step | Status | Output |
+|------|--------|--------|
+| Planner | ✅ | plan saved + posted |
+| Backend | ✅ | X tests |
+| Frontend | ✅ | Y tests |
 | Runner | ✅/❌ | Z passed, W failed |
 
-Resultado: ✅ DONE / ❌ W BUGS
-- DONE → task em `done`, vídeos nas evidências, aprovado p/ merge
-- BUGS → W bugs criados (ligados a $ARGUMENTS), task permanece em `in_qa`
+Result: ✅ DONE / ❌ W BUGS
+- DONE → task in `done`, videos in the evidence, approved for merge
+- BUGS → W bugs created (linked to $ARGUMENTS), task stays in `in_qa`
 ```
 
 ---
 
-## TRACKER (driver-based — ver `drivers/trackers/`)
+## TRACKER (driver-based — see `drivers/trackers/`)
 
-Este comando **não** mapeia tracker. Chama as 6 ops abstratas (`fetch`, `read_blueprint`,
-`transition`, `comment`, `create_child_bug`, `label`) do `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md`; o driver de
-`config.tracker.driver` traduz. Drivers: `jira`, `clickup`, `gitlab`, `github`, `markdown`.
-**Adicionar tracker = criar `drivers/trackers/<nome>.md` + setar `tracker.driver`. Nenhuma linha daqui muda.**
+This command does **not** map the tracker. It calls the 6 abstract ops (`fetch`, `read_blueprint`,
+`transition`, `comment`, `create_child_bug`, `label`) of `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md`; the driver in
+`config.tracker.driver` translates them. Drivers: `jira`, `clickup`, `gitlab`, `github`, `markdown`.
+**Adding a tracker = create `drivers/trackers/<name>.md` + set `tracker.driver`. Not a single line here changes.**
 
-## REGRAS (genéricas)
-- ETAPA 0 (carregar + **validar** config) sempre primeiro; sem config válido, não roda.
-- Artefatos **sempre** em `docs/initiatives/{nome}/`.
-- Cada sub-agent em **próprio contexto** (Task). Backend e Frontend em **paralelo**.
-- Planner falhou (status ≠ qa_gate) → **PARE**. Testes não criados → **PARE** antes do runner.
-- Serviços offline / smoke falhou → **não rodar testes**, só comentar.
-- Bugs criados **automaticamente** via `tracker.create_child_bug` (ligados à task, não ao épico).
-- Sempre incluir métricas de tempo no relatório.
+## RULES (generic)
+- STEP 0 (load + **validate** config) always first; without a valid config, it does not run.
+- Artifacts **always** in `docs/initiatives/{name}/`.
+- Each sub-agent in its **own context** (Task). Backend and Frontend in **parallel**.
+- Planner failed (status ≠ qa_gate) → **STOP**. Tests not created → **STOP** before the runner.
+- Services offline / smoke failed → **do not run tests**, only comment.
+- Bugs created **automatically** via `tracker.create_child_bug` (linked to the task, not to the epic).
+- Always include time metrics in the report.

@@ -71,7 +71,7 @@ um projeto Laravel e o de um NestJS falam a língua de cada um. O que não está
 suposição.
 
 **Gate:** cada funcionalidade tem backend, frontend, error handling, critérios testáveis e complexidade
-(P/M/G).
+(P/M/G, ou S/M/L com `language: en`).
 
 ### 4. Tasks: Epic e Stories no tracker
 

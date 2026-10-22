@@ -26,7 +26,7 @@ a folder. It is useful for projects without a tracker or for testing the factory
 
 | Operation | Input | Effect |
 |---|---|---|
-| `fetch(id)` | id | returns `{id, title, type, status_lógico, parent_id, branch, linked_mr, description, assignee}` |
+| `fetch(id)` | id | returns `{id, title, type, logical_status, parent_id, branch, linked_mr, description, assignee}` |
 | `read_blueprint(id)` | id | the task's specification; by default, the description itself |
 | `transition(id, target)` | id, logical status | takes the task to the `tracker.status[target]` selector, changing state, folder or labels |
 | `comment(id, md)` | id, Markdown | comments; the driver converts the Markdown to the system's format |

@@ -1,52 +1,53 @@
-# QA Runner — Docker + Execução + Evidências (genérico, config-driven)
-> **Worker do plugin `factory`** — lido por caminho, não é command. `{plugin}` = caminho que vem no prompt do
-> orquestrador como `Plugin: ...`; `{task_id}` = valor que vem como `Task: ...`.
+# QA Runner — Docker + Execution + Evidence (generic, config-driven)
+> **Worker of the `factory` plugin** — read by path, not a command. `{plugin}` = path that comes in the
+> orchestrator prompt as `Plugin: ...`; `{task_id}` = value that comes as `Task: ...`.
+> Write everything you produce in `config.language` (absent → the language of the task).
 
-Executa os testes da task via Docker, coleta evidências (vídeos, screenshots, métricas) e
-reporta no tracker. **Não contém nada específico de projeto**: ambiente, docker, paths de
-evidência e tracker vêm do `factory.config.md`. Toda interação com issue-tracker passa pelas
-6 ops abstratas do `{plugin}/CONTRACT.md` (o comando não sabe se é Jira/GitLab/kanban-MD).
+Runs the task's tests via Docker, collects evidence (videos, screenshots, metrics) and
+reports to the tracker. **Contains nothing project-specific**: environment, docker, evidence
+paths and tracker come from `factory.config.md`. Every interaction with the issue tracker goes through the
+6 abstract ops of `{plugin}/CONTRACT.md` (the command does not know whether it is Jira/GitLab/MD kanban).
 
-> Os testes rodam via Docker apontando para as URLs de `config.env` — não precisa de sudo nem
-> libs gráficas locais. Onde a stack é local (`config.docker.ensure_up: true`), o runner sobe
-> os containers antes de testar.
+> The tests run via Docker pointing at the URLs in `config.env` — no sudo or local graphical
+> libs needed. Where the stack is local (`config.docker.ensure_up: true`), the runner brings up
+> the containers before testing.
 
 ## Task ID: `{task_id}`
 
-Se vazio, pergunte qual task testar (formato em `config.issue.id_regex`).
+If empty, ask which task to test (format in `config.issue.id_regex`).
 
 ---
 
-## ETAPA 0 — Carregar e validar config (OBRIGATÓRIO, antes de tudo)
+## STEP 0 — Load and validate config (MANDATORY, before anything else)
 
-1. Leia `docs/factory.config.md` do projeto. Não existe → **PARE** ("Rode `/factory:init`").
-2. **Valide as chaves obrigatórias** (lista em `{plugin}/CONTRACT.md`, incluindo as do runner:
+1. Read the project's `docs/factory.config.md`. Does not exist → **STOP** ("Run `/factory:init`").
+2. **Validate the required keys** (list in `{plugin}/CONTRACT.md`, including the runner ones:
    `docker.run`, `docker.ensure_up`, `evidence.artifacts.{videos,screenshots,backend_result,frontend_result}`).
-   Faltou **ou** `TBD` → **PARE** e diga exatamente qual chave preencher.
-3. Carregue os bindings. Daqui pra frente **nunca** use valor fixo — sempre `config.<chave>`.
-4. **Tracker Driver:** carregue `{plugin}/drivers/trackers/{config.tracker.driver}.md`. Toda `tracker.<op>(...)`
-   roda por esse driver, conforme `{plugin}/CONTRACT.md`.
-4b. **Driver de E2E:** `<nome>` = primeira palavra de `config.stack.frontend.e2e` em minúsculas (ausente →
-   `cypress`); carregue `{plugin}/drivers/e2e/<nome>.md` (usado em E5, E6 e E7). Não existe → **PARE**.
+   Missing **or** `TBD` → **STOP** and say exactly which key to fill in.
+3. Load the bindings. From here on **never** use a hardcoded value — always `config.<key>`.
+4. **Tracker Driver:** load `{plugin}/drivers/trackers/{config.tracker.driver}.md`. Every `tracker.<op>(...)`
+   runs through that driver, according to `{plugin}/CONTRACT.md`.
+4b. **E2E driver:** `<name>` = first word of `config.stack.frontend.e2e` in lowercase (absent →
+   `cypress`); load `{plugin}/drivers/e2e/<name>.md` (used in E5, E6 and E7). Does not exist → **STOP**.
 5. `task = tracker.fetch({task_id})`.
-   - Pasta da iniciativa: `task.parent_id` → `docs/initiatives/{nome-normalizado-do-pai}/`;
-     senão → `docs/initiatives/{task_id}/`. `mkdir -p`.
-   - **Gate:** confirme `task.status_lógico == in_qa` (o pipeline já transicionou na ETAPA 1).
-     Se rodando o runner avulso e a task está em `qa_gate`, transicione `→ in_qa` antes.
+   - Initiative folder: `task.parent_id` → `docs/initiatives/{normalized-parent-name}/`;
+     otherwise → `docs/initiatives/{task_id}/`. `mkdir -p`.
+   - **Gate:** confirm `task.logical_status == in_qa` (the pipeline already transitioned it in STEP 1).
+     If running the runner standalone and the task is in `qa_gate`, transition `→ in_qa` first.
 
 ```bash
 RUN_TS=$(date '+%Y-%m-%d_%H-%M-%S')
-EVIDENCE_DIR="docs/initiatives/{nome}/evidencias/$RUN_TS"
+EVIDENCE_DIR="docs/initiatives/{name}/evidence/$RUN_TS"
 mkdir -p "$EVIDENCE_DIR/videos" "$EVIDENCE_DIR/screenshots"
 ```
 
 ---
 
-## FASE 1 — Preparar ambiente
+## PHASE 1 — Prepare the environment
 
-### 1.1 Branch da task (driver-resolved)
-A branch vem de `{task.branch}` (resolvida pelo driver — **não** assuma `{prefix}{id}`;
-trackers como markdown/ClickUp podem derivar de `CU-{clickup_id}`).
+### 1.1 Task branch (driver-resolved)
+The branch comes from `{task.branch}` (resolved by the driver — do **not** assume `{prefix}{id}`;
+trackers such as markdown/ClickUp may derive it from `CU-{clickup_id}`).
 
 ```bash
 cd {config.workspace.root}/{config.workspace.repos.backend.path}
@@ -58,135 +59,135 @@ AHEAD=$(git rev-list --count {config.git.base_branch}..HEAD 2>/dev/null || echo 
 BEHIND=$(git rev-list --count HEAD..{config.git.base_branch} 2>/dev/null || echo 0)
 echo "Branch {task.branch}: +$AHEAD / -$BEHIND vs {config.git.base_branch}"
 ```
-Conflito de merge → `tracker.comment` e **PARE**.
+Merge conflict → `tracker.comment` and **STOP**.
 
-### 1.2 Subir a stack (só se `config.docker.ensure_up: true`)
-Quando a app é local (não URL externa), garanta os containers no ar antes de testar:
+### 1.2 Bring up the stack (only if `config.docker.ensure_up: true`)
+When the app is local (not an external URL), make sure the containers are up before testing:
 
 ```bash
-# só executa este bloco quando config.docker.ensure_up == true
+# only run this block when config.docker.ensure_up == true
 docker compose -f {config.docker.compose} ps | grep -q "Up" || { docker compose -f {config.docker.compose} up -d; sleep 15; }
 ```
-- **Preparar o banco de teste:** faça `exec` no container `{config.docker.containers.app}` e rode o
-  **migrate + seed da stack** (migrate do test-DB + seed de `config.tests.seeder`, se definido) — o comando
-  exato vem da convenção de `config.stack.backend` (não hardcode aqui).
+- **Prepare the test database:** `exec` into the `{config.docker.containers.app}` container and run the
+  **stack's migrate + seed** (test-DB migrate + seed from `config.tests.seeder`, if defined) — the exact
+  command comes from the convention of `config.stack.backend` (do not hardcode it here).
 
-> `ensure_up: false` (app remota/externa) → pule este passo inteiro; os testes batem direto nas URLs.
+> `ensure_up: false` (remote/external app) → skip this whole step; the tests hit the URLs directly.
 
-### 1.3 Serviços online
+### 1.3 Services online
 ```bash
 curl -s -o /dev/null -w "%{http_code}" {config.env.api_url}
 curl -s -o /dev/null -w "%{http_code}" {config.env.app_url}
 ```
-Algum ≠ 200 → `tracker.comment(serviço offline)` e **PARE** (não rode testes).
+Any ≠ 200 → `tracker.comment(service offline)` and **STOP** (do not run tests).
 
 ### 1.4 Smoke test
-- `config.tests.smoke_script` definido → execute-o.
-- Senão → login via `{config.env.api_url}` + 1 endpoint autenticado (use o helper do projeto em
+- `config.tests.smoke_script` defined → run it.
+- Otherwise → login via `{config.env.api_url}` + 1 authenticated endpoint (use the project's helper in
   `config.tests.backend_helpers`/`frontend_cmds`).
 
-Smoke falhou → salve a saída em `$EVIDENCE_DIR/`, `tracker.comment` e **PARE** (não rode a suite).
+Smoke failed → save the output in `$EVIDENCE_DIR/`, `tracker.comment` and **STOP** (do not run the suite).
 
 ---
 
-## FASE 2 — Executar testes
+## PHASE 2 — Run tests
 
 ```bash
 TEST_START=$(date +%s)
-TDIR={config.tests.dir}    # se "auto": existe qa-tests/ ? qa-tests : tests
+TDIR={config.tests.dir}    # if "auto": qa-tests/ exists ? qa-tests : tests
 ```
 
-**Modelo de execução (decide pelo config):**
-- `config.docker.run_frontend` **ausente** → `config.docker.run` é o **pipeline completo**
-  (back + front numa chamada). Rode-o e capture o exit.
-- `config.docker.run_frontend` **presente** → backend e frontend são comandos **independentes**:
-  rode `config.docker.run` (backend) e `config.docker.run_frontend` **EM PARALELO** (`&` + `wait`),
-  cada um com seu exit.
+**Execution model (decided by the config):**
+- `config.docker.run_frontend` **absent** → `config.docker.run` is the **full pipeline**
+  (back + front in one call). Run it and capture the exit code.
+- `config.docker.run_frontend` **present** → backend and frontend are **independent** commands:
+  run `config.docker.run` (backend) and `config.docker.run_frontend` **IN PARALLEL** (`&` + `wait`),
+  each with its own exit code.
 
 ```bash
-# limpar evidências anteriores do harness (globs de config.evidence.artifacts)
-# rodar suite(s) com tee p/ $EVIDENCE_DIR/*.log
-# Evidências/qualidade de vídeo: exporte {config.evidence.mode_var}=true,
-#   {config.evidence.slowmo_var}={config.evidence.slowmo}, resolução {config.evidence.resolution}
-#   (como a ferramenta consome essas variáveis: E5 do driver de E2E)
+# clean previous harness evidence (globs from config.evidence.artifacts)
+# run suite(s) with tee to $EVIDENCE_DIR/*.log
+# Evidence/video quality: export {config.evidence.mode_var}=true,
+#   {config.evidence.slowmo_var}={config.evidence.slowmo}, resolution {config.evidence.resolution}
+#   (how the tool consumes these variables: E5 of the E2E driver)
 TEST_END=$(date +%s); DUR=$((TEST_END-TEST_START)); echo "⏱️ ${DUR}s"
 ```
 
-> Se o pipeline travar num teste de **outra** task (suites sequenciais), rode só os testes da feature do
-> jeito do **E6** do driver de E2E e confirme no log o que rodou.
+> If the pipeline hangs on a test from **another** task (sequential suites), run only the feature's tests the
+> way **E6** of the E2E driver describes and confirm in the log what ran.
 
-### 2.1 Coletar evidências (paths vêm do config — relativos a `workspace.root`)
+### 2.1 Collect evidence (paths come from the config — relative to `workspace.root`)
 ```bash
 cp {config.evidence.artifacts.videos}      "$EVIDENCE_DIR/videos/"      2>/dev/null || true
 cp {config.evidence.artifacts.screenshots} "$EVIDENCE_DIR/screenshots/" 2>/dev/null || true
 cp {config.evidence.artifacts.backend_result}  "$EVIDENCE_DIR/" 2>/dev/null || true
 cp {config.evidence.artifacts.frontend_result} "$EVIDENCE_DIR/" 2>/dev/null || true
 ```
-Estrutura: `docs/initiatives/{nome}/evidencias/{RUN_TS}/{videos,screenshots,...}` — preserva execuções anteriores por timestamp.
+Structure: `docs/initiatives/{name}/evidence/{RUN_TS}/{videos,screenshots,...}` — keeps previous runs by timestamp.
 
-### 2.2 Parsear totais
-- **Backend:** parse de `config.evidence.artifacts.backend_result` conforme `config.stack.backend.test`
+### 2.2 Parse totals
+- **Backend:** parse `config.evidence.artifacts.backend_result` according to `config.stack.backend.test`
   (jUnit XML → `tests`/`failures`/`errors`; JSON → `numTotalTests`/`numFailedTests`).
-- **Frontend:** parse de `config.evidence.artifacts.frontend_result` conforme o **E7** do driver de E2E
-  (total, passou, falhou e, por falha, nome, mensagem e artefatos).
-- Para cada falha: nome completo, mensagem, stack (primeiras ~30 linhas), caminho do vídeo/screenshot.
+- **Frontend:** parse `config.evidence.artifacts.frontend_result` according to **E7** of the E2E driver
+  (total, passed, failed and, per failure, name, message and artifacts).
+- For each failure: full name, message, stack (first ~30 lines), path to the video/screenshot.
 
 ---
 
-## FASE 3 — Reportar
+## PHASE 3 — Report
 
-### 3.1 Relatório → `docs/initiatives/{nome}/qa-report-{task_id}.md`
+### 3.1 Report → `docs/initiatives/{name}/qa-report-{task_id}.md`
 ```markdown
-# QA Report — {task_id} — {data} — {config.project}
-## Ambiente
+# QA Report — {task_id} — {date} — {config.project}
+## Environment
 - Branch: {task.branch} (+A / -B vs {config.git.base_branch})
 - Backend {config.env.api_url} ✅ · Frontend {config.env.app_url} ✅ · Smoke ✅
-## Métricas — Duração total: Xm Ys
-## Resultados por cenário
-| Suite | ID | Cenário | Status | Duração |
-## Resumo
+## Metrics — Total duration: Xm Ys
+## Results per scenario
+| Suite | ID | Scenario | Status | Duration |
+## Summary
 | Suite | Total | ✅ | ❌ | ⏭ |
-## Falhas detalhadas (msg + stack + hipótese + evidência)
-## Evidências — 🎬 videos/ (X) · 📸 screenshots/ (Y)
-## Veredicto: ✅ ALL PASSED / ❌ X FAILURES
+## Detailed failures (msg + stack + hypothesis + evidence)
+## Evidence — 🎬 videos/ (X) · 📸 screenshots/ (Y)
+## Verdict: ✅ ALL PASSED / ❌ X FAILURES
 ```
 
 ### 3.2 ALL PASSED
-- `tracker.comment({task_id}, relatório)`
+- `tracker.comment({task_id}, report)`
 - `tracker.transition({task_id} → done)`
 - `tracker.label({task_id}, approved)`
 
-### 3.3 HAS FAILURES — 1 bug por falha, **ligado à task**
-Para **cada** teste falho: `tracker.create_child_bug(task={task_id}, "[QA Auto] {nome}", corpo)`
-— corpo com erro, stack, evidência (nome do vídeo/screenshot). Aplique `tracker.label(new_id, generated)`.
-Depois `tracker.comment({task_id}, resumo consolidado + lista de bugs criados)`.
-A task **permanece em `in_qa`** (não transiciona para `done`).
+### 3.3 HAS FAILURES — 1 bug per failure, **linked to the task**
+For **each** failed test: `tracker.create_child_bug(task={task_id}, "[QA Auto] {name}", body)`
+— body with error, stack, evidence (video/screenshot name). Apply `tracker.label(new_id, generated)`.
+Then `tracker.comment({task_id}, consolidated summary + list of created bugs)`.
+The task **stays in `in_qa`** (does not transition to `done`).
 
-> **Refinamento conhecido (a decidir, hoje fora do genérico):** uma versão antiga do runner distinguia falha de
-> **regressão** (área adjacente → cria bug filho, mantém em QA) de falha na **própria feature**
-> (volta a task pro DEV). Isso exige um status lógico `returned`/`in_progress` no CONTRACT — fica
-> documentado como evolução; o comportamento-base aqui é "falhou → cria bug(s) + permanece em `in_qa`".
-
----
-
-## FASE 4 — Limpeza
-- `config.docker.ensure_up: false` (app externa) → `docker compose -f {config.docker.compose} down` se subiu algo efêmero.
-- `config.docker.ensure_up: true` (stack compartilhada com outras tasks) → **NÃO derrubar**; só limpar
-  os volumes de evidência já copiados.
+> **Known refinement (to be decided, currently outside the generic flow):** an old version of the runner told a
+> **regression** failure (adjacent area → creates child bug, stays in QA) apart from a failure in the **feature itself**
+> (sends the task back to DEV). That requires a logical status `returned`/`in_progress` in the CONTRACT — it stays
+> documented as a future evolution; the base behavior here is "failed → create bug(s) + stay in `in_qa`".
 
 ---
 
-## TRACKER (driver-based — ver `drivers/trackers/`)
-Este comando **não** mapeia tracker. Chama `fetch`, `read_blueprint`, `transition`, `comment`,
-`create_child_bug`, `label`; o driver de `config.tracker.driver` traduz.
-**Adicionar tracker = criar `drivers/trackers/<nome>.md` + setar `tracker.driver`. Nenhuma linha daqui muda.**
+## PHASE 4 — Cleanup
+- `config.docker.ensure_up: false` (external app) → `docker compose -f {config.docker.compose} down` if something ephemeral was brought up.
+- `config.docker.ensure_up: true` (stack shared with other tasks) → **DO NOT tear down**; only clean
+  the evidence volumes already copied.
 
-## REGRAS (genéricas)
-- ETAPA 0 (carregar + **validar** config) sempre primeiro; sem config válido, não roda.
-- Artefatos **sempre** em `docs/initiatives/{nome}/`; evidências em `evidencias/{timestamp}/`.
-- **SEMPRE** smoke antes da suite; serviços offline / smoke falhou → comentar e **PARAR**.
-- Backend e frontend **em paralelo** quando `docker.run_frontend` existe (são independentes).
-- **SEMPRE** coletar vídeos+screenshots e incluir tabela por cenário + métricas de tempo no relatório.
-- **1 bug por falha** (não agrupar), via `tracker.create_child_bug` (ligado à task, não ao épico).
-- **NUNCA** transicionar para `done` com qualquer falha. **NUNCA** mascarar falha ("flaky" não é desculpa).
-- Confirme no log quais testes rodaram (E6); pipeline travou em teste de outra task → rode só os da feature.
+---
+
+## TRACKER (driver-based — see `drivers/trackers/`)
+This command does **not** map the tracker. It calls `fetch`, `read_blueprint`, `transition`, `comment`,
+`create_child_bug`, `label`; the driver from `config.tracker.driver` translates them.
+**Adding a tracker = create `drivers/trackers/<name>.md` + set `tracker.driver`. Not a single line here changes.**
+
+## RULES (generic)
+- STEP 0 (load + **validate** config) always first; without a valid config, it does not run.
+- Artifacts **always** in `docs/initiatives/{name}/`; evidence in `evidence/{timestamp}/`.
+- **ALWAYS** smoke before the suite; services offline / smoke failed → comment and **STOP**.
+- Backend and frontend **in parallel** when `docker.run_frontend` exists (they are independent).
+- **ALWAYS** collect videos+screenshots and include a per-scenario table + time metrics in the report.
+- **1 bug per failure** (do not group), via `tracker.create_child_bug` (linked to the task, not the epic).
+- **NEVER** transition to `done` with any failure. **NEVER** mask a failure ("flaky" is no excuse).
+- Confirm in the log which tests ran (E6); pipeline hung on another task's test → run only the feature's.

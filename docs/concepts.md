@@ -118,7 +118,7 @@ docs/initiatives/login-com-google/
 ├── doc-sync-report-APP-012.md
 ├── qa-plan-APP-012.md       # QA — plano de testes
 ├── qa-report-APP-012.md     # QA — resultado
-└── evidencias/              # QA — vídeos, screenshots, logs
+└── evidence/                # QA — vídeos, screenshots, logs
 ```
 
 Isso dá rastreabilidade: dá para saber por que uma decisão foi tomada lendo o blueprint e o plano técnico,

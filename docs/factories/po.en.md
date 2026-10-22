@@ -71,7 +71,7 @@ a Laravel project and that of a NestJS one each speak their own language. Whatev
 an assumption.
 
 **Gate:** each feature has backend, frontend, error handling, testable criteria and complexity
-(P/M/G: small/medium/large).
+(S/M/L).
 
 ### 4. Tasks: Epic and Stories in the tracker
 

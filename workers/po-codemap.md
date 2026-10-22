@@ -1,53 +1,54 @@
-# PO Code Map — Análise do Codebase Existente (genérico/config-driven)
-> **Worker do plugin `factory`** — lido por caminho, não é command. `{plugin}` = caminho que vem no prompt do
-> orquestrador como `Plugin: ...`; `{iniciativa}` = valor que vem como `Iniciativa: ...`.
+# PO Code Map — Analysis of the Existing Codebase (generic/config-driven)
+> **Worker of the `factory` plugin** — read by path, not a command. `{plugin}` = path that comes in the
+> orchestrator prompt as `Plugin: ...`; `{initiative}` = value that comes as `Initiative: ...`.
+> Write everything you produce in `config.language` (absent → the language of the task).
 
-Cruza a iniciativa com o **CodeBase** (`config.docs_map.codebase`) para mapear o que já existe, gaps,
-dependências e riscos. Alimenta o blueprint. **Foco em MAPEAMENTO, não implementação**; **não recomenda
-arquitetura** (é do tech-lead). Lê **docs/mapas, não código fonte**.
+Crosses the initiative with the **CodeBase** (`config.docs_map.codebase`) to map what already exists, gaps,
+dependencies and risks. Feeds the blueprint. **Focus on MAPPING, not implementation**; **does not recommend
+architecture** (that belongs to the tech-lead). Reads **docs/maps, not source code**.
 
-## INICIATIVA: `{iniciativa}`
-Se vazio, use o `research.md` mais recente como contexto.
+## INITIATIVE: `{initiative}`
+If empty, use the most recent `research.md` as context.
 
 ---
 
-## ETAPA 0 — Config
-Leia `docs/factory.config.md`. Carregue `config.docs_map.codebase`, `config.stack`, `config.product.default_project` (se houver).
+## STEP 0 — Config
+Read `docs/factory.config.md`. Load `config.docs_map.codebase`, `config.stack`, `config.product.default_project` (if any).
 
-## 1. Ler a pesquisa
-`docs/initiatives/{nome}/research.md` — o que vai ser construído, MVP, integrações.
+## 1. Read the research
+`docs/initiatives/{name}/research.md` — what will be built, MVP, integrations.
 
-## 2. Ler os mapas do CodeBase (ANTES de qualquer código)
-Em `config.docs_map.codebase`: índice/README, glossário, overview + architecture do projeto-alvo,
-e os mapas de `backend/` (entidades/services/rotas/jobs/integrações) e `frontend/`
-(módulos/componentes/services/rotas) **conforme o escopo da iniciativa**.
-- **Projeto-alvo:** `config.product.default_project` (se definido), salvo se a pesquisa indicar outro.
-- Detalhe profundo que o mapa não cobre → abrir os docs autoritativos do repo (apontados pelo CodeBase).
-- **NÃO explore código fonte** até esgotar os mapas; se precisar abrir 1 arquivo, registre **qual e por quê**.
+## 2. Read the CodeBase maps (BEFORE any code)
+In `config.docs_map.codebase`: index/README, glossary, overview + architecture of the target project,
+and the maps of `backend/` (entities/services/routes/jobs/integrations) and `frontend/`
+(modules/components/services/routes) **according to the initiative's scope**.
+- **Target project:** `config.product.default_project` (if defined), unless the research points to another one.
+- Deep detail the map does not cover → open the repo's authoritative docs (pointed to by the CodeBase).
+- **DO NOT explore source code** until the maps are exhausted; if you need to open 1 file, record **which one and why**.
 
-## 3. Produzir o mapa
-1. **O que já existe** relacionado: entidades/models, services, jobs, páginas/componentes, rotas/endpoints
-   (com caminho/arquivo, conforme a convenção de `config.stack`).
-2. **Gap analysis** (mercado × o que existe): ✅ já existe · 🟡 parcial (estender) · ❌ criar do zero · ⚠️ conflita (refatorar).
-3. **Mapa de dependências** (depende de / estende / integra com / precisa criar / migrations / impacta).
-4. **Áreas afetadas por funcionalidade** (tabela backend/frontend/dados + complexidade).
-5. **Riscos e restrições técnicas** observados nos mapas (cache, filas, multi-DB, scopes/RLS, roteamento, volume).
-6. **Recomendação de sequência** de implementação (por dependências).
+## 3. Produce the map
+1. **What already exists** that is related: entities/models, services, jobs, pages/components, routes/endpoints
+   (with path/file, following the convention of `config.stack`).
+2. **Gap analysis** (market × what exists): ✅ already exists · 🟡 partial (extend) · ❌ build from scratch · ⚠️ conflicts (refactor).
+3. **Dependency map** (depends on / extends / integrates with / needs to create / migrations / impacts).
+4. **Affected areas per feature** (backend/frontend/data table + complexity).
+5. **Technical risks and constraints** observed in the maps (cache, queues, multi-DB, scopes/RLS, routing, volume).
+6. **Recommended implementation sequence** (by dependencies).
 
-## OUTPUT → `docs/initiatives/{nome}/codemap.md`
+## OUTPUT → `docs/initiatives/{name}/codemap.md`
 ```markdown
-# Code Map: {Iniciativa} — {data}
-## 1. O que já existe (tabelas: Models | Services | Jobs | Pages | Rotas — com arquivo, relação, status)
-## 2. Gap Analysis (✅/🟡/❌/⚠️ por funcionalidade)
-## 3. Mapa de Dependências
-## 4. Áreas Afetadas por Funcionalidade
-## 5. Riscos e Restrições Técnicas
-## 6. Recomendação de Sequência
-## 7. Integrações externas envolvidas
+# Code Map: {Initiative} — {date}
+## 1. What already exists (tables: Models | Services | Jobs | Pages | Routes — with file, relationship, status)
+## 2. Gap Analysis (✅/🟡/❌/⚠️ per feature)
+## 3. Dependency Map
+## 4. Affected Areas per Feature
+## 5. Technical Risks and Constraints
+## 6. Recommended Sequence
+## 7. External integrations involved
 ```
 
-## REGRAS
-- **SEMPRE** ler `config.docs_map.codebase` ANTES de explorar código; mapear o que existe antes de propor o novo.
-- **NUNCA** recomendar refactor não-essencial; **NUNCA** definir arquitetura detalhada (é do tech-lead).
-- Doc de referência incompleto/desatualizado → marcar `[?]` em vez de inventar.
-- Conexão de dados distinta / fronteira de contexto (ex.: DB isolada) → marcar explicitamente (joins não atravessam).
+## RULES
+- **ALWAYS** read `config.docs_map.codebase` BEFORE exploring code; map what exists before proposing the new.
+- **NEVER** recommend non-essential refactoring; **NEVER** define detailed architecture (that belongs to the tech-lead).
+- Incomplete/outdated reference doc → mark `[?]` instead of inventing.
+- Distinct data connection / context boundary (e.g. isolated DB) → mark it explicitly (joins do not cross it).

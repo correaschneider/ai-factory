@@ -118,7 +118,7 @@ docs/initiatives/login-with-google/
 ├── doc-sync-report-APP-012.md
 ├── qa-plan-APP-012.md       # QA: test plan
 ├── qa-report-APP-012.md     # QA: result
-└── evidencias/              # QA: videos, screenshots, logs
+└── evidence/                # QA: videos, screenshots, logs
 ```
 
 This gives traceability: you can find out why a decision was made by reading the blueprint and the technical plan,
