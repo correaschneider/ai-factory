@@ -1,46 +1,46 @@
-# Conceitos
+# Concepts
 
-A fábrica é pequena de propósito: cinco commands, alguns agents e um contrato. O que faz ela servir
-projetos diferentes são quatro ideias.
+The factory is small on purpose: five commands, a few agents and a contract. What makes it serve
+different projects are four ideas.
 
-## 1. Um config por projeto
+## 1. One config per project
 
-Todo o conhecimento específico do projeto vive em **`docs/factory.config.md`**, no próprio repositório:
-qual tracker, quais status, onde ficam backend e frontend, qual a stack, como buildar, como rodar os testes,
-de qual branch sair, como commitar.
+All project-specific knowledge lives in **`docs/factory.config.md`**, in the repository itself:
+which tracker, which statuses, where the backend and frontend are, what the stack is, how to build, how to run the tests,
+which branch to start from, how to commit.
 
-Os commands nunca têm valor fixo. Eles leem `{config.git.base_branch}`, `{config.stack.backend.build}` e
-assim por diante. Isso tem duas consequências:
+The commands never have hardcoded values. They read `{config.git.base_branch}`, `{config.stack.backend.build}` and
+so on. This has two consequences:
 
-- **Todo command começa pela ETAPA 0:** carrega o config e valida as chaves que aquela fábrica precisa. Se
-  faltar alguma, ou se alguma estiver como `TBD`, ele **para** e diz qual chave preencher, em vez de
-  improvisar.
-- **Mudar de projeto não muda a fábrica.** Mudar de tracker, de branch base ou de stack é editar o config.
+- **Every command starts with STEP 0:** it loads the config and validates the keys that factory needs. If
+  one is missing, or if one is set to `TBD`, it **stops** and tells you which key to fill in, instead of
+  improvising.
+- **Switching projects does not change the factory.** Switching tracker, base branch or stack means editing the config.
 
-Veja todas as chaves em [Referência de configuração](reference/config.md).
+See every key in the [Configuration reference](reference/config.md).
 
-## 2. O contrato e os drivers
+## 2. The contract and the drivers
 
-Os commands não sabem se a task está no Jira, no ClickUp, no GitLab, no GitHub ou num arquivo Markdown. Eles falam
-com o tracker só por **operações abstratas** definidas no `CONTRACT.md`:
+The commands don't know whether the task is in Jira, ClickUp, GitLab, GitHub or a Markdown file. They talk
+to the tracker only through **abstract operations** defined in `CONTRACT.md`:
 
-| Operação | O que faz |
+| Operation | What it does |
 |---|---|
-| `fetch(id)` | lê a task: título, tipo, status, pai, branch, descrição |
-| `transition(id, status)` | move a task para um status lógico |
-| `comment(id, texto)` | comenta na task |
-| `create_child_bug(task, título, corpo)` | abre um bug ligado à task |
-| `label(id, label)` | aplica uma label lógica |
-| `create_epic` · `create_story` · `link_dependency` · `update_epic` | autoria, usadas pela fábrica PO |
+| `fetch(id)` | reads the task: title, type, status, parent, branch, description |
+| `transition(id, status)` | moves the task to a logical status |
+| `comment(id, text)` | comments on the task |
+| `create_child_bug(task, title, body)` | opens a bug linked to the task |
+| `label(id, label)` | applies a logical label |
+| `create_epic` · `create_story` · `link_dependency` · `update_epic` | authoring, used by the PO factory |
 
-Quem traduz cada operação para a chamada real é o **driver** escolhido em `tracker.driver`. Há dois eixos
-de drivers para sistemas externos, porque a task e o código nem sempre moram no mesmo sistema (task no
-ClickUp, MR no GitLab, por exemplo). Um terceiro eixo, o de **E2E**, escolhe a ferramenta de teste de
-frontend da fábrica QA (Cypress ou Playwright):
+What translates each operation into the real call is the **driver** chosen in `tracker.driver`. There are two axes
+of drivers for external systems, because the task and the code don't always live in the same system (task
+in ClickUp, MR in GitLab, for example). A third axis, **E2E**, picks the frontend test tool used by the QA
+factory (Cypress or Playwright):
 
 ```mermaid
 flowchart LR
-    C[Commands da fábrica] -->|fetch, transition, comment…| T{{tracker.driver}}
+    C[Factory commands] -->|fetch, transition, comment…| T{{tracker.driver}}
     C -->|find_mrs, mr_diff, mr_comment| S{{scm.driver}}
     T --> J[jira]
     T --> K[clickup]
@@ -54,72 +54,72 @@ flowchart LR
     E --> PW[playwright]
 ```
 
-**Regra de ouro:** se para suportar um tracker novo você precisa editar um command, algo está errado.
-Tracker novo é um arquivo novo em `drivers/trackers/`, e mais nada. Veja [Drivers](reference/drivers.md).
+**Golden rule:** if you need to edit a command to support a new tracker, something is wrong.
+A new tracker is a new file in `drivers/trackers/`, and nothing else. See [Drivers](reference/drivers.md).
 
-## 3. Status e labels lógicos
+## 3. Logical statuses and labels
 
-Cada tracker nomeia os estados do seu jeito. A fábrica usa **nomes lógicos**, e o config traduz para o que
-o seu tracker entende:
+Each tracker names its states its own way. The factory uses **logical names**, and the config translates them to what
+your tracker understands:
 
-| Lógico | Significado | Usado por |
+| Logical | Meaning | Used by |
 |---|---|---|
-| `backlog` | a story existe, ninguém começou | PO cria aqui · DEV lê |
-| `in_progress` | desenvolvimento em andamento | DEV |
-| `qa_gate` | pronto para QA (handoff DEV → QA) | DEV move · QA lê |
-| `in_qa` | QA em andamento | QA |
-| `done` | aprovado no QA | QA |
-| `review_gate` · `in_review` | pronto para CR · CR em andamento | CR |
-| `review_approved` · `review_returned` | CR aprovou (avança) · CR reprovou (volta) | CR |
+| `backlog` | the story exists, nobody has started | PO creates here · DEV reads |
+| `in_progress` | development in progress | DEV |
+| `qa_gate` | ready for QA (DEV → QA handoff) | DEV moves · QA reads |
+| `in_qa` | QA in progress | QA |
+| `done` | approved in QA | QA |
+| `review_gate` · `in_review` | ready for CR · CR in progress | CR |
+| `review_approved` · `review_returned` | CR approved (moves forward) · CR rejected (goes back) | CR |
 
-O valor de cada um depende do driver: no Jira e no ClickUp é o nome do status (`"Em QA"`); no GitLab e no GitHub é
-um estado mais uma label (`{state: opened, label: ready-for-qa}`); no Markdown é uma pasta mais uma label.
+The value of each one depends on the driver: in Jira and ClickUp it is the status name (`"Em QA"`); in GitLab and GitHub it is
+a state plus a label (`{state: opened, label: ready-for-qa}`); in Markdown it is a folder plus a label.
 
-!!! warning "Portões precisam ser distinguíveis"
-    `qa_gate` e `in_qa` **nunca** podem resolver para o mesmo valor, nem `review_gate` e `in_review`. É assim
-    que a fábrica sabe que uma task já está sendo trabalhada e não a pega de novo.
+!!! warning "Gates must be distinguishable"
+    `qa_gate` and `in_qa` can **never** resolve to the same value, nor can `review_gate` and `in_review`. This is how
+    the factory knows a task is already being worked on and doesn't pick it up again.
 
-## 4. Orquestrador, workers e gates
+## 4. Orchestrator, workers and gates
 
-Cada fábrica tem um **orquestrador** (o command) e vários **workers** (os papéis). O orquestrador é o único
-que fala com você e com o tracker. Os workers:
+Each factory has an **orchestrator** (the command) and several **workers** (the roles). The orchestrator is the only one
+that talks to you and to the tracker. The workers:
 
-- rodam cada um no **próprio contexto**, sem herdar a conversa;
-- recebem só um **briefing** (task, caminhos, escopo) e devolvem um artefato em `docs/initiatives/<nome>/`;
-- na fábrica DEV são *agents* com ferramentas restritas por construção: o tech lead não tem `Edit` nem
-  `Bash` (não consegue escrever código) e o code reviewer não tem `Edit` (não conserta o que revisa).
+- each run in their **own context**, without inheriting the conversation;
+- receive only a **briefing** (task, paths, scope) and return an artifact in `docs/initiatives/<name>/`;
+- in the DEV factory they are *agents* with tools restricted by construction: the tech lead has neither `Edit` nor
+  `Bash` (it cannot write code) and the code reviewer has no `Edit` (it doesn't fix what it reviews).
 
-Depois de cada etapa há um **gate**: o orquestrador confere se o artefato esperado existe e tem o que
-precisa. Gate reprovado para a fábrica e reporta; nada é pulado nem inventado.
+After each step there is a **gate**: the orchestrator checks that the expected artifact exists and has what it
+needs. A failed gate stops the factory and reports; nothing is skipped or made up.
 
-Na fábrica DEV os agents devolvem um `STATUS:` padronizado:
+In the DEV factory the agents return a standardized `STATUS:`:
 
-| STATUS | O orquestrador |
+| STATUS | The orchestrator |
 |---|---|
-| `OK` · `PASSED` · `APPROVED` | segue |
-| `APPROVED_WITH_NOTES` | segue e leva as ressalvas para o relatório |
-| `REJECTED` · `FAILED` | volta ao developer com o relatório, gastando uma tentativa |
-| `BLOCKED` | **para e pergunta a você** |
-| `UPSTREAM_BUG` | escala para você, sem gastar tentativa |
+| `OK` · `PASSED` · `APPROVED` | continues |
+| `APPROVED_WITH_NOTES` | continues and carries the caveats into the report |
+| `REJECTED` · `FAILED` | goes back to the developer with the report, spending one attempt |
+| `BLOCKED` | **stops and asks you** |
+| `UPSTREAM_BUG` | escalates to you, without spending an attempt |
 
-## 5. Artefatos: tudo fica no repositório
+## 5. Artifacts: everything stays in the repository
 
-Cada iniciativa ganha uma pasta `docs/initiatives/<nome>/` com tudo o que as fábricas produziram:
+Each initiative gets a `docs/initiatives/<name>/` folder with everything the factories produced:
 
 ```text
-docs/initiatives/login-com-google/
-├── research.md              # PO — pesquisa de mercado
-├── codemap.md               # PO — o que já existe no código
-├── blueprint.md             # PO — especificação machine-ready
-├── tasks-report.md          # PO — Epic e Stories criadas
-├── tech-lead-APP-012.md     # DEV — plano técnico
-├── code-review-APP-012-1.md # DEV — review da tentativa 1
-├── self-test-APP-012.md     # DEV — build e checklist manual
+docs/initiatives/login-with-google/
+├── research.md              # PO: market research
+├── codemap.md               # PO: what already exists in the code
+├── blueprint.md             # PO: machine-ready specification
+├── tasks-report.md          # PO: Epic and Stories created
+├── tech-lead-APP-012.md     # DEV: technical plan
+├── code-review-APP-012-1.md # DEV: review of attempt 1
+├── self-test-APP-012.md     # DEV: build and manual checklist
 ├── doc-sync-report-APP-012.md
-├── qa-plan-APP-012.md       # QA — plano de testes
-├── qa-report-APP-012.md     # QA — resultado
-└── evidence/                # QA — vídeos, screenshots, logs
+├── qa-plan-APP-012.md       # QA: test plan
+├── qa-report-APP-012.md     # QA: result
+└── evidence/                # QA: videos, screenshots, logs
 ```
 
-Isso dá rastreabilidade: dá para saber por que uma decisão foi tomada lendo o blueprint e o plano técnico,
-meses depois.
+This gives traceability: you can find out why a decision was made by reading the blueprint and the technical plan,
+months later.

@@ -1,100 +1,100 @@
 # /factory:qa
 
-Testa **uma task que está em `qa_gate`**: planeja os cenários a partir do blueprint, escreve testes de
-backend e E2E lendo o código real, roda tudo com vídeo e evidências e fecha a task, ou abre bugs ligados
-a ela.
+Tests **a task that is in `qa_gate`**: plans the scenarios from the blueprint, writes backend
+and E2E tests by reading the real code, runs everything with video and evidence and closes the task, or opens bugs linked
+to it.
 
 ```text
-/factory:qa <task-id> [--model papel=valor]
+/factory:qa <task-id> [--model role=value]
 ```
 
 ## Pipeline
 
 ```mermaid
 flowchart TD
-    P[1 · Planner<br/>qa-plan.md] --> B[2a · QA Backend<br/>testes de integração e unit]
-    P --> F[2b · QA Frontend<br/>testes E2E]
-    B --> R[3 · Runner<br/>docker, execução, evidências]
+    P[1 · Planner<br/>qa-plan.md] --> B[2a · QA Backend<br/>integration and unit tests]
+    P --> F[2b · QA Frontend<br/>E2E tests]
+    B --> R[3 · Runner<br/>docker, execution, evidence]
     F --> R
-    R -->|tudo passou| D([task → done + label approved])
-    R -->|falhas| G([1 bug por falha, ligado à task])
+    R -->|everything passed| D([task → done + label approved])
+    R -->|failures| G([1 bug per failure, linked to the task])
 ```
 
-Backend e frontend rodam **em paralelo**. A ETAPA 0 é a mesma das outras fábricas, com uma trava a mais: a
-task **precisa** estar em `qa_gate`, e `qa_gate` precisa ser diferente de `in_qa`. Assim uma task já em
-teste nunca é pega de novo.
+Backend and frontend run **in parallel**. STEP 0 is the same as in the other factories, with one extra lock: the
+task **must** be in `qa_gate`, and `qa_gate` must be different from `in_qa`. That way a task already being
+tested is never picked up again.
 
-### 1. Planner: o que testar
+### 1. Planner: what to test
 
-**Não lê código-fonte.** Planeja a partir do **comportamento esperado** (o blueprint da task) e da lista
-de arquivos alterados na branch, só classificada por camada. Ao começar, move a task para `in_qa` e
-comenta que o QA iniciou.
+**It doesn't read source code.** It plans from the **expected behavior** (the task's blueprint) and from the list
+of files changed on the branch, only classified by layer. When it starts, it moves the task to `in_qa` and
+comments that QA has started.
 
-O plano tem cenários com ID, que depois dão nome aos testes:
+The plan has scenarios with IDs, which later give the tests their names:
 
-| Prefixo | Tipo | Exemplos |
+| Prefix | Type | Examples |
 |---|---|---|
-| `I-XX` | integração HTTP, por endpoint | caminho feliz, campo obrigatório, 404, sem autenticação (401), sem permissão (403), duplicata (409) |
-| `U-XX` | unitário | só para lógica pura que vale isolar do banco |
-| `E-XX` | E2E, por tela | carrega autenticada, redireciona sem login, criar, validação de formulário, editar, excluir |
-| `G-XX` | regressão | áreas vizinhas que a mudança pode ter afetado |
+| `I-XX` | HTTP integration, per endpoint | happy path, required field, 404, unauthenticated (401), no permission (403), duplicate (409) |
+| `U-XX` | unit | only for pure logic worth isolating from the database |
+| `E-XX` | E2E, per screen | loads authenticated, redirects without login, create, form validation, edit, delete |
+| `G-XX` | regression | neighboring areas the change may have affected |
 
-Se o projeto isola dados por usuário ou tenant, o plano inclui o cenário "só vê os próprios". Se a branch
-está atrás da base, o plano avisa para considerar rebase. O plano é salvo e **postado na task**.
+If the project isolates data per user or tenant, the plan includes the "only sees their own" scenario. If the branch
+is behind the base, the plan warns you to consider a rebase. The plan is saved and **posted on the task**.
 
-### 2a. QA Backend: testes contra o código real
+### 2a. QA Backend: tests against the real code
 
-**O código implementado é a fonte de verdade.** Antes de escrever, abre controllers, validação, models,
-services, rotas e migrations para extrair endpoint, parâmetros, status e códigos de erro **reais**. Se o
-código diverge do plano, testa o que foi implementado e documenta a divergência no próprio teste.
+**The implemented code is the source of truth.** Before writing, it opens controllers, validation, models,
+services, routes and migrations to extract the **real** endpoint, parameters, statuses and error codes. If the
+code diverges from the plan, it tests what was implemented and documents the divergence in the test itself.
 
-- usa o framework do projeto (`stack.backend.test`) e os helpers existentes (`tests.backend_helpers`);
-- isola cada teste com o mecanismo da stack (transação, banco efêmero ou cleanup no teardown);
-- um cenário do plano = um teste, com o ID no nome (`I-01: …`);
-- **nunca** mocka o ORM nem chuta nome de campo; job ou evento disparado é testado com o *fake* da stack;
-- achou um bug lendo o código? Marca `// POTENTIAL BUG` e escreve o teste mesmo assim.
+- uses the project's framework (`stack.backend.test`) and the existing helpers (`tests.backend_helpers`);
+- isolates each test with the stack's mechanism (transaction, ephemeral database or cleanup in the teardown);
+- one scenario from the plan = one test, with the ID in the name (`I-01: …`);
+- **never** mocks the ORM or guesses a field name; a dispatched job or event is tested with the stack's *fake*;
+- found a bug while reading the code? It marks `// POTENTIAL BUG` and writes the test anyway.
 
-### 2b. QA Frontend: E2E com seletores reais
+### 2b. QA Frontend: E2E with real selectors
 
-Funciona com **Cypress ou Playwright**: `stack.frontend.e2e` escolhe o [driver de E2E](../reference/drivers.md#drivers-de-e2e),
-que define a sintaxe do teste, o login, a espera, os seletores, a evidência e o formato do resultado.
+Works with **Cypress or Playwright**: `stack.frontend.e2e` picks the [E2E driver](../reference/drivers.md#e2e-drivers),
+which defines the test syntax, login, waiting, selectors, evidence and result format.
 
-Lê rotas, guards, templates e componentes antes de escrever e monta uma **tabela de seletores reais**
-(campos de formulário, botões, `data-testid`, textos). Seletor instável ganha um
-`// TODO: data-testid` em vez de um chute.
+Reads routes, guards, templates and components before writing and builds a **table of real selectors**
+(form fields, buttons, `data-testid`, texts). An unstable selector gets a
+`// TODO: data-testid` instead of a guess.
 
-- login **programático** por papel (`tests.frontend_cmds`, `tests.roles`), não pelo formulário: custom command no Cypress, fixture ou `storageState` no Playwright;
-- vídeo sempre ligado e screenshot em falha;
-- limpeza dos dados criados via API ao final;
-- espera por asserção com timeout, nunca `sleep` fixo;
-- **nunca** mocka HTTP: o E2E roda contra o backend de verdade.
+- **programmatic** login per role (`tests.frontend_cmds`, `tests.roles`), not through the form: a custom command in Cypress, a fixture or `storageState` in Playwright;
+- video always on and screenshot on failure;
+- cleanup of the created data via the API at the end;
+- waits on assertions with a timeout, never a fixed `sleep`;
+- **never** mocks HTTP: the E2E runs against the real backend.
 
-### 3. Runner: executar e reportar
+### 3. Runner: run and report
 
-1. **Prepara:** faz checkout e pull da branch da task e compara com a base; conflito para tudo.
-2. **Sobe a stack** se `docker.ensure_up` estiver ligado, com migrate e seed do banco de teste.
-3. **Confere os serviços:** `env.api_url` e `env.app_url` precisam responder. Offline, só comenta na task e
-   **não roda nada**.
-4. **Smoke test:** o script do projeto ou login mais um endpoint. Falhou, para.
-5. **Executa** `docker.run` (e `docker.run_frontend`, se existir, em paralelo) com modo de evidência ligado,
-   *slow motion* e resolução do config.
-6. **Coleta** vídeos, screenshots e resultados em `docs/initiatives/<nome>/evidence/<data-hora>/`.
-7. **Reporta:**
-    - **tudo passou:** comenta o relatório, move para **`done`** e aplica a label `approved`;
-    - **houve falha:** abre **um bug por teste falho**, ligado à task (não ao épico), e comenta o resumo. A
-      task fica em `in_qa`.
+1. **Prepares:** checks out and pulls the task's branch and compares it with the base; a conflict stops everything.
+2. **Brings up the stack** if `docker.ensure_up` is on, with migrate and seed of the test database.
+3. **Checks the services:** `env.api_url` and `env.app_url` must respond. If they are offline, it only comments on the task and
+   **runs nothing**.
+4. **Smoke test:** the project's script or a login plus an endpoint. If it fails, it stops.
+5. **Runs** `docker.run` (and `docker.run_frontend`, if it exists, in parallel) with evidence mode on,
+   *slow motion* and the resolution from the config.
+6. **Collects** videos, screenshots and results in `docs/initiatives/<name>/evidence/<date-time>/`.
+7. **Reports:**
+    - **everything passed:** comments the report, moves to **`done`** and applies the `approved` label;
+    - **there was a failure:** opens **one bug per failed test**, linked to the task (not to the epic), and comments the summary. The
+      task stays in `in_qa`.
 
-O relatório (`qa-report-<task>.md`) traz uma tabela por cenário e métricas de tempo.
+The report (`qa-report-<task>.md`) has a table per scenario and timing metrics.
 
-## Config que ela exige
+## Config it requires
 
-Além das chaves gerais: `tests.dir`, `tests.layout.backend`, `tests.layout.frontend`, `stack.backend.test`,
-`stack.frontend.e2e`, `env.app_url`, `env.api_url`, `docker.run`, `docker.ensure_up` e o bloco `evidence`.
-Veja a [referência de configuração](../reference/config.md).
+Besides the general keys: `tests.dir`, `tests.layout.backend`, `tests.layout.frontend`, `stack.backend.test`,
+`stack.frontend.e2e`, `env.app_url`, `env.api_url`, `docker.run`, `docker.ensure_up` and the `evidence` block.
+See the [configuration reference](../reference/config.md).
 
-## Modelos padrão
+## Default models
 
-| Papel | Modelo |
+| Role | Model |
 |---|---|
 | `qa.planner` | `fable` |
 | `qa.backend` · `qa.frontend` | `opus` |

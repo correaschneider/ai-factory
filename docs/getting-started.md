@@ -1,17 +1,20 @@
-# Começando
+# Getting started
 
-## Pré-requisitos
+> **Just want to try it?** Install the plugin (step 1) and run `/factory:demo` (step 2). The prerequisites below
+> are for using the factory on a real project.
 
-- **Claude Code** instalado.
-- **Um repositório git** do projeto, com backend, frontend ou os dois.
-- **Acesso ao tracker** onde as tasks vivem:
-    - Jira, ClickUp ou GitLab: o servidor MCP do tracker configurado no Claude Code;
-    - GitHub Issues: a CLI `gh` autenticada;
-    - driver `markdown`: nada, as tasks são arquivos no próprio repositório.
-- **CLI do code host**, se for usar a fábrica CR: `glab` (GitLab) ou `gh` (GitHub), já autenticada.
-- **Docker**, se a fábrica QA for subir a stack local para rodar os testes.
+## Prerequisites
 
-## 1. Instalar o plugin
+- **Claude Code** installed.
+- **A git repository** for the project, with backend, frontend or both.
+- **Access to the tracker** where the tasks live:
+    - Jira, ClickUp or GitLab: the tracker's MCP server configured in Claude Code;
+    - GitHub Issues: the `gh` CLI, authenticated;
+    - `markdown` driver: nothing, the tasks are files in the repository itself.
+- **The code host CLI**, if you are going to use the CR factory: `glab` (GitLab) or `gh` (GitHub), already authenticated.
+- **Docker**, if the QA factory is going to bring up the local stack to run the tests.
+
+## 1. Install the plugin
 
 ```bash
 claude plugin marketplace add correaschneider/ai-factory
@@ -21,72 +24,82 @@ claude plugin marketplace add correaschneider/ai-factory
 claude plugin install factory@ai-factory
 ```
 
-Abra uma sessão nova do Claude Code. Os commands aparecem como `/factory:init`, `/factory:po`,
-`/factory:dev`, `/factory:qa` e `/factory:cr`.
+Open a new Claude Code session. The commands show up as `/factory:init`, `/factory:po`,
+`/factory:dev`, `/factory:qa` and `/factory:cr`.
 
-!!! tip "Atualizar depois"
-    `claude plugin marketplace update ai-factory` seguido de `claude plugin update factory@ai-factory`.
-    A versão nova vale a partir da próxima sessão.
+!!! tip "Updating later"
+    `claude plugin marketplace update ai-factory` followed by `claude plugin update factory@ai-factory`.
+    The new version takes effect from the next session.
 
-## 2. Gerar o config do projeto
+## 2. See it work in 5 minutes: `/factory:demo`
 
-Dentro do repositório:
+```text
+/factory:demo
+```
+
+It creates `./factory-demo` with a sample project, a Markdown kanban as the tracker and a ready config, then
+offers to run the PO factory on a sample initiative. No tracker, MCP server or Docker needed. Details on the
+[demo page](factories/demo.md).
+
+## 3. Generate the project config
+
+Inside the repository:
 
 ```text
 /factory:init
 ```
 
-O `/factory:init` lê o projeto (lockfiles, `package.json`, `composer.json`, `docker-compose`, remote do git,
-pastas de docs) e escreve `docs/factory.config.md`. O que ele não consegue inferir com segurança fica
-marcado como `TBD`, com o motivo ao lado. Quando ele tem um palpite com evidência (por exemplo, um
-framework fora da lista conhecida), ele pergunta antes de gravar.
+`/factory:init` reads the project (lockfiles, `package.json`, `composer.json`, `docker-compose`, git remote,
+docs folders) and writes `docs/factory.config.md`. Whatever it cannot infer safely is marked as `TBD`,
+with the reason next to it. When it has a guess backed by evidence (for example, a framework outside the
+known list), it asks before writing.
 
-Revise o arquivo, preencha os `TBD` e **faça commit**: o config é parte do projeto e vale para todo o time.
+Review the file, fill in the `TBD`s and **commit it**: the config is part of the project and applies to the whole team.
 
-!!! warning "A regra que mais pega"
-    Os status `qa_gate` (pronto para QA) e `in_qa` (QA em andamento) precisam ser **diferentes** no seu
-    tracker. Se forem o mesmo, a fábrica não consegue distinguir uma task esperando QA de uma já em teste.
-    O mesmo vale para `review_gate` e `in_review` na fábrica CR.
+!!! warning "The rule that trips people up the most"
+    The `qa_gate` (ready for QA) and `in_qa` (QA in progress) statuses must be **different** in your
+    tracker. If they are the same, the factory cannot tell a task waiting for QA from one already being tested.
+    The same applies to `review_gate` and `in_review` in the CR factory.
 
-## 3. Rodar uma iniciativa de ponta a ponta
+## 4. Run an initiative end to end
 
 ```text
-/factory:po Login com Google
+/factory:po Login with Google
 ```
 
-A fábrica PO pesquisa como o mercado resolve o problema, mapeia o que já existe no código, escreve o
-blueprint e cria **1 Epic + 1 Story por funcionalidade** no tracker. Tudo fica em
-`docs/initiatives/login-com-google/`.
+The PO factory researches how the market solves the problem, maps what already exists in the code, writes the
+blueprint and creates **1 Epic + 1 Story per feature** in the tracker. Everything goes into
+`docs/initiatives/login-with-google/`.
 
-Revise o blueprint e as stories. Depois, uma story por vez:
+Review the blueprint and the stories. Then, one story at a time:
 
 ```text
 /factory:dev APP-012
 ```
 
-A fábrica DEV planeja, implementa, revisa, valida o build e move a task para `qa_gate`. Se o fluxo do
-time tem code review em MR/PR:
+The DEV factory plans, implements, reviews, validates the build and moves the task to `qa_gate`. If the
+team's flow has code review on MR/PR:
 
 ```text
 /factory:cr APP-012
 ```
 
-E, por fim:
+And, finally:
 
 ```text
 /factory:qa APP-012
 ```
 
-A fábrica QA escreve e roda os testes, grava as evidências e fecha a task, ou abre bugs ligados a ela.
+The QA factory writes and runs the tests, records the evidence and closes the task, or opens bugs linked to it.
 
-## 4. Escolher os modelos (opcional)
+## 5. Choose the models (optional)
 
-Cada papel tem um modelo padrão (julgamento em `fable`, volume em `opus`, tarefas mecânicas em `sonnet`).
-Para mudar só numa execução:
+Each role has a default model (judgment on `fable`, volume on `opus`, mechanical tasks on `sonnet`).
+To change it for a single run only:
 
 ```text
 /factory:dev APP-012 --model dev.developer=fable
 ```
 
-Ou para sempre no projeto, no bloco `models:` do config. Detalhes em
-[Modelos por papel](reference/models.md).
+Or permanently for the project, in the `models:` block of the config. Details in
+[Models per role](reference/models.md).

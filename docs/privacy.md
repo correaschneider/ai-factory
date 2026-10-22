@@ -1,52 +1,53 @@
-# Política de privacidade
+# Privacy policy
 
-*Vigente desde 07/10/2026. O histórico de mudanças desta página fica no
-[repositório](https://github.com/correaschneider/ai-factory/commits/main/docs/privacy.md).*
+*Effective October 7, 2026. The change history of this page is in the
+[repository](https://github.com/correaschneider/ai-factory/commits/main/docs/privacy.en.md).*
 
-O plugin **factory** é software livre que roda inteiramente dentro do Claude Code de quem o instala. Ele
-**não tem servidor, conta, telemetria nem coleta própria**, e não envia dado para o autor do plugin nem para
-terceiros escolhidos por ele. Tudo acontece dentro das permissões que o próprio usuário configurou no
-Claude Code.
+The **factory** plugin is open-source software that runs entirely inside the Claude Code of whoever
+installs it. It has **no server, account, telemetry or data collection of its own**, and it sends no data
+to the plugin author or to third parties chosen by the author. Everything happens within the permissions
+the user has configured in Claude Code.
 
-## O que o plugin lê
+## What the plugin reads
 
-- o `docs/factory.config.md` e o código do projeto em que roda;
-- tasks, épicos e comentários do **tracker configurado pelo usuário** (Jira, ClickUp, GitLab, GitHub ou
-  arquivos Markdown), que podem conter nomes e e-mails de responsáveis e autores;
-- merge requests e pull requests do **code host configurado** (GitLab ou GitHub), na fábrica CR;
-- páginas públicas da web, na etapa de pesquisa de mercado da fábrica PO.
+- the `docs/factory.config.md` and the code of the project it runs in;
+- tasks, epics and comments from the **tracker the user configured** (Jira, ClickUp, GitLab, GitHub or
+  Markdown files), which may contain names and e-mails of assignees and authors;
+- merge requests and pull requests from the **code host the user configured** (GitLab or GitHub), in the
+  CR factory;
+- public web pages, in the market research step of the PO factory.
 
-## Onde ele grava
+## Where it writes
 
-- no **repositório do próprio usuário**: artefatos em `docs/initiatives/<nome>/`, código, testes e
-  evidências de QA;
-- no **tracker e no code host configurados**: issues, comentários e mudanças de status.
+- in the **user's own repository**: artifacts in `docs/initiatives/<name>/`, code, tests and QA evidence;
+- in the **configured tracker and code host**: issues, comments and status changes.
 
-Esses artefatos podem conter trechos das tasks lidas, inclusive nomes e e-mails.
+These artifacts may contain excerpts of the tasks that were read, including names and e-mails.
 
-## Para onde os dados vão
+## Where data goes
 
-Somente para os serviços que o próprio usuário configurou (tracker, code host e a busca web do Claude
-Code), usando as credenciais que ele já tem nesses serviços. O plugin **nunca lê arquivo de credencial nem
-variável de ambiente com segredo**: o acesso passa pelas CLIs e servidores MCP já autenticados.
+Only to the services the user configured (tracker, code host and Claude Code's web search), using the
+credentials the user already has for those services. The plugin **never reads credential files or
+environment variables holding secrets**: access goes through CLIs and MCP servers that are already
+authenticated.
 
-O processamento pelo modelo de IA acontece no Claude Code, sob os termos e a política de privacidade da
-Anthropic que o usuário aceitou ao usar o Claude Code. O plugin não muda isso.
+Processing by the AI model happens in Claude Code, under the Anthropic terms and privacy policy the user
+accepted to use Claude Code. The plugin does not change that.
 
-## Retenção e exclusão
+## Retention and deletion
 
-O plugin não retém nada. O que fica gravado segue as regras do repositório, do tracker e do code host do
-usuário: apagar o artefato, o comentário ou a task apaga o dado. Desinstalar o plugin
-(`claude plugin uninstall factory@ai-factory`) remove o plugin; os artefatos já gravados no repositório
-continuam lá até o usuário apagá-los.
+The plugin retains nothing. What is written follows the rules of the user's repository, tracker and code
+host: deleting the artifact, comment or task deletes the data. Uninstalling the plugin
+(`claude plugin uninstall factory@ai-factory`) removes the plugin; artifacts already written to the
+repository stay there until the user deletes them.
 
-## Responsabilidade sobre dados pessoais
+## Responsibility for personal data
 
-Quem decide quais dados entram nas tasks e quais repositórios e trackers a fábrica acessa é o usuário. Se
-as tasks tiverem dados pessoais, o usuário (ou a organização dele) é o controlador desses dados perante a
-LGPD, o GDPR ou a lei aplicável.
+The user decides which data goes into tasks and which repositories and trackers the factory can access.
+If tasks contain personal data, the user (or their organization) is the controller of that data under
+GDPR, LGPD or the applicable law.
 
-## Contato
+## Contact
 
-Dúvidas ou pedidos sobre privacidade:
-[issues no GitHub](https://github.com/correaschneider/ai-factory/issues).
+Questions or requests about privacy:
+[GitHub issues](https://github.com/correaschneider/ai-factory/issues).

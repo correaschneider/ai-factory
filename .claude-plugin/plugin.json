@@ -1,6 +1,6 @@
 {
   "name": "factory",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Config-driven agent factories for Claude Code: PO (initiative → stories), DEV (task → code), QA (tests + evidence) and CR (code review), with tracker, code host and E2E drivers. Output in your language (config.language).",
   "author": {
     "name": "Pedro Schneider"

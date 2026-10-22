@@ -1,40 +1,40 @@
-# Modelos por papel
+# Models per role
 
-Cada worker roda no modelo mais adequado ao tipo de trabalho. O **orquestrador** resolve o modelo e o passa
-ao subir cada worker.
+Each worker runs on the model best suited to its kind of work. The **orchestrator** resolves the model and passes it
+when spinning up each worker.
 
-## Padrões
+## Defaults
 
-| Nível | Tipo de trabalho | Papéis | Modelo |
+| Level | Kind of work | Roles | Model |
 |---|---|---|---|
-| 1 | **julgamento**: decisões caras de errar | `dev.tech_lead`, `dev.code_reviewer`, `cr.security`, `po.blueprint`, `qa.planner` | `fable` |
-| 2 | **volume**: muito código ou muita leitura | `dev.developer`, `qa.backend`, `qa.frontend`, `po.researcher`, `po.codemap`, `cr.reviewer` | `opus` |
-| 3 | **mecânico**: rodar, reportar, editar pontualmente | `dev.self_test`, `dev.doc_sync`, `qa.runner`, `po.tasks` | `sonnet` |
+| 1 | **judgment**: decisions that are costly to get wrong | `dev.tech_lead`, `dev.code_reviewer`, `cr.security`, `po.blueprint`, `qa.planner` | `fable` |
+| 2 | **volume**: lots of code or lots of reading | `dev.developer`, `qa.backend`, `qa.frontend`, `po.researcher`, `po.codemap`, `cr.reviewer` | `opus` |
+| 3 | **mechanical**: run, report, make targeted edits | `dev.self_test`, `dev.doc_sync`, `qa.runner`, `po.tasks` | `sonnet` |
 
-## Ordem de resolução
+## Resolution order
 
-O primeiro que existir vence:
+The first one that exists wins:
 
-1. `--model <papel>=<valor>` nos argumentos da execução;
-2. `models.<papel>` no `factory.config.md`;
-3. `models.default`, se for diferente de `inherit`;
-4. o padrão do plugin (tabela acima).
+1. `--model <role>=<value>` in the run's arguments;
+2. `models.<role>` in `factory.config.md`;
+3. `models.default`, if it is different from `inherit`;
+4. the plugin default (table above).
 
 ```yaml
 models:
-  default: inherit        # sem efeito: vale o padrão de cada papel
-  dev.developer: fable    # neste projeto, o developer sobe um nível
-  qa.runner: haiku        # e o runner desce
+  default: inherit        # no effect: each role's default applies
+  dev.developer: fable    # in this project, the developer goes up one level
+  qa.runner: haiku        # and the runner goes down
 ```
 
 ```text
 /factory:dev APP-012 --model dev.developer=fable --model dev.tech_lead=opus
 ```
 
-## Regras
+## Rules
 
-- Valores válidos: `fable`, `opus`, `sonnet`, `haiku` e `inherit`. Qualquer outro faz a fábrica parar na
-  ETAPA 0.
-- São **apelidos**: acompanham sempre a versão mais nova de cada modelo, sem precisar editar o config.
-- O modelo do **orquestrador** não é configurável: é o da sua sessão. Ele já está rodando quando lê o
+- Valid values: `fable`, `opus`, `sonnet`, `haiku` and `inherit`. Any other value makes the factory stop at
+  STEP 0.
+- They are **aliases**: they always track the newest version of each model, with no need to edit the config.
+- The **orchestrator's** model is not configurable: it is the one from your session. It is already running when it reads the
   config.

@@ -1,58 +1,58 @@
-# Perguntas frequentes
+# FAQ
 
-## A fábrica funciona com a minha stack?
+## Does the factory work with my stack?
 
-Provavelmente. Nada nos commands é específico de framework: o vocabulário (migration, controller, entidade,
-componente) e os comandos (build, testes, E2E) vêm do `stack` do config. O `/factory:init` reconhece de
-cara Laravel, NestJS, Next.js e Angular; outras stacks ele detecta por evidência e pergunta.
+Probably. Nothing in the commands is framework-specific: the vocabulary (migration, controller, entity,
+component) and the commands (build, tests, E2E) come from the config's `stack`. `/factory:init` recognizes
+Laravel, NestJS, Next.js and Angular out of the box; other stacks it detects from evidence and asks.
 
-## E com o meu tracker?
+## And with my tracker?
 
-Jira, ClickUp, GitLab Issues e GitHub Issues têm driver pronto, e o driver `markdown` funciona sem tracker nenhum. Outro
-sistema precisa de um [driver novo](reference/drivers.md): um arquivo Markdown, sem mexer nos commands.
+Jira, ClickUp, GitLab Issues and GitHub Issues have a ready-made driver, and the `markdown` driver works with no tracker at all. Any other
+system needs a [new driver](reference/drivers.md): a Markdown file, without touching the commands.
 
-## Em que idioma a fábrica escreve?
+## What language does the factory write in?
 
-As instruções do plugin são em inglês, mas tudo o que a fábrica produz (artefatos em `docs/initiatives/`,
-comentários no tracker e no MR, mensagens para você) sai no idioma de `language` do `factory.config.md`, por
-exemplo `pt-BR` ou `en`. Sem essa chave, ela responde no idioma em que você escreve.
+The plugin's instructions are in English, but everything the factory produces (artifacts in
+`docs/initiatives/`, tracker and MR comments, messages to you) follows `language` in `factory.config.md`, for
+example `en` or `pt-BR`. Without that key, it answers in the language you write in.
 
-## Preciso usar as quatro fábricas?
+## Do I need to use all four factories?
 
-Não. Cada uma roda sozinha, desde que a task esteja no status de entrada dela. Dá para usar só a CR para
-revisar MRs, ou só a QA para testar o que o time desenvolveu à mão.
+No. Each one runs on its own, as long as the task is in its entry status. You can use only CR to
+review MRs, or only QA to test what the team developed by hand.
 
-## A fábrica faz push ou merge sozinha?
+## Does the factory push or merge on its own?
 
-- **Push:** só se o config mandar. Com `dev.commit.push: manual` a DEV não faz push; com `mr` ela abre o
+- **Push:** only if the config says so. With `dev.commit.push: manual` DEV doesn't push; with `mr` it opens the
   Merge Request.
-- **Merge:** nunca. Aprovar é decisão humana; a fábrica CR recomenda, e você aprova ou reprova.
-- **Garantias fixas:** nenhuma fábrica commita em branch protegida, e nenhuma faz `push --force`.
+- **Merge:** never. Approving is a human decision; the CR factory recommends, and you approve or reject.
+- **Fixed guarantees:** no factory commits to a protected branch, and none does `push --force`.
 
-## O que acontece quando o agente não sabe algo?
+## What happens when the agent doesn't know something?
 
-Ele não chuta. Na fábrica DEV o agent devolve `BLOCKED` com a pergunta, e o orquestrador pergunta a você.
-Nas outras, a regra é a mesma: o que não está claro vira pergunta. Config com `TBD` faz a fábrica parar
-antes de começar.
+It doesn't guess. In the DEV factory the agent returns `BLOCKED` with the question, and the orchestrator asks you.
+In the others, the rule is the same: whatever is unclear becomes a question. A config with `TBD` makes the factory stop
+before it starts.
 
-## Quanto custa rodar?
+## How much does it cost to run?
 
-Depende do tamanho da task e dos modelos. Cada etapa é um agente com contexto próprio, e os papéis de
-julgamento usam o modelo mais forte. Para economizar, rebaixe papéis em `models:` no config ou numa
-execução com `--model`. Veja [Modelos por papel](reference/models.md).
+It depends on the size of the task and on the models. Each step is an agent with its own context, and the judgment
+roles use the strongest model. To save, downgrade roles in `models:` in the config or for a single
+run with `--model`. See [Models per role](reference/models.md).
 
-## Que dados o plugin lê e para onde eles vão?
+## What data does the plugin read and where does it go?
 
-O plugin é só texto: não tem servidor, hooks nem código próprio. Ele pede ao Claude Code que leia o
-repositório, fale com o tracker e o code host que **você** configurou e rode os comandos do seu config
-(build, testes, docker, git). Nada vai para outro destino. Detalhes na
-[política de privacidade](https://github.com/correaschneider/ai-factory#privacidade).
+The plugin is just text: it has no server, hooks or code of its own. It asks Claude Code to read the
+repository, talk to the tracker and code host that **you** configured and run the commands from your config
+(build, tests, docker, git). Nothing goes anywhere else. Details in the
+[privacy policy](https://github.com/correaschneider/ai-factory#privacidade).
 
-## Os artefatos em `docs/initiatives/` devem ir para o git?
+## Should the artifacts in `docs/initiatives/` go into git?
 
-Sim, recomendado. Eles explicam por que o código é como é: pesquisa, decisões do blueprint, plano técnico,
-reviews e resultado do QA. As evidências de vídeo podem ficar de fora, se pesarem.
+Yes, recommended. They explain why the code is the way it is: research, blueprint decisions, technical plan,
+reviews and the QA result. The video evidence can be left out if it gets heavy.
 
-## Onde reporto um problema?
+## Where do I report a problem?
 
-Em [issues no GitHub](https://github.com/correaschneider/ai-factory/issues).
+In [issues on GitHub](https://github.com/correaschneider/ai-factory/issues).

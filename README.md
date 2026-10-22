@@ -1,83 +1,90 @@
-# factory — fábricas de agentes para Claude Code
+# factory — agent factories for Claude Code
 
-📖 **Documentação completa (PT/EN):** https://correaschneider.github.io/ai-factory/
+Config-driven **agent factories** that take an idea from the roadmap to reviewed, tested code, with your task
+tracker in the loop. Each factory is an assembly line with fixed steps, specialized agents in isolated
+contexts and **stopping points where a human decides**.
 
-Plugin com quatro fábricas config-driven e o gerador de config:
+📖 **Documentation (English / Português):** https://correaschneider.github.io/ai-factory/
 
-| Command | Faz |
-|---|---|
-| `/factory:init [caminho]` | Gera `docs/factory.config.md` do projeto (detecta stack, tracker e git) |
-| `/factory:po <iniciativa>` | Pesquisa → codemap → blueprint → Epic + Stories no tracker |
-| `/factory:dev <task>` | Tech lead → developer → code review → self-test → doc sync → handoff QA |
-| `/factory:qa <task>` | Plano → testes backend/E2E → execução com evidências → aprova ou abre bugs |
-| `/factory:cr <task>` | Review + auditoria de segurança dos MRs/PRs, gate humano, comenta e move a task |
+## First 5 minutes
 
-Nada é específico de projeto: tudo vem do `docs/factory.config.md` de cada repositório, cujo schema está no
-[`CONTRACT.md`](CONTRACT.md).
-
-[Privacy / Privacidade](https://github.com/correaschneider/ai-factory#privacidade)
-
-## Estrutura
-```
-commands/   orquestradores (o que aparece no menu)
-agents/     workers da DEV (factory:dev-*)
-workers/    workers de PO/QA/CR (lidos por caminho, fora do menu)
-drivers/    trackers/{jira,clickup,gitlab,markdown} · scm/{gitlab,github}
-CONTRACT.md schema do config, ops abstratas, chaves obrigatórias e modelos por papel
-```
-
-## Instalação
-Pelo marketplace deste repositório:
 ```bash
 claude plugin marketplace add correaschneider/ai-factory
 claude plugin install factory@ai-factory
 ```
-Para testar um clone local sem instalar: `claude --plugin-dir /caminho/para/ai-factory`.
-Tracker ou code host novo = arquivo novo em `drivers/` + `tracker.driver`/`scm.driver` no config.
 
-## O que o plugin executa, envia e busca
+Open a new Claude Code session and run:
 
-O plugin é só texto (commands, agents e instruções em Markdown): não tem hooks, servidor MCP, scripts
-próprios nem dependências a instalar. Tudo o que ele faz passa pelas ferramentas do próprio Claude Code,
-sujeito às permissões que o usuário já configurou, e sempre dentro do projeto em que roda:
+```text
+/factory:demo
+```
 
-- **Lê e escreve no repositório do projeto:** lê o `docs/factory.config.md` e o código; grava artefatos em
-  `docs/initiatives/<nome>/` (pesquisa, blueprint, planos e relatórios de QA). A fábrica DEV edita código e
-  pode fazer commit e push conforme o config; a fábrica QA cria arquivos de teste.
-- **Executa comandos locais:** `git`, as CLIs de code host `glab` (GitLab) e `gh` (GitHub), o build e os
-  testes definidos no config (`docker compose`, `pnpm`, `composer`, `phpunit`, `cypress` etc.) e `curl` nas
-  URLs de `env.app_url`/`env.api_url` do próprio config, para smoke test.
-- **Fala com o tracker de tarefas** que o usuário configurou (Jira, ClickUp ou GitLab Issues), usando o
-  servidor MCP desse tracker já instalado pelo usuário: lê tasks, cria épicos, stories e bugs, comenta e
-  muda status. Com o driver `markdown`, tudo fica em arquivos do repositório.
-- **Comenta em merge/pull requests** pelo `glab`/`gh`, na fábrica CR, só depois da aprovação humana.
-- **Pesquisa na web** (fábrica PO, etapa de pesquisa de mercado) com as ferramentas de busca do Claude Code.
+It creates `./factory-demo` with a sample project, a Markdown kanban as the tracker and a ready config, then
+runs the PO factory on a sample initiative: research, code map, blueprint, and an Epic with Stories in the
+kanban. No tracker, MCP server or Docker needed.
 
-Nenhum dado é enviado a outro destino além do tracker e do code host configurados pelo usuário. Ações que
-mudam o tracker ou publicam comentário em MR passam por gates descritos em cada command.
+When you want it on a real project, open the repository and run `/factory:init`.
 
-## Privacidade
+## The factories
 
-O plugin não tem servidor, conta nem coleta própria. Ele não envia dado para o autor do plugin nem para
-terceiros escolhidos por ele. Tudo roda na sessão do Claude Code de quem instalou, dentro das permissões
-que essa pessoa configurou.
+| Command | What it does |
+|---|---|
+| `/factory:demo [folder]` | Sample project + Markdown kanban, then the PO factory on a sample initiative |
+| `/factory:init [path]` | Generates the project's `docs/factory.config.md` (detects stack, tracker and git) |
+| `/factory:po <initiative>` | Research → code map → blueprint → Epic + Stories in the tracker |
+| `/factory:dev <task>` | Tech lead → developer → code review → self-test → doc sync → QA handoff |
+| `/factory:qa <task>` | Test plan → backend and E2E tests → run with evidence → done, or bugs |
+| `/factory:cr <task>` | Review and security audit of the task's MRs/PRs, human verdict, comments and status |
 
-- **O que ele lê:** o `docs/factory.config.md` e o código do projeto; tasks, épicos e comentários do
-  tracker configurado (que podem conter nomes e e-mails de responsáveis e autores); merge/pull requests
-  do code host configurado; e páginas públicas na etapa de pesquisa da fábrica PO.
-- **Onde ele grava:** só no repositório do próprio usuário (`docs/initiatives/<nome>/`, código e testes)
-  e no tracker e code host configurados (issues, comentários, mudança de status). Esses artefatos podem
-  conter trechos das tasks lidas, inclusive nomes e e-mails.
-- **Para onde os dados vão:** apenas para os serviços que o próprio usuário configurou (tracker, code host
-  e a busca web do Claude Code), usando as credenciais que ele já tem nesses serviços. O plugin nunca lê
-  arquivo de credencial nem variável de ambiente com segredo.
-- **Retenção:** o plugin não retém nada. O que fica gravado segue as regras do repositório, do tracker e do
-  code host do usuário; apagar o artefato ou a task apaga o dado.
+Nothing is project-specific: everything comes from each repository's `docs/factory.config.md`, whose schema is
+in [`CONTRACT.md`](CONTRACT.md). Drivers cover Jira, ClickUp, GitLab, GitHub and a Markdown kanban as trackers,
+GitLab and GitHub as code hosts, and Cypress or Playwright for E2E.
 
-Versão completa: [política de privacidade](https://correaschneider.github.io/ai-factory/privacy/) · [termos de uso](https://correaschneider.github.io/ai-factory/terms/).
+**Language:** the plugin's instructions are in English; everything it writes (artifacts, tracker and MR
+comments, messages) follows `language` in the config, for example `en` or `pt-BR`.
 
-Dúvidas ou pedidos sobre privacidade: abra uma issue em
+## Layout
+
+```
+commands/   orchestrators (what shows up in the menu)
+agents/     DEV workers (factory:dev-*)
+workers/    PO/QA/CR workers (read by path, not in the menu)
+drivers/    trackers/{jira,clickup,gitlab,github,markdown} · scm/{gitlab,github} · e2e/{cypress,playwright}
+CONTRACT.md config schema, abstract operations, required keys and models per role
+```
+
+To try a local clone without installing: `claude --plugin-dir /path/to/ai-factory`.
+
+## What the plugin runs, sends and fetches
+
+The plugin is text only (commands, agents and instructions in Markdown): no hooks, no MCP server, no scripts
+of its own and no dependencies to install. Everything it does goes through Claude Code's own tools, under the
+permissions the user configured, and always inside the project it runs in:
+
+- **Reads and writes the project's repository:** reads `docs/factory.config.md` and the code; writes artifacts
+  to `docs/initiatives/<name>/` (research, blueprint, plans and QA reports). The DEV factory edits code and may
+  commit and push as the config says; the QA factory creates test files.
+- **Runs local commands:** `git`, the code host CLIs `glab` (GitLab) and `gh` (GitHub), the build and tests
+  defined in the config (`docker compose`, `pnpm`, `composer`, `phpunit`, `cypress`, `playwright`, etc.) and
+  `curl` on the config's own `env.app_url`/`env.api_url`, for smoke tests.
+- **Talks to the task tracker** the user configured (Jira, ClickUp, GitLab Issues or GitHub Issues), through the
+  MCP server or CLI the user already installed: reads tasks, creates epics, stories and bugs, comments and changes
+  status. With the `markdown` driver everything stays in files in the repository.
+- **Comments on merge/pull requests** through `glab`/`gh`, in the CR factory, only after the human verdict.
+- **Searches the web** (PO factory, market research step) with Claude Code's search tools.
+
+No data goes anywhere other than the tracker and code host the user configured. Actions that change the
+tracker or post MR comments go through the gates described in each command.
+
+## Privacy
+
+The plugin has no server, account or data collection of its own, and sends no data to the plugin author or to
+third parties chosen by the author. Full text: [privacy policy](https://correaschneider.github.io/ai-factory/privacy/)
+· [terms of use](https://correaschneider.github.io/ai-factory/terms/).
+
+<a id="privacidade"></a>Questions or requests about privacy:
 [github.com/correaschneider/ai-factory/issues](https://github.com/correaschneider/ai-factory/issues).
 
-## Licença
-MIT — ver [LICENSE](LICENSE).
+## License
+
+MIT — see [LICENSE](LICENSE).

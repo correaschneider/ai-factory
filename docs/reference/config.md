@@ -1,26 +1,26 @@
-# Configuração
+# Configuration
 
-O `docs/factory.config.md` é um arquivo Markdown com um bloco YAML no topo (o *front-matter*) e notas livres
-depois. O `/factory:init` gera a primeira versão; o time mantém e versiona junto com o código.
+`docs/factory.config.md` is a Markdown file with a YAML block at the top (the *front-matter*) and free-form notes
+after it. `/factory:init` generates the first version; the team maintains it and versions it along with the code.
 
-Chave ausente ou com valor `TBD` numa chave que a fábrica precisa faz a fábrica **parar** na ETAPA 0 e dizer
-qual é.
+A missing key, or a key set to `TBD`, that the factory needs makes the factory **stop** at STEP 0 and tell you
+which one it is.
 
-## Exemplo completo
+## Full example
 
 ```yaml
 ---
-project:  minha-app
-company:  Minha Empresa
-language: pt-BR
+project:  my-app
+company:  My Company
+language: en-US
 
 tracker:
   driver: gitlab                      # jira | clickup | gitlab | github | markdown
-  project_path: grupo/minha-app       # chave do driver gitlab
+  project_path: group/my-app          # gitlab driver key
   status:
     backlog:         { state: opened, label: backlog }
     in_progress:     { state: opened, label: doing }
-    qa_gate:         { state: opened, label: ready-for-qa }   # diferente de in_qa
+    qa_gate:         { state: opened, label: ready-for-qa }   # different from in_qa
     in_qa:           { state: opened, label: in-qa }
     done:            { state: closed }
     review_gate:     { state: opened, label: ready-for-review }
@@ -37,13 +37,13 @@ issue:
 
 scm:
   driver: gitlab                      # gitlab | github
-  repos: { backend: grupo/minha-app-api, frontend: grupo/minha-app-web }
+  repos: { backend: group/my-app-api, frontend: group/my-app-web }
   mr_target: develop
   branch_convention: 'feat/{slug}'
 
 git:
-  base_branch: origin/develop         # QA compara contra esta
-  dev_base:    origin/develop         # DEV cria a branch a partir desta
+  base_branch: origin/develop         # QA compares against this one
+  dev_base:    origin/develop         # DEV creates the branch from this one
   protected:   [main, develop]
   branch_prefix: { story: 'feat/', bug: 'fix/' }
   commit_format: '{type}({key}): {mensagem}'
@@ -85,8 +85,8 @@ tests:
 docs_map: { codebase: docs, conventions: docs/conventions }
 
 product:
-  domain: "Plataforma de agendamento para clínicas"
-  personas: [recepcionista, médico, paciente]
+  domain: "Scheduling platform for clinics"
+  personas: [receptionist, doctor, patient]
   competitors: []
   compliance: [LGPD]
 
@@ -96,48 +96,48 @@ dev:
   retries: 3
   commit: { by: pipeline, push: mr }  # by: pipeline | doc_sync · push: manual | mr
 
-models:                               # opcional
+models:                               # optional
   default: inherit
 ---
 
-# Notas do projeto
-- Particularidades, "não rodar X", armadilhas herdadas.
+# Project notes
+- Quirks, "don't run X", inherited pitfalls.
 ```
 
-## Blocos
+## Blocks
 
-| Bloco | Para que serve | Quem usa |
+| Block | What it is for | Used by |
 |---|---|---|
-| `project`, `company`, `language` | identificação e idioma dos artefatos | todas |
-| `tracker` | driver, chaves do driver, mapa de status e labels lógicos | todas |
-| `issue` | formato do id da task (`id_regex`, `prefix`, `id_format` no Markdown, `branch_field` quando a branch não deriva do id) | todas |
-| `scm` | code host, repositórios, branch de destino dos MRs, convenção de branch | CR |
-| `git` | branch base do QA, branch de onde a DEV sai, branches protegidas, formato de commit | DEV, QA |
-| `workspace` | raiz e caminhos de backend e frontend, layout dos repositórios | todas |
-| `stack` | framework, ORM, banco, testes, E2E (`cypress` ou `playwright`: escolhe o driver de E2E), comandos de build e lint | todas |
-| `env` | URLs da aplicação e da API para smoke e E2E | QA |
-| `docker` | como subir a stack e rodar os testes | DEV, QA |
-| `evidence` | variáveis de evidência e onde ficam vídeos, screenshots e resultados | QA |
-| `tests` | pasta, layout, helpers, papéis, seeder, script de smoke | QA |
-| `docs_map` | onde está o CodeBase (mapas do código) e as convenções | PO, DEV, CR |
-| `product` | domínio, personas, concorrentes, compliance | PO |
-| `dev` | divisão back/front, posição do doc sync, tentativas, commit e push | DEV |
-| `models` | modelo por papel | todas |
+| `project`, `company`, `language` | identification and language of the artifacts | all |
+| `tracker` | driver, driver keys, logical status and label map | all |
+| `issue` | task id format (`id_regex`, `prefix`, `id_format` in Markdown, `branch_field` when the branch doesn't derive from the id) | all |
+| `scm` | code host, repositories, MR target branch, branch convention | CR |
+| `git` | QA base branch, branch DEV starts from, protected branches, commit format | DEV, QA |
+| `workspace` | root and paths of backend and frontend, repository layout | all |
+| `stack` | framework, ORM, database, tests, E2E (`cypress` or `playwright`: picks the E2E driver), build and lint commands | all |
+| `env` | application and API URLs for smoke and E2E | QA |
+| `docker` | how to bring up the stack and run the tests | DEV, QA |
+| `evidence` | evidence variables and where videos, screenshots and results go | QA |
+| `tests` | folder, layout, helpers, roles, seeder, smoke script | QA |
+| `docs_map` | where the CodeBase (code maps) and the conventions are | PO, DEV, CR |
+| `product` | domain, personas, competitors, compliance | PO |
+| `dev` | back/front split, doc sync position, attempts, commit and push | DEV |
+| `models` | model per role | all |
 
-## Chaves obrigatórias por fábrica
+## Required keys per factory
 
-=== "Todas"
-    `project`, `company`, `tracker.driver`, `tracker.status.{qa_gate, in_qa, done}` (distintos),
+=== "All"
+    `project`, `company`, `tracker.driver`, `tracker.status.{qa_gate, in_qa, done}` (distinct),
     `tracker.labels.approved`, `issue.id_regex`, `git.base_branch`, `workspace.root`,
-    `workspace.repos.{backend, frontend}.path`, mais as chaves do driver (`project_path` no GitLab, `repo` no GitHub,
-    `cloud_id` e `project_key` no Jira, `board_path` no Markdown).
+    `workspace.repos.{backend, frontend}.path`, plus the driver keys (`project_path` in GitLab, `repo` in GitHub,
+    `cloud_id` and `project_key` in Jira, `board_path` in Markdown).
 
 === "PO"
-    `product.domain`, `product.personas`, `docs_map.codebase`, `stack.backend`, `stack.frontend` e as de
-    autoria do driver (Markdown: `tracker.board_path`, `epic_folder`, `story_folder`, `issue.id_format`).
+    `product.domain`, `product.personas`, `docs_map.codebase`, `stack.backend`, `stack.frontend` and the driver's
+    authoring keys (Markdown: `tracker.board_path`, `epic_folder`, `story_folder`, `issue.id_format`).
 
 === "DEV"
-    `tracker.status.{backlog, in_progress, qa_gate}` (distintos),
+    `tracker.status.{backlog, in_progress, qa_gate}` (distinct),
     `git.{dev_base, protected, branch_prefix, commit_format, remote}`, `workspace.{root, repos}`,
     `stack.{backend, frontend}.build`, `docs_map.codebase`,
     `dev.{developer_split, doc_sync_order, retries, commit.by, commit.push}`.
@@ -148,14 +148,14 @@ models:                               # opcional
     `evidence.{mode_var, slowmo_var, slowmo, resolution}`, `evidence.artifacts.*`.
 
 === "CR"
-    `tracker.status.{review_gate, in_review, review_approved, review_returned}` (`review_gate` diferente de
+    `tracker.status.{review_gate, in_review, review_approved, review_returned}` (`review_gate` different from
     `in_review`), `scm.driver`, `scm.repos`, `scm.mr_target`, `scm.branch_convention`, `workspace.root`,
     `stack`, `docs_map.codebase`.
 
-## Pegadinhas
+## Gotchas
 
-- **`git.dev_base` e `git.base_branch` podem ser diferentes.** A DEV cria a branch a partir de `dev_base`;
-  o QA compara contra `base_branch`. Se forem iguais no seu fluxo, repita o valor.
-- **Portões distintos.** `qa_gate` ≠ `in_qa` e `review_gate` ≠ `in_review`, sempre.
-- **Opcionais úteis:** `docker.run_frontend` (roda o frontend separado e em paralelo), `tests.smoke_script`,
+- **`git.dev_base` and `git.base_branch` can be different.** DEV creates the branch from `dev_base`;
+  QA compares against `base_branch`. If they are the same in your flow, repeat the value.
+- **Distinct gates.** `qa_gate` ≠ `in_qa` and `review_gate` ≠ `in_review`, always.
+- **Useful optional keys:** `docker.run_frontend` (runs the frontend separately and in parallel), `tests.smoke_script`,
   `tests.seeder`, `dev.self_test.pre_migrate_stash`, `stack.frontend.lint`, `scm.exclude_branch_suffix`.

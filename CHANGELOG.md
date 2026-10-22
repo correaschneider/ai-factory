@@ -3,6 +3,10 @@
 Semver: **major** = quebra de config/contrato (chave obrigatória nova no `CONTRACT.md`, op de driver com
 assinatura nova); **minor** = fábrica, driver ou op nova; **patch** = ajuste de prompt/correção.
 
+## 1.4.1 — 2026-10-22
+- README em inglês com **"First 5 minutes"** no topo (instalar → `/factory:demo` → `/factory:init`).
+- Site com **inglês como idioma padrão** e português em `/pt/`; "Getting started" e a home abrem pela demo. (#11)
+
 ## 1.4.0 — 2026-10-22
 - **`/factory:demo`**: primeiro uso sem preparo. Cria um projeto de exemplo (Notely, com mapa de CodeBase), um
   kanban em Markdown e o config, e roda a fábrica PO numa iniciativa de exemplo, sem tracker nem MCP. (#10)

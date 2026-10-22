@@ -1,62 +1,70 @@
 # Factory
 
-**Fábricas de agentes para Claude Code** que levam uma ideia do roadmap até código revisado e testado,
-passando pelo tracker de tarefas do time. Cada fábrica é uma linha de montagem com etapas fixas, agentes
-especializados em contexto isolado e **pontos de parada onde um humano decide**.
+**Agent factories for Claude Code** that take an idea from the roadmap to reviewed, tested code,
+going through the team's task tracker. Each factory is an assembly line with fixed steps, specialized
+agents in isolated contexts and **stopping points where a human decides**.
+
+!!! tip "First 5 minutes"
+    ```bash
+    claude plugin marketplace add correaschneider/ai-factory
+    claude plugin install factory@ai-factory
+    ```
+    Then, in a new Claude Code session: `/factory:demo`. It builds a sample project and runs the PO factory
+    on it, with nothing to configure. When you want it on a real project: `/factory:init`.
 
 ```mermaid
 flowchart LR
-    I([Iniciativa]) --> PO[/factory:po/]
-    PO -->|Epic + Stories no tracker| DEV[/factory:dev/]
-    DEV -->|código na branch + task em QA| QA[/factory:qa/]
-    DEV -.->|MR/PR aberto| CR[/factory:cr/]
-    CR -->|aprovado| QA
-    CR -->|reprovado| DEV
-    QA -->|tudo passou| D([Done])
-    QA -->|falhas| B([Bugs ligados à task])
+    I([Initiative]) --> PO[/factory:po/]
+    PO -->|Epic + Stories in the tracker| DEV[/factory:dev/]
+    DEV -->|code on the branch + task in QA| QA[/factory:qa/]
+    DEV -.->|MR/PR opened| CR[/factory:cr/]
+    CR -->|approved| QA
+    CR -->|rejected| DEV
+    QA -->|everything passed| D([Done])
+    QA -->|failures| B([Bugs linked to the task])
 ```
 
-## O que ela resolve
+## What it solves
 
-Pedir "implementa essa feature" para um agente funciona em tarefas pequenas. Em trabalho de verdade aparecem
-os mesmos problemas: o agente pula a pesquisa, inventa nomes que não existem no código, esquece o tracker,
-testa pouco e não deixa rastro do que decidiu.
+Asking an agent to "implement this feature" works for small tasks. In real work the same problems show
+up: the agent skips the research, invents names that don't exist in the code, forgets the tracker,
+tests too little and leaves no trace of what it decided.
 
-A fábrica troca o pedido solto por um **processo**:
+The factory replaces the loose request with a **process**:
 
-- **Etapas com entrada e saída definidas.** Cada etapa gera um artefato em Markdown (pesquisa, mapa do
-  código, blueprint, plano técnico, relatórios) e só avança se esse artefato passar num *gate*.
-- **Um papel por agente.** Pesquisador, arquiteto de blueprint, tech lead, developer, revisor, QA: cada
-  um roda no seu próprio contexto, com as ferramentas que o papel precisa e nada mais.
-- **O tracker é parte do fluxo.** Stories nascem no tracker, a task muda de status conforme o trabalho
-  anda, comentários registram o que foi feito, bugs de QA viram issues ligadas à task.
-- **Nada é específico de projeto.** Stack, caminhos, branches, tracker e status vêm de um arquivo de
-  configuração por repositório. A mesma fábrica serve projetos em Laravel, NestJS, Angular ou Next.js,
-  com Jira, ClickUp, GitLab, GitHub ou um kanban em Markdown.
+- **Steps with defined input and output.** Each step produces a Markdown artifact (research, code map,
+  blueprint, technical plan, reports) and only moves forward if that artifact passes a *gate*.
+- **One role per agent.** Researcher, blueprint architect, tech lead, developer, reviewer, QA: each one
+  runs in its own context, with the tools the role needs and nothing more.
+- **The tracker is part of the flow.** Stories are born in the tracker, the task changes status as the
+  work progresses, comments record what was done, QA bugs become issues linked to the task.
+- **Nothing is project-specific.** Stack, paths, branches, tracker and statuses come from a
+  configuration file per repository. The same factory serves projects in Laravel, NestJS, Angular or
+  Next.js, with Jira, ClickUp, GitLab, GitHub or a Markdown kanban.
 
-## As fábricas
+## The factories
 
-| Command | Entrada | O que entrega |
+| Command | Input | What it delivers |
 |---|---|---|
-| [`/factory:demo`](factories/demo.md) | pasta (opcional) | projeto de exemplo + kanban em Markdown e a fábrica PO rodando, sem configurar nada |
-| [`/factory:init`](factories/init.md) | caminho do projeto | `docs/factory.config.md` com stack, tracker e git detectados |
-| [`/factory:po`](factories/po.md) | nome da iniciativa | pesquisa de mercado, mapa do código, blueprint e **Epic + Stories** no tracker |
-| [`/factory:dev`](factories/dev.md) | id da task | plano técnico, código na branch, review, build validado e task em QA |
-| [`/factory:qa`](factories/qa.md) | id da task | plano de testes, testes backend e E2E, execução com vídeo e **done** ou **bugs** |
-| [`/factory:cr`](factories/cr.md) | id da task | review e auditoria de segurança dos MRs/PRs, **veredito humano**, comentários e status |
+| [`/factory:demo`](factories/demo.md) | folder (optional) | sample project + Markdown kanban and the PO factory running, nothing to configure |
+| [`/factory:init`](factories/init.md) | project path | `docs/factory.config.md` with detected stack, tracker and git |
+| [`/factory:po`](factories/po.md) | initiative name | market research, code map, blueprint and **Epic + Stories** in the tracker |
+| [`/factory:dev`](factories/dev.md) | task id | technical plan, code on the branch, review, validated build and task in QA |
+| [`/factory:qa`](factories/qa.md) | task id | test plan, backend and E2E tests, execution with video and **done** or **bugs** |
+| [`/factory:cr`](factories/cr.md) | task id | review and security audit of the MRs/PRs, **human verdict**, comments and status |
 
-## Onde o humano entra
+## Where the human comes in
 
-A fábrica automatiza o trabalho repetitivo, não as decisões:
+The factory automates the repetitive work, not the decisions:
 
-- **Configuração:** o `/factory:init` sugere, mas só grava o que você confirma.
-- **Dúvida no meio do caminho:** qualquer agente que não tem certeza devolve `BLOCKED` com a pergunta, e o
-  orquestrador pergunta a você em vez de chutar.
-- **Code review:** a fábrica CR recomenda, mas quem aprova ou reprova é você, com o motivo.
-- **Prioridade:** a fábrica PO cria as stories no backlog; ordem de sprint é decisão do time.
+- **Configuration:** `/factory:init` suggests, but only writes what you confirm.
+- **Doubts along the way:** any agent that is not sure returns `BLOCKED` with the question, and the
+  orchestrator asks you instead of guessing.
+- **Code review:** the CR factory recommends, but you are the one who approves or rejects, with the reason.
+- **Priority:** the PO factory creates the stories in the backlog; sprint order is the team's decision.
 
-## Próximos passos
+## Next steps
 
-- [Começando](getting-started.md): instalar, gerar o config e rodar a primeira iniciativa.
-- [Conceitos](concepts.md): config, contrato, drivers, status lógicos e gates.
-- [Referência de configuração](reference/config.md): todas as chaves do `factory.config.md`.
+- [Getting started](getting-started.md): install, generate the config and run the first initiative.
+- [Concepts](concepts.md): config, contract, drivers, logical statuses and gates.
+- [Configuration reference](reference/config.md): every key in `factory.config.md`.
