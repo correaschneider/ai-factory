@@ -48,8 +48,8 @@ O `/factory:init` **não inventa valor**. Quatro saídas possíveis para cada ch
 |---|---|
 | inferido com segurança | o valor concreto |
 | palpite que você confirmou | o valor concreto |
-| palpite não confirmado | `TBD   # sugestão: "X" — evidência: package.json:dependencies.x, …` |
-| nenhuma evidência | `TBD   # sem evidência` |
+| palpite não confirmado | `TBD   # suggestion: "X" — evidence: package.json:dependencies.x, …` |
+| nenhuma evidência | `TBD   # no evidence` |
 
 Quando uma fábrica encontra um `TBD` com sugestão, ela para e **mostra a sugestão**, para você só confirmar.
 

@@ -1,57 +1,57 @@
 # E2E Driver — Playwright
 
-**Selecionado quando:** `config.stack.frontend.e2e` começa com `playwright`.
-**Pré-requisito:** `@playwright/test` instalado no projeto de testes (ou na imagem de
-`config.docker.run[_frontend]`), com os browsers da imagem oficial do Playwright ou instalados no build.
+**Selected when:** `config.stack.frontend.e2e` starts with `playwright`.
+**Prerequisite:** `@playwright/test` installed in the test project (or in the image of
+`config.docker.run[_frontend]`), with the browsers from the official Playwright image or installed at build time.
 
 ---
 
 ### E1. files
-- Arquivo: `{config.tests.layout.frontend}/{feature}.spec.ts` (respeite `testDir`/`testMatch` do
+- File: `{config.tests.layout.frontend}/{feature}.spec.ts` (respect `testDir`/`testMatch` in
   `playwright.config.*`).
 - Suite: `test.describe('{Feature} — Task {task_id}', () => { … })`.
-- Um cenário = um `test('E-01: {descrição}', async ({ page }) => { … })`. O ID do plano sempre no início do nome.
+- One scenario = one `test('E-01: {description}', async ({ page }) => { … })`. The plan's ID always at the start of the name.
 
 ### E2. auth
-- Login programático por papel, sem formulário, reusando o que o projeto já tem em
-  `config.tests.frontend_cmds` (fixture, *setup project* ou helper):
-    - **setup project + `storageState`**: um `auth.setup.ts` faz o login pela API e salva o estado por papel;
-      os testes usam `test.use({ storageState: '<arquivo do papel>' })`;
-    - **fixture**: `test.extend({ adminPage: … })` que autentica via `request.post('{config.env.api_url}/…')`
-      e injeta token/cookie no contexto.
-- Cleanup no `test.afterAll`/`afterEach` com o fixture `request` autenticado, filtrando pelo prefixo de dado.
+- Programmatic login per role, without a form, reusing what the project already has in
+  `config.tests.frontend_cmds` (fixture, *setup project* or helper):
+    - **setup project + `storageState`**: an `auth.setup.ts` logs in via the API and saves the state per role;
+      the tests use `test.use({ storageState: '<role file>' })`;
+    - **fixture**: `test.extend({ adminPage: … })` that authenticates via `request.post('{config.env.api_url}/…')`
+      and injects token/cookie into the context.
+- Cleanup in `test.afterAll`/`afterEach` with the authenticated `request` fixture, filtering by the data prefix.
 
 ### E3. wait
-- Asserções que esperam sozinhas: `await expect(locator).toBeVisible({ timeout: 10000 })`,
+- Assertions that wait on their own: `await expect(locator).toBeVisible({ timeout: 10000 })`,
   `toHaveText`, `toHaveURL`, `toBeHidden`.
-- Request relevante: `const r = page.waitForResponse('**/rota'); await acao; await r;`.
-- `page.waitForTimeout(<ms>)` só para estado assíncrono **depois** de uma mutação, nunca para esperar UI.
+- Relevant request: `const r = page.waitForResponse('**/route'); await action; await r;`.
+- `page.waitForTimeout(<ms>)` only for async state **after** a mutation, never to wait for the UI.
 
 ### E4. selectors
-1. `page.getByTestId('…')` (atributo configurável em `use.testIdAttribute`);
-2. papel e nome acessível: `page.getByRole('button', { name: 'Salvar' })`, `getByLabel('E-mail')`;
-3. atributo estável do template: `page.locator('[formcontrolname="email"]')`;
-4. texto visível: `page.getByText('…')`;
-5. classe/estrutura só em último caso, com `// TODO: adicionar data-testid="…"`.
+1. `page.getByTestId('…')` (attribute configurable in `use.testIdAttribute`);
+2. role and accessible name: `page.getByRole('button', { name: 'Save' })`, `getByLabel('Email')`;
+3. stable template attribute: `page.locator('[formcontrolname="email"]')`;
+4. visible text: `page.getByText('…')`;
+5. class/structure only as a last resort, with `// TODO: add data-testid="…"`.
 
 ### E5. evidence
-- No `playwright.config.*`, bloco `use`:
-    - `video: 'on'` (ou `'retain-on-failure'`) e `screenshot: 'only-on-failure'`;
-    - `viewport` a partir de `config.evidence.resolution`;
-    - `launchOptions: { slowMo: Number(process.env.{config.evidence.slowmo_var} ?? 0) }` para *slow motion*.
-- Com `{config.evidence.mode_var}=true`, o runner exporta as variáveis; vídeos e screenshots saem em
-  `test-results/` (ou `outputDir`).
+- In `playwright.config.*`, the `use` block:
+    - `video: 'on'` (or `'retain-on-failure'`) and `screenshot: 'only-on-failure'`;
+    - `viewport` from `config.evidence.resolution`;
+    - `launchOptions: { slowMo: Number(process.env.{config.evidence.slowmo_var} ?? 0) }` for *slow motion*.
+- With `{config.evidence.mode_var}=true`, the runner exports the variables; videos and screenshots go to
+  `test-results/` (or `outputDir`).
 
 ### E6. run
-- Só a feature: `playwright test {config.tests.layout.frontend}/{feature}` (ou `--grep 'E-0'` pelo ID).
-- Confirmar no log a lista de testes executados e o resumo `N passed / M failed`.
-- Resultado para o runner: `--reporter=list,json` com a saída JSON apontada para
-  `config.evidence.artifacts.frontend_result` (`PLAYWRIGHT_JSON_OUTPUT_NAME` ou `reporter: [['json', { outputFile }]]`).
+- Only the feature: `playwright test {config.tests.layout.frontend}/{feature}` (or `--grep 'E-0'` by ID).
+- Confirm in the log the list of executed tests and the summary `N passed / M failed`.
+- Result for the runner: `--reporter=list,json` with the JSON output pointed at
+  `config.evidence.artifacts.frontend_result` (`PLAYWRIGHT_JSON_OUTPUT_NAME` or `reporter: [['json', { outputFile }]]`).
 
 ### E7. result
-- JSON do reporter do Playwright em `config.evidence.artifacts.frontend_result`:
-  `stats.expected` (passou), `stats.unexpected` (falhou), `stats.flaky`, `stats.skipped`;
-  total = soma dos quatro.
-- Por falha: percorrer `suites[].specs[].tests[].results[]` com `status` diferente de `passed`/`skipped`,
-  pegando título do spec, `error.message`, primeiras linhas de `error.stack` e os `attachments` (vídeo,
+- Playwright reporter JSON in `config.evidence.artifacts.frontend_result`:
+  `stats.expected` (passed), `stats.unexpected` (failed), `stats.flaky`, `stats.skipped`;
+  total = sum of the four.
+- Per failure: walk `suites[].specs[].tests[].results[]` with `status` other than `passed`/`skipped`,
+  taking the spec title, `error.message`, first lines of `error.stack` and the `attachments` (video,
   screenshot, trace).

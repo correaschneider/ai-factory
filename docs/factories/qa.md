@@ -52,7 +52,7 @@ código diverge do plano, testa o que foi implementado e documenta a divergênci
 - isola cada teste com o mecanismo da stack (transação, banco efêmero ou cleanup no teardown);
 - um cenário do plano = um teste, com o ID no nome (`I-01: …`);
 - **nunca** mocka o ORM nem chuta nome de campo; job ou evento disparado é testado com o *fake* da stack;
-- achou um bug lendo o código? Marca `// BUG POTENCIAL` e escreve o teste mesmo assim.
+- achou um bug lendo o código? Marca `// POTENTIAL BUG` e escreve o teste mesmo assim.
 
 ### 2b. QA Frontend: E2E com seletores reais
 
@@ -78,7 +78,7 @@ Lê rotas, guards, templates e componentes antes de escrever e monta uma **tabel
 4. **Smoke test:** o script do projeto ou login mais um endpoint. Falhou, para.
 5. **Executa** `docker.run` (e `docker.run_frontend`, se existir, em paralelo) com modo de evidência ligado,
    *slow motion* e resolução do config.
-6. **Coleta** vídeos, screenshots e resultados em `docs/initiatives/<nome>/evidencias/<data-hora>/`.
+6. **Coleta** vídeos, screenshots e resultados em `docs/initiatives/<nome>/evidence/<data-hora>/`.
 7. **Reporta:**
     - **tudo passou:** comenta o relatório, move para **`done`** e aplica a label `approved`;
     - **houve falha:** abre **um bug por teste falho**, ligado à task (não ao épico), e comenta o resumo. A

@@ -61,7 +61,7 @@ blueprint.
 
 ### 2. Developer: the code
 
-Implements **only its own scope** (`backend`, `frontend` or `ambos`), following the stack's patterns and reusing what
+Implements **only its own scope** (`backend`, `frontend` or `both`), following the stack's patterns and reusing what
 already exists. With `dev.developer_split: true` and a task that touches both sides, the orchestrator spins up
 **two instances in parallel**, one per repository. The frontend implements against the contract the tech
 lead defined, without waiting for the backend.

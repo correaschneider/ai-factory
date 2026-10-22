@@ -11,6 +11,12 @@ Laravel, NestJS, Next.js and Angular out of the box; other stacks it detects fro
 Jira, ClickUp, GitLab Issues and GitHub Issues have a ready-made driver, and the `markdown` driver works with no tracker at all. Any other
 system needs a [new driver](reference/drivers.md): a Markdown file, without touching the commands.
 
+## What language does the factory write in?
+
+The plugin's instructions are in English, but everything the factory produces (artifacts in
+`docs/initiatives/`, tracker and MR comments, messages to you) follows `language` in `factory.config.md`, for
+example `en` or `pt-BR`. Without that key, it answers in the language you write in.
+
 ## Do I need to use all four factories?
 
 No. Each one runs on its own, as long as the task is in its entry status. You can use only CR to

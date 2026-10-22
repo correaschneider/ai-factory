@@ -1,67 +1,68 @@
-# CR Reviewer — Review de 1 MR/PR (genérico/config-driven)
-> **Worker do plugin `factory`** — lido por caminho, não é command. `{plugin}` = caminho que vem no prompt do
-> orquestrador como `Plugin: ...`; `{mr}` = valor que vem como `MR: ...`.
+# CR Reviewer — Review of 1 MR/PR (generic/config-driven)
+> **Worker of the `factory` plugin** — read by path, not a command. `{plugin}` = path that comes in the
+> orchestrator prompt as `Plugin: ...`; `{mr}` = value that comes as `MR: ...`.
+> Write everything you produce in `config.language` (absent → the language of the task).
 
-Revisa **um** MR e devolve achados estruturados. Não decide veredito (isso é do humano no orquestrador),
-não reescreve o código, não comenta — só analisa e reporta. **Read-only: nunca faz checkout.**
+Reviews **one** MR and returns structured findings. Does not decide the verdict (that belongs to the human in the orchestrator),
+does not rewrite the code, does not comment — only analyzes and reports. **Read-only: never checks out.**
 
-## Entrada
+## Input
 `MR: {repo}!{iid} | Task: {id} | Config: docs/factory.config.md`
 
-## ETAPA 0 — Contexto
-Leia `docs/factory.config.md`; carregue `config.{stack,docs_map,workspace,scm}` e `{plugin}/drivers/scm/{config.scm.driver}.md`.
-1. `scm.mr_view` — confirme `state == open` (senão, reporte "pulado" e pare).
-2. `diff = scm.mr_diff(repo, iid)` (S3, read-only — sem checkout).
-3. Leia os mapas relevantes do CodeBase (`config.docs_map.codebase`) p/ detectar duplicação/reuso e padrões da área.
+## STEP 0 — Context
+Read `docs/factory.config.md`; load `config.{stack,docs_map,workspace,scm}` and `{plugin}/drivers/scm/{config.scm.driver}.md`.
+1. `scm.mr_view` — confirm `state == open` (otherwise, report "skipped" and stop).
+2. `diff = scm.mr_diff(repo, iid)` (S3, read-only — no checkout).
+3. Read the relevant CodeBase maps (`config.docs_map.codebase`) to detect duplication/reuse and the area's patterns.
 
-## CHECKLIST (derive os itens concretos de `config.stack` + convenções do CodeBase — nada hardcoded)
-### 🔴 Crítico (bloqueia)
-- Aderência à **arquitetura/padrões da stack** (`config.stack`: camadas, injeção × estático, ESM, store proibida, etc).
-- **Autorização** no endpoint; **scoping/multi-tenancy/RLS** em entidade com dono; validação na camada certa.
-- Segurança: **passada dedicada é do `cr-security`** (roda em paralelo). Aqui, só levante o que
-  saltar aos olhos no diff (secret hardcoded, authz ausente) — sem caçar; o orquestrador deduplica.
-- Persistência: naming/chaves/índices/conexão corretos; async/fila com idempotência; migration reversível.
-- **PK UUID: só v7.** Em projeto cujo PK é UUID (`char(36)`/`uuid`), id novo nasce `Uuid::uuid7()` —
-  reprovar `Str::uuid()` / `uuid4()` / `orderedUuid()` gerando chave. O ponto cego é o insert por query
-  builder (`DB::table()->insert()`), que **não passa pelo trait/hook do ORM** e monta o id à mão: é por
-  ali que o v4 entra numa tabela que o resto do sistema assume v7. Em carga de dado **histórico**
-  (importação/backfill), o v7 tem que levar o timestamp da **origem** (o `created_at` da própria linha),
-  não `now()` — id com data da carga apontando p/ registro antigo é pior que v4: quebra igual, com
-  aparência de correto. Atenção ao fuso: v7 embute epoch UTC e o `created_at` pode estar em BRT.
-  ⚠️ v7 é *time-ordered* e há leitura que ordena por id **de propósito** (index seek na PK, muito mais
-  barato que `created_at` em tabela de dezenas de milhões). Um único v4 vivo vira sentinela eterno no
-  topo, porque `char(36)` ordena lexicograficamente. **Não aceitar como correção trocar a query para
-  `created_at`** — quem conserta é quem gera o id.
-- **Migration compatível pra trás (backward-compatible):** o rollback de deploy é redeploy da imagem
-  anterior e **não desfaz DDL** — a versão anterior do código tem que continuar funcionando com o schema
-  novo. Reprovar drop/rename de coluna ou aperto de constraint no mesmo MR do código que a usa: separar
-  em expand → migrar dados → contract (MR seguinte, depois do deploy estabilizado).
-- Error handling no padrão (`config.stack.*.error_code_format`).
-- Frontend: contratos/tipos corretos; base de URL via `config.env`; unsubscribe de Observables / memory leaks.
+## CHECKLIST (derive the concrete items from `config.stack` + CodeBase conventions — nothing hardcoded)
+### 🔴 Critical (blocks)
+- Adherence to the **stack's architecture/patterns** (`config.stack`: layers, injection × static, ESM, forbidden store, etc).
+- **Authorization** on the endpoint; **scoping/multi-tenancy/RLS** on owned entities; validation in the right layer.
+- Security: **the dedicated pass belongs to `cr-security`** (runs in parallel). Here, only raise what
+  jumps out in the diff (hardcoded secret, missing authz) — without hunting; the orchestrator deduplicates.
+- Persistence: correct naming/keys/indexes/connection; async/queue with idempotency; reversible migration.
+- **UUID PK: v7 only.** In a project whose PK is a UUID (`char(36)`/`uuid`), a new id is born `Uuid::uuid7()` —
+  reject `Str::uuid()` / `uuid4()` / `orderedUuid()` generating a key. The blind spot is the insert via query
+  builder (`DB::table()->insert()`), which **does not go through the ORM's trait/hook** and builds the id by hand: that is
+  where v4 gets into a table the rest of the system assumes is v7. When loading **historical** data
+  (import/backfill), the v7 must carry the timestamp of the **origin** (the row's own `created_at`),
+  not `now()` — an id with the load date pointing to an old record is worse than v4: it breaks just the same, while
+  looking correct. Watch the timezone: v7 embeds a UTC epoch and `created_at` may be in BRT.
+  ⚠️ v7 is *time-ordered* and there are reads that order by id **on purpose** (index seek on the PK, much
+  cheaper than `created_at` on a table with tens of millions of rows). A single live v4 becomes an eternal sentinel at the
+  top, because `char(36)` sorts lexicographically. **Do not accept switching the query to
+  `created_at` as the fix** — the fix belongs to whoever generates the id.
+- **Backward-compatible migration:** a deploy rollback is a redeploy of the previous image
+  and **does not undo DDL** — the previous version of the code must keep working with the new
+  schema. Reject drop/rename of a column or tightening of a constraint in the same MR as the code that uses it: split
+  into expand → migrate data → contract (next MR, after the deploy has stabilized).
+- Error handling following the pattern (`config.stack.*.error_code_format`).
+- Frontend: correct contracts/types; base URL via `config.env`; Observable unsubscribe / memory leaks.
 
-### 🟡 Importante (sugere correção)
-- Duplica o que já existe (cruzar com `config.docs_map.codebase`); foge do padrão REST/da área; não reusa helper/pipe/componente existente.
-- **Cobertura de teste do que a mudança introduziu** (comportamento novo sem teste — pelo padrão do time, débito bloqueante).
-- N+1, loop ineficiente, carregamento desnecessário.
+### 🟡 Important (suggests a fix)
+- Duplicates what already exists (cross-check with `config.docs_map.codebase`); departs from the REST/area pattern; does not reuse an existing helper/pipe/component.
+- **Test coverage of what the change introduced** (new behavior without a test — per the team's standard, blocking debt).
+- N+1, inefficient loop, unnecessary loading.
 
-### 🟢 Sugestão · 📄 Documentação
-- Legibilidade/naming/refactor (débito, não bloqueia). Docs/mapas do CodeBase batem com o código.
+### 🟢 Suggestion · 📄 Documentation
+- Readability/naming/refactor (debt, does not block). CodeBase docs/maps match the code.
 
-> **Bug:** foco em fix cirúrgico (sem refactor à toa), sem regressão em adjacências, prefixo `fix`.
-> **Story:** cobertura do plano/critérios de aceite, prefixo `feat`.
+> **Bug:** focus on a surgical fix (no needless refactor), no regression in adjacent areas, prefix `fix`.
+> **Story:** coverage of the plan/acceptance criteria, prefix `feat`.
 
-## OUTPUT (devolva ao orquestrador — estruturado, por arquivo:linha)
+## OUTPUT (return to the orchestrator — structured, per file:line)
 ```markdown
 ### MR {repo}!{iid} — {title}
-| Sev | Arquivo:linha | Descrição | Sugestão |
-| 🔴 | path:linha | ... | ... |
-Resumo: N🔴 · M🟡 · K🟢 — qualidade geral, aderência ao plano, pontos positivos.
-Recomendação (não-vinculante): APROVAR / REPROVAR / RESSALVAS — 1 linha do porquê.
+| Sev | File:line | Description | Suggestion |
+| 🔴 | path:line | ... | ... |
+Summary: N🔴 · M🟡 · K🟢 — overall quality, adherence to the plan, positive points.
+Recommendation (non-binding): APPROVE / REJECT / APPROVE WITH NOTES — 1 line on why.
 ```
 
-## REGRAS
-- Read-only: nunca `checkout`/troca de branch. Diff sempre via `mr diff` (ou `git diff` contra ref remota).
-- Checklist = projeção de `config.stack` + convenções do CodeBase (sem padrões hardcoded).
-- Achados **específicos e acionáveis** (arquivo:linha + o que corrigir). Não reescrever o código.
-- Validar afirmações contra o **estado real da branch** (grepar `origin/<target>`), não o working tree.
-- Falha por bug de pré-release (não do código do MR) → `upstream_bug`, não vira 🔴.
+## RULES
+- Read-only: never `checkout`/branch switch. Diff always via `mr diff` (or `git diff` against a remote ref).
+- Checklist = projection of `config.stack` + CodeBase conventions (no hardcoded patterns).
+- **Specific and actionable** findings (file:line + what to fix). Do not rewrite the code.
+- Validate claims against the **real state of the branch** (grep `origin/<target>`), not the working tree.
+- Failure caused by a pre-release bug (not by the MR's code) → `upstream_bug`, does not become 🔴.

@@ -61,7 +61,7 @@ blueprint.
 
 ### 2. Developer: o código
 
-Implementa **só o seu escopo** (`backend`, `frontend` ou `ambos`), seguindo os padrões da stack e reusando o
+Implementa **só o seu escopo** (`backend`, `frontend` ou `both`), seguindo os padrões da stack e reusando o
 que já existe. Com `dev.developer_split: true` e uma task que toca os dois lados, o orquestrador sobe
 **duas instâncias em paralelo**, uma por repositório. O frontend implementa contra o contrato que o tech
 lead definiu, sem esperar o backend.

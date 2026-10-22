@@ -1,86 +1,89 @@
 ---
-description: Factory PO — iniciativa → pesquisa, codemap, blueprint e Epic+Stories no tracker
-argument-hint: <iniciativa> [--model papel=valor]
+description: Factory PO — initiative → research, codemap, blueprint and Epic+Stories in the tracker
+argument-hint: <initiative> [--model role=value]
 ---
-# Factory PO — Orquestrador da fábrica PO (genérico/config-driven)
+# Factory PO — Orchestrator of the PO factory (generic/config-driven)
 
-Transforma uma **iniciativa** do roadmap em Epic + Stories prontas no tracker, via 4 sub-agents
-isolados em sequência. **Nada específico de projeto**: produto, codebase, stack e tracker vêm do
-`factory.config.md`. Tracker via as ops de autoria do `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md`.
+Turns a roadmap **initiative** into a ready Epic + Stories in the tracker, through 4 isolated
+sub-agents in sequence. **Nothing project-specific**: product, codebase, stack and tracker come from
+`factory.config.md`. Tracker through the authoring ops of `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md`.
 
-## INICIATIVA: $ARGUMENTS
-Se vazio, pergunte qual iniciativa processar (ex.: "Integração com Yampi") ou use o artefato mais
-recente em `docs/initiatives/<x>/`.
-
----
-
-## ETAPA 0 — Carregar e validar config (OBRIGATÓRIO)
-1. Leia `docs/factory.config.md`. Não existe → **PARE** ("Rode `/factory:init`").
-2. Valide as **chaves da fábrica PO** (`${CLAUDE_PLUGIN_ROOT}/CONTRACT.md`): `product.{domain,personas}`, `docs_map.codebase`,
-   `stack.{backend,frontend}`, e as de autoria do tracker (markdown→`tracker.{board_path,epic_folder,story_folder}`+`issue.id_format`; gitlab→`tracker.project_path`; github→`tracker.repo`). Faltou/`TBD` → **PARE** dizendo qual.
-3. Carregue bindings (nunca valor fixo). Carregue `${CLAUDE_PLUGIN_ROOT}/drivers/trackers/{config.tracker.driver}.md` (usado no passo 4).
-4. Pasta da iniciativa: `nome = kebab-case($ARGUMENTS)` → `docs/initiatives/{nome}/`. `mkdir -p`.
-
-
-**Modelos:** resolva o modelo de cada worker pela ordem do `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md` → "Modelos por
-papel" (arg `--model papel=valor` → `config.models.<papel>` → `config.models.default` → padrão do plugin) e
-passe-o no parâmetro `model` de **toda** subida de worker. Tire os `--model ...` do `$ARGUMENTS`
-antes de usá-lo como ID/iniciativa. Valor fora de `fable|opus|sonnet|haiku|inherit` → **PARE**.
+## INITIATIVE: $ARGUMENTS
+If empty, ask which initiative to process (e.g. "Yampi integration") or use the most recent
+artifact in `docs/initiatives/<x>/`.
 
 ---
 
-## PIPELINE (ordem fixa; cada etapa = sub-agent via Task, contexto isolado)
-Aplique o **gate** após cada etapa: valide o artefato esperado; falhou → **PARE** e reporte.
+## STEP 0 — Load and validate config (MANDATORY)
+1. Read `docs/factory.config.md`. Missing → **STOP** ("Run `/factory:init`").
+2. Validate the **PO factory keys** (`${CLAUDE_PLUGIN_ROOT}/CONTRACT.md`): `product.{domain,personas}`, `docs_map.codebase`,
+   `stack.{backend,frontend}`, and the tracker authoring keys (markdown→`tracker.{board_path,epic_folder,story_folder}`+`issue.id_format`; gitlab→`tracker.project_path`; github→`tracker.repo`). Missing/`TBD` → **STOP** saying which one.
+3. Load the bindings (never a hardcoded value). Load `${CLAUDE_PLUGIN_ROOT}/drivers/trackers/{config.tracker.driver}.md` (used in step 4).
+4. Initiative folder: `name = kebab-case($ARGUMENTS)` → `docs/initiatives/{name}/`. `mkdir -p`.
+5. **Output language:** write every artifact, tracker comment, MR/PR comment and message to the user in
+   `config.language` (e.g. `pt-BR`, `en`); if the key is absent, use the language the user is writing in. These
+   instructions are in English; the output is not.
 
-### ETAPA 1 — Researcher → `docs/initiatives/{nome}/research.md`
-```
-Leia e siga `${CLAUDE_PLUGIN_ROOT}/workers/po-researcher.md`. Iniciativa: $ARGUMENTS | Config: docs/factory.config.md | Plugin: ${CLAUDE_PLUGIN_ROOT} | Pasta: docs/initiatives/{nome}/
-```
-**Gate:** arquivo existe com tabela comparativa + recomendação MVP (+ check de compliance se `config.product.compliance` não-vazio).
 
-### ETAPA 2 — Code Map → `docs/initiatives/{nome}/codemap.md`
-```
-Leia e siga `${CLAUDE_PLUGIN_ROOT}/workers/po-codemap.md`. Iniciativa: $ARGUMENTS | Config: docs/factory.config.md | Plugin: ${CLAUDE_PLUGIN_ROOT} | Pasta: docs/initiatives/{nome}/
-```
-**Gate:** mapeou o que já existe (via `config.docs_map.codebase`) + gaps + dependências + riscos.
-
-### ETAPA 3 — Blueprint → `docs/initiatives/{nome}/blueprint.md`
-```
-Leia e siga `${CLAUDE_PLUGIN_ROOT}/workers/po-blueprint.md`. Iniciativa: $ARGUMENTS | Config: docs/factory.config.md | Plugin: ${CLAUDE_PLUGIN_ROOT} | Pasta: docs/initiatives/{nome}/
-```
-**Gate:** cada funcionalidade tem backend + frontend + error handling + critérios de aceite testáveis + complexidade.
-
-### ETAPA 4 — Tasks → Epic + Stories no tracker
-```
-Leia e siga `${CLAUDE_PLUGIN_ROOT}/workers/po-tasks.md`. Iniciativa: $ARGUMENTS | Config: docs/factory.config.md | Plugin: ${CLAUDE_PLUGIN_ROOT} | Pasta: docs/initiatives/{nome}/
-```
-**Gate:** Epic + Stories criados (via `tracker.create_epic`/`create_story`), ligados, e `tasks-report.md` lista os IDs.
-
-> Researcher e Code Map *poderiam* rodar em paralelo, mas a sequência é mais segura (o code map se
-> beneficia da pesquisa). Blueprint depende dos dois; Tasks depende do blueprint.
+**Models:** resolve each worker's model following the order in `${CLAUDE_PLUGIN_ROOT}/CONTRACT.md` → "Models per
+role" (arg `--model role=value` → `config.models.<role>` → `config.models.default` → plugin default) and
+pass it in the `model` parameter of **every** worker launch. Strip the `--model ...` from `$ARGUMENTS`
+before using it as ID/initiative. Value outside `fable|opus|sonnet|haiku|inherit` → **STOP**.
 
 ---
 
-## ETAPA 5 — Relatório final e handoff
+## PIPELINE (fixed order; each step = sub-agent via Task, isolated context)
+Apply the **gate** after each step: validate the expected artifact; failed → **STOP** and report.
+
+### STEP 1 — Researcher → `docs/initiatives/{name}/research.md`
+```
+Read and follow `${CLAUDE_PLUGIN_ROOT}/workers/po-researcher.md`. Initiative: $ARGUMENTS | Config: docs/factory.config.md | Plugin: ${CLAUDE_PLUGIN_ROOT} | Folder: docs/initiatives/{name}/
+```
+**Gate:** file exists with a comparison table + MVP recommendation (+ compliance check if `config.product.compliance` is non-empty).
+
+### STEP 2 — Code Map → `docs/initiatives/{name}/codemap.md`
+```
+Read and follow `${CLAUDE_PLUGIN_ROOT}/workers/po-codemap.md`. Initiative: $ARGUMENTS | Config: docs/factory.config.md | Plugin: ${CLAUDE_PLUGIN_ROOT} | Folder: docs/initiatives/{name}/
+```
+**Gate:** mapped what already exists (via `config.docs_map.codebase`) + gaps + dependencies + risks.
+
+### STEP 3 — Blueprint → `docs/initiatives/{name}/blueprint.md`
+```
+Read and follow `${CLAUDE_PLUGIN_ROOT}/workers/po-blueprint.md`. Initiative: $ARGUMENTS | Config: docs/factory.config.md | Plugin: ${CLAUDE_PLUGIN_ROOT} | Folder: docs/initiatives/{name}/
+```
+**Gate:** every feature has backend + frontend + error handling + testable acceptance criteria + complexity.
+
+### STEP 4 — Tasks → Epic + Stories in the tracker
+```
+Read and follow `${CLAUDE_PLUGIN_ROOT}/workers/po-tasks.md`. Initiative: $ARGUMENTS | Config: docs/factory.config.md | Plugin: ${CLAUDE_PLUGIN_ROOT} | Folder: docs/initiatives/{name}/
+```
+**Gate:** Epic + Stories created (via `tracker.create_epic`/`create_story`), linked, and `tasks-report.md` lists the IDs.
+
+> Researcher and Code Map *could* run in parallel, but the sequence is safer (the code map
+> benefits from the research). Blueprint depends on both; Tasks depends on the blueprint.
+
+---
+
+## STEP 5 — Final report and handoff
 ```markdown
-## PO Pipeline — {Iniciativa} — {data} — {config.project}
-| Etapa | Status | Output |
-|-------|--------|--------|
-| Researcher | ✅ | docs/initiatives/{nome}/research.md |
-| Code Map | ✅ | docs/initiatives/{nome}/codemap.md |
-| Blueprint | ✅ | docs/initiatives/{nome}/blueprint.md |
+## PO Pipeline — {Initiative} — {date} — {config.project}
+| Step | Status | Output |
+|------|--------|--------|
+| Researcher | ✅ | docs/initiatives/{name}/research.md |
+| Code Map | ✅ | docs/initiatives/{name}/codemap.md |
+| Blueprint | ✅ | docs/initiatives/{name}/blueprint.md |
 | Tasks | ✅ | EPIC + N Stories |
 
-### Stories criadas (handoff p/ a fábrica DEV)
-| ID | Funcionalidade | Complexidade |
-### Próximos passos
-1. PO: revisar blueprint + Stories.  2. DEV: iniciar pela primeira Story (pipeline DEV).
+### Stories created (handoff to the DEV factory)
+| ID | Feature | Complexity |
+### Next steps
+1. PO: review blueprint + Stories.  2. DEV: start with the first Story (DEV pipeline).
 ```
 
-## REGRAS
-- ETAPA 0 sempre primeiro; sem config válido (ou com `TBD`), não roda.
-- Cada sub-agent em **próprio contexto** (Task). Ordem fixa: Researcher → Code Map → Blueprint → Tasks.
-- Gate reprovado em qualquer etapa → **PARE** e reporte; não pule nem invente artefato ausente.
-- Todos os intermediários em `docs/initiatives/{nome}/` (rastreabilidade).
-- Stories **nascem no backlog** do tracker (markdown: `story_folder`; gitlab/github: issue aberta) — promover é da fábrica DEV.
-- A fábrica **cria e organiza, não prioriza** Sprint (decisão humana).
+## RULES
+- STEP 0 always first; without a valid config (or with `TBD`), it does not run.
+- Each sub-agent in its **own context** (Task). Fixed order: Researcher → Code Map → Blueprint → Tasks.
+- Gate failed at any step → **STOP** and report; do not skip or invent a missing artifact.
+- All intermediates in `docs/initiatives/{name}/` (traceability).
+- Stories **are born in the tracker backlog** (markdown: `story_folder`; gitlab/github: open issue) — promoting them is the DEV factory's job.
+- The factory **creates and organizes, it does not prioritize** the Sprint (human decision).

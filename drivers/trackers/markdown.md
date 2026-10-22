@@ -1,56 +1,56 @@
 # Tracker Driver — Markdown kanban (filesystem)
 
-**Config keys:** `tracker.board_path`, `tracker.backlog_folder` (onde criar bug novo, ex.: `todo`),
-`status{}` no formato `{folder, label?}`, `labels{}`, `issue.id_format`, `issue.branch_field`.
-**Acesso:** filesystem (nenhum MCP).
-**Capabilities:** tudo via arquivo. ⚠️ Sem lock de concorrência (assume 1 editor por vez).
-Quando `qa_gate` e `in_qa` usam a **mesma pasta**, distinguem-se por **label de estágio** no frontmatter.
+**Config keys:** `tracker.board_path`, `tracker.backlog_folder` (where to create a new bug, e.g. `todo`),
+`status{}` in the format `{folder, label?}`, `labels{}`, `issue.id_format`, `issue.branch_field`.
+**Access:** filesystem (no MCP).
+**Capabilities:** everything via files. ⚠️ No concurrency lock (assumes 1 editor at a time).
+When `qa_gate` and `in_qa` use the **same folder**, they are told apart by a **stage label** in the frontmatter.
 
 ---
 
 ### 1. fetch(id)
-- `find {board_path} -name "{id}-*.md"` → guardar a pasta atual `<atual>`.
-- Parsear frontmatter (`id, title, type, parent, assignee, labels`) + corpo.
-- `status_lógico` = casar `{folder=<atual>, label∈frontmatter.labels}` contra `config.tracker.status`
-  pelo seletor **mais específico** (o que exige label vence).
-- `branch` = `frontmatter[{config.issue.branch_field}]` se existir (ex.: `clickup_id` → `CU-{valor}`);
-  senão convenção `{git.branch_prefix[type]}{id}`.
+- `find {board_path} -name "{id}-*.md"` → keep the current folder `<current>`.
+- Parse the frontmatter (`id, title, type, parent, assignee, labels`) + body.
+- `logical_status` = match `{folder=<current>, label∈frontmatter.labels}` against `config.tracker.status`
+  by the **most specific** selector (the one requiring a label wins).
+- `branch` = `frontmatter[{config.issue.branch_field}]` if it exists (e.g. `clickup_id` → `CU-{value}`);
+  otherwise convention `{git.branch_prefix[type]}{id}`.
 
-### 2. read_blueprint(id)  → corpo do `.md`. = `fetch().description`.
+### 2. read_blueprint(id)  → body of the `.md`. = `fetch().description`.
 
-### 3. transition(id, alvo)
-- `sel = config.tracker.status[alvo]` (`{folder, label?}`). Resolver `<atual>` via find (passo 1).
-- Se `sel.folder` ≠ `<atual>`: `mv {board_path}/<atual>/{id}-*.md {board_path}/{sel.folder}/`.
-- Se `sel.label`: remover labels de estágio dos outros status e adicionar `sel.label` no frontmatter.
+### 3. transition(id, target)
+- `sel = config.tracker.status[target]` (`{folder, label?}`). Resolve `<current>` via find (step 1).
+- If `sel.folder` ≠ `<current>`: `mv {board_path}/<current>/{id}-*.md {board_path}/{sel.folder}/`.
+- If `sel.label`: remove the stage labels of the other statuses and add `sel.label` to the frontmatter.
 
-### 4. comment(id, md)  → append `\n\n## Comentário ({timestamp})\n{md}` (timestamp vem do ambiente).
+### 4. comment(id, md)  → append `\n\n## Comment ({timestamp})\n{md}` (timestamp comes from the environment).
 
 ### 5. create_child_bug(task, title, md)
-- Novo id via `config.issue.id_format` (varrer ids existentes p/ próximo número).
-- Escrever em `{board_path}/{config.tracker.backlog_folder}/{new_id}-{slug}.md` com frontmatter
-  `parent: {task}`, `type: bug`, corpo `md`. Retornar `new_id`.
+- New id via `config.issue.id_format` (scan existing ids for the next number).
+- Write `{board_path}/{config.tracker.backlog_folder}/{new_id}-{slug}.md` with frontmatter
+  `parent: {task}`, `type: bug`, body `md`. Return `new_id`.
 
-### 6. label(id, alvo)  → adicionar `config.tracker.labels[alvo]` em `labels:` do frontmatter.
+### 6. label(id, target)  → add `config.tracker.labels[target]` to the frontmatter's `labels:`.
 
 ---
 
-## Ops de autoria (fábrica PO)
-**Chaves extras:** `tracker.epic_folder` (ex.: `epics`), `tracker.story_folder` (ex.: `todo`), `issue.id_format`.
+## Authoring ops (PO factory)
+**Extra keys:** `tracker.epic_folder` (e.g. `epics`), `tracker.story_folder` (e.g. `todo`), `issue.id_format`.
 
 ### A. create_epic(slug, title, body, meta)
-- Escrever `{board_path}/{epic_folder}/EPIC-{slug}.md` com frontmatter `type: epic, slug, status: active,
-  labels: [factory-generated, …]` + corpo. Retornar `epic_ref = EPIC-{slug}`.
+- Write `{board_path}/{epic_folder}/EPIC-{slug}.md` with frontmatter `type: epic, slug, status: active,
+  labels: [factory-generated, …]` + body. Return `epic_ref = EPIC-{slug}`.
 
 ### B. create_story(title, body, meta)
-- `id` = próximo via `issue.id_format` (varrer `board_path` por `^id:` → maior número +1).
-- Escrever `{board_path}/{story_folder}/{id}-{slug}.md` com frontmatter `id, type: story, status: todo,
+- `id` = next via `issue.id_format` (scan `board_path` for `^id:` → highest number +1).
+- Write `{board_path}/{story_folder}/{id}-{slug}.md` with frontmatter `id, type: story, status: todo,
   epic: {meta.epic_ref}, depends_on: {meta.depends_on}, blocks: [], complexity, priority,
-  branch: {git.branch_prefix.story}{id}, labels: [factory-generated, …]` + corpo = bloco do blueprint.
-- Retornar `story_ref = {id}` (+ caminho).
+  branch: {git.branch_prefix.story}{id}, labels: [factory-generated, …]` + body = blueprint block.
+- Return `story_ref = {id}` (+ path).
 
 ### C. link_dependency(story_ref, depends_on_ref)
-- No arquivo de `depends_on_ref`, adicionar `story_ref` ao `blocks: []` (recíproco do `depends_on`).
-- Validar ausência de ciclo.
+- In the `depends_on_ref` file, add `story_ref` to `blocks: []` (reciprocal of `depends_on`).
+- Validate there is no cycle.
 
 ### D. update_epic(epic_ref, stories[])
-- Editar `EPIC-{slug}.md`: preencher a seção `## Stories` com tabela `| ID | Título | Complexidade | Status | Dependências |` (links relativos).
+- Edit `EPIC-{slug}.md`: fill the `## Stories` section with the table `| ID | Title | Complexity | Status | Dependencies |` (relative links).

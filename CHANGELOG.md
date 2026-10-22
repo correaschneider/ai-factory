@@ -3,6 +3,14 @@
 Semver: **major** = quebra de config/contrato (chave obrigatória nova no `CONTRACT.md`, op de driver com
 assinatura nova); **minor** = fábrica, driver ou op nova; **patch** = ajuste de prompt/correção.
 
+## 1.3.0 — 2026-10-22
+- **Instruções em inglês** (commands, agents, workers, drivers, `CONTRACT.md`). Tudo o que a fábrica escreve
+  (artefatos, comentários no tracker e no MR, mensagens) segue `language` do `factory.config.md`; sem a chave,
+  o idioma em que o usuário escreve. Textos fixos dos drivers são templates no idioma de saída. (#9)
+- Marcadores padronizados: `# suggestion:` / `# weak candidate:` / `# no evidence` no config, `// POTENTIAL BUG`
+  nos testes, escopo `both`, pasta de evidências `evidence/`, campo `logical_status` no `fetch`.
+- Descrição da listagem em inglês.
+
 ## 1.2.1 — 2026-10-07
 - Páginas de **política de privacidade** e **termos de uso** no site (PT/EN).
 - `plugin.json`: `documentationUrl`, `supportUrl`, `privacyPolicyUrl` e `termsOfServiceUrl` apontando pro site, e `keywords` para a busca do diretório.

@@ -11,6 +11,12 @@ cara Laravel, NestJS, Next.js e Angular; outras stacks ele detecta por evidênci
 Jira, ClickUp, GitLab Issues e GitHub Issues têm driver pronto, e o driver `markdown` funciona sem tracker nenhum. Outro
 sistema precisa de um [driver novo](reference/drivers.md): um arquivo Markdown, sem mexer nos commands.
 
+## Em que idioma a fábrica escreve?
+
+As instruções do plugin são em inglês, mas tudo o que a fábrica produz (artefatos em `docs/initiatives/`,
+comentários no tracker e no MR, mensagens para você) sai no idioma de `language` do `factory.config.md`, por
+exemplo `pt-BR` ou `en`. Sem essa chave, ela responde no idioma em que você escreve.
+
 ## Preciso usar as quatro fábricas?
 
 Não. Cada uma roda sozinha, desde que a task esteja no status de entrada dela. Dá para usar só a CR para
