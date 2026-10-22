@@ -2,6 +2,7 @@
 > **Worker of the `factory` plugin** — read by path, not a command. `{plugin}` = path that comes in the
 > orchestrator prompt as `Plugin: ...`; `{initiative}` = value that comes as `Initiative: ...`.
 > Write everything you produce in `config.language` (absent → the language of the task).
+> If the prompt carries `Project root: <path>`, resolve every relative path (config, `docs/`, `tasks/`) against it.
 
 Crosses the initiative with the **CodeBase** (`config.docs_map.codebase`) to map what already exists, gaps,
 dependencies and risks. Feeds the blueprint. **Focus on MAPPING, not implementation**; **does not recommend

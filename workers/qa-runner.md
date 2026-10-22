@@ -2,6 +2,7 @@
 > **Worker of the `factory` plugin** — read by path, not a command. `{plugin}` = path that comes in the
 > orchestrator prompt as `Plugin: ...`; `{task_id}` = value that comes as `Task: ...`.
 > Write everything you produce in `config.language` (absent → the language of the task).
+> If the prompt carries `Project root: <path>`, resolve every relative path (config, `docs/`, `tasks/`) against it.
 
 Runs the task's tests via Docker, collects evidence (videos, screenshots, metrics) and
 reports to the tracker. **Contains nothing project-specific**: environment, docker, evidence

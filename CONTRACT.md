@@ -27,6 +27,9 @@ names, `STATUS:` values and config keys.
 
 ## Substitution grammar (how the command reads the config)
 
+- **Project root:** relative paths (`docs/factory.config.md`, `docs/initiatives/`, a Markdown board) are relative
+  to the current directory, unless the prompt carries `Project root: <path>` (used by `/factory:demo`).
+
 - `{config.<dotted.path>}` — e.g. `{config.git.base_branch}`.
 - Keyed maps: `{config.workspace.repos.backend.path}` (repos is a **map** `backend|frontend`, not a list).
 - **Forbidden** to leave a literal placeholder in the output. If a key is absent or has the value
