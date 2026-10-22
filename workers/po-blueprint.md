@@ -2,6 +2,7 @@
 > **Worker of the `factory` plugin** — read by path, not a command. `{plugin}` = path that comes in the
 > orchestrator prompt as `Plugin: ...`; `{initiative}` = value that comes as `Initiative: ...`.
 > Write everything you produce in `config.language` (absent → the language of the task).
+> If the prompt carries `Project root: <path>`, resolve every relative path (config, `docs/`, `tasks/`) against it.
 
 Generates the **machine-ready** blueprint: it is NOT for a human to interpret — it is for the tech-lead/AI to execute
 without ambiguity. **Planner: specifies, does not implement.** The artifact vocabulary (migration/model/service/

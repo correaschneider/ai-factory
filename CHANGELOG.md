@@ -3,6 +3,11 @@
 Semver: **major** = quebra de config/contrato (chave obrigatória nova no `CONTRACT.md`, op de driver com
 assinatura nova); **minor** = fábrica, driver ou op nova; **patch** = ajuste de prompt/correção.
 
+## 1.4.0 — 2026-10-22
+- **`/factory:demo`**: primeiro uso sem preparo. Cria um projeto de exemplo (Notely, com mapa de CodeBase), um
+  kanban em Markdown e o config, e roda a fábrica PO numa iniciativa de exemplo, sem tracker nem MCP. (#10)
+- Workers aceitam `Project root: <path>` no prompt para resolver caminhos relativos fora do diretório atual.
+
 ## 1.3.0 — 2026-10-22
 - **Instruções em inglês** (commands, agents, workers, drivers, `CONTRACT.md`). Tudo o que a fábrica escreve
   (artefatos, comentários no tracker e no MR, mensagens) segue `language` do `factory.config.md`; sem a chave,

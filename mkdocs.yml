@@ -67,6 +67,7 @@ nav:
   - Começando: getting-started.md
   - Conceitos: concepts.md
   - Fábricas:
+      - factories/demo.md
       - factories/init.md
       - factories/po.md
       - factories/dev.md

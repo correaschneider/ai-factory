@@ -38,6 +38,7 @@ A fábrica troca o pedido solto por um **processo**:
 
 | Command | Entrada | O que entrega |
 |---|---|---|
+| [`/factory:demo`](factories/demo.md) | pasta (opcional) | projeto de exemplo + kanban em Markdown e a fábrica PO rodando, sem configurar nada |
 | [`/factory:init`](factories/init.md) | caminho do projeto | `docs/factory.config.md` com stack, tracker e git detectados |
 | [`/factory:po`](factories/po.md) | nome da iniciativa | pesquisa de mercado, mapa do código, blueprint e **Epic + Stories** no tracker |
 | [`/factory:dev`](factories/dev.md) | id da task | plano técnico, código na branch, review, build validado e task em QA |

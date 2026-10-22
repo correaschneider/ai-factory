@@ -2,6 +2,7 @@
 > **Worker of the `factory` plugin** — read by path, not a command. `{plugin}` = path that comes in the
 > orchestrator prompt as `Plugin: ...`; `{mr}` = value that comes as `MR: ...`.
 > Write everything you produce in `config.language` (absent → the language of the task).
+> If the prompt carries `Project root: <path>`, resolve every relative path (config, `docs/`, `tasks/`) against it.
 
 Reviews **one** MR and returns structured findings. Does not decide the verdict (that belongs to the human in the orchestrator),
 does not rewrite the code, does not comment — only analyzes and reports. **Read-only: never checks out.**
