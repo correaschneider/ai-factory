@@ -1,54 +1,53 @@
-# Termos de uso
+# Terms of use
 
-*Vigentes desde 07/10/2026. O histórico de mudanças desta página fica no
-[repositório](https://github.com/correaschneider/ai-factory/commits/main/docs/terms.md).*
+*Effective October 7, 2026. The change history of this page is in the
+[repository](https://github.com/correaschneider/ai-factory/commits/main/docs/terms.en.md).*
 
-## 1. O que é o plugin
+## 1. What the plugin is
 
-O **factory** é software livre e gratuito, distribuído sob a [licença MIT](https://github.com/correaschneider/ai-factory/blob/main/LICENSE).
-Ele é um conjunto de instruções (commands, agents e drivers em Markdown) que o Claude Code executa no
-ambiente do próprio usuário. **Não é um serviço hospedado**: não há conta, assinatura, servidor nem
-cobrança, e usar o plugin não cria relação comercial com o autor.
+**factory** is free, open-source software distributed under the [MIT license](https://github.com/correaschneider/ai-factory/blob/main/LICENSE).
+It is a set of instructions (commands, agents and drivers in Markdown) that Claude Code runs in the user's
+own environment. **It is not a hosted service**: there is no account, subscription, server or charge, and
+using the plugin creates no commercial relationship with the author.
 
-## 2. Sem garantias
+## 2. No warranty
 
-Como diz a licença MIT, o plugin é fornecido **"no estado em que se encontra"**, sem garantia de qualquer
-tipo. O autor não responde por danos decorrentes do uso, inclusive perda de dados, código incorreto, falha
-de build, ações indevidas em trackers ou repositórios, ou custos de uso de modelos de IA.
+As the MIT license states, the plugin is provided **"as is"**, without warranty of any kind. The author is
+not liable for damages arising from its use, including data loss, incorrect code, build failures, unwanted
+actions in trackers or repositories, or AI model usage costs.
 
-## 3. Responsabilidade do usuário
+## 3. User responsibility
 
-O plugin coordena agentes de IA que leem e escrevem no repositório, rodam comandos (build, testes, `git`,
-`docker`, CLIs do code host) e alteram o tracker. O usuário é responsável por:
+The plugin coordinates AI agents that read and write the repository, run commands (build, tests, `git`,
+`docker`, code host CLIs) and change the tracker. The user is responsible for:
 
-- **revisar** o que os agentes produzem antes de usar em produção: código, testes, commits, merge/pull
-  requests, comentários e mudanças de status;
-- **configurar as permissões** do Claude Code e as credenciais dos serviços conectados de acordo com o
-  risco do projeto;
-- os **dados** que coloca nas tasks e nos repositórios que a fábrica acessa (veja a
-  [política de privacidade](privacy.md));
-- os **custos** de uso do Claude e dos serviços conectados.
+- **reviewing** what the agents produce before using it in production: code, tests, commits, merge/pull
+  requests, comments and status changes;
+- **configuring the permissions** of Claude Code and the credentials of connected services according to
+  the project's risk;
+- the **data** they put into tasks and into the repositories the factory accesses (see the
+  [privacy policy](privacy.md));
+- the **costs** of using Claude and the connected services.
 
-As fábricas foram desenhadas com pontos de parada para decisão humana (aprovação de review, confirmação de
-config, perguntas em vez de suposições), mas esses pontos **não substituem** a revisão do usuário.
+The factories are designed with stopping points for human decisions (review approval, config
+confirmation, questions instead of assumptions), but these points **do not replace** the user's own review.
 
-## 4. Uso aceitável
+## 4. Acceptable use
 
-O usuário se compromete a não usar o plugin para violar leis, direitos de terceiros ou os termos dos
-serviços que conecta a ele, incluindo os termos e a política de uso da Anthropic, do tracker e do code
-host.
+The user agrees not to use the plugin to violate laws, third-party rights or the terms of the services
+connected to it, including the terms and usage policy of Anthropic, the tracker and the code host.
 
-## 5. Serviços e marcas de terceiros
+## 5. Third-party services and trademarks
 
-O plugin funciona com serviços de terceiros (Claude Code, Jira, ClickUp, GitLab, GitHub, Cypress, Playwright
-e outros), cada um sujeito aos próprios termos. Os nomes e marcas citados pertencem aos seus donos. O plugin
-**não é oficial nem afiliado** à Anthropic ou a qualquer desses serviços.
+The plugin works with third-party services (Claude Code, Jira, ClickUp, GitLab, GitHub, Cypress, Playwright
+and others), each subject to its own terms. The names and trademarks mentioned belong to their owners. The
+plugin is **not official nor affiliated** with Anthropic or any of these services.
 
-## 6. Mudanças
+## 6. Changes
 
-Estes termos podem mudar junto com novas versões do plugin. A versão vigente é sempre a publicada nesta
-página, e o histórico fica no repositório.
+These terms may change with new versions of the plugin. The version in force is always the one published
+on this page, and the history is kept in the repository.
 
-## 7. Contato
+## 7. Contact
 
-[Issues no GitHub](https://github.com/correaschneider/ai-factory/issues).
+[GitHub issues](https://github.com/correaschneider/ai-factory/issues).

@@ -1,44 +1,44 @@
 # /factory:demo
 
-O jeito mais rápido de ver a fábrica funcionando: **sem tracker, sem servidor MCP, sem configurar nada**.
+The fastest way to see the factory working: **no tracker, no MCP server, nothing to configure**.
 
 ```text
-/factory:demo [pasta]
+/factory:demo [folder]
 ```
 
-Sem argumento, cria `./factory-demo`. Nunca escreve numa pasta que já existe e não está vazia.
+Without an argument it creates `./factory-demo`. It never writes into a folder that exists and is not empty.
 
-## O que ela monta
+## What it sets up
 
-- **Um projeto de exemplo:** o Notely, um app de notas pessoais (NestJS + Next.js), descrito por um mapa de
-  CodeBase em `docs/codebase/` (entidades, rotas, serviços, páginas, componentes). O código não é criado: o
-  mapa basta para a fábrica PO trabalhar.
-- **Um kanban em Markdown** em `tasks/` (`epics`, `backlog`, `doing`, `qa`, `done`), usando o driver
-  [`markdown`](../reference/drivers.md): cada task é um arquivo.
-- **O `docs/factory.config.md`** já preenchido, com `language` no idioma em que você escreve.
+- **A sample project:** Notely, a personal notes app (NestJS + Next.js), described by a CodeBase map in
+  `docs/codebase/` (entities, routes, services, pages, components). No code is created: the map is enough
+  for the PO factory.
+- **A Markdown kanban** in `tasks/` (`epics`, `backlog`, `doing`, `qa`, `done`), using the
+  [`markdown`](../reference/drivers.md) driver: each task is a file.
+- **`docs/factory.config.md`**, already filled in, with `language` set to the language you write in.
 
-## O que ela roda
+## What it runs
 
-Depois de mostrar o que criou, a demo pergunta se pode rodar a [fábrica PO](po.md) na iniciativa de exemplo
-**"Compartilhar uma nota com outros usuários"**. Se você aceitar, em alguns minutos aparecem:
+After showing what it created, the demo asks whether to run the [PO factory](po.md) on the sample initiative
+**"Share a note with other users"**. If you accept, within a few minutes you get:
 
 ```text
 factory-demo/
-├── docs/initiatives/compartilhar-uma-nota-com-outros-usuarios/
-│   ├── research.md        # concorrentes, boas práticas, MVP
-│   ├── codemap.md         # o que já existe no Notely e o que falta
-│   ├── blueprint.md       # especificação de cada funcionalidade
-│   └── tasks-report.md    # Epic e Stories criadas
+├── docs/initiatives/share-a-note-with-other-users/
+│   ├── research.md        # competitors, best practices, MVP
+│   ├── codemap.md         # what Notely already has and what is missing
+│   ├── blueprint.md       # specification of each feature
+│   └── tasks-report.md    # Epic and Stories created
 └── tasks/
     ├── epics/EPIC-....md
     └── backlog/NOTE-001-....md, NOTE-002-....md, ...
 ```
 
-A pesquisa de mercado usa busca na web; o resto acontece só nos arquivos da pasta da demo.
+Market research uses web search; everything else happens only in the demo folder's files.
 
-## Depois da demo
+## After the demo
 
-- Abra o `blueprint.md` e uma story em `tasks/backlog/`: o corpo da story carrega o bloco inteiro do
-  blueprint, que é o que a fábrica DEV consome.
-- Para um projeto de verdade: [`/factory:init`](init.md) no repositório e depois `/factory:po <iniciativa>`.
-  DEV, QA e CR precisam de código real e, no caso da QA, de um jeito de rodar os testes.
+- Open `blueprint.md` and one story in `tasks/backlog/`: the story body carries the whole blueprint block,
+  which is what the DEV factory consumes.
+- For a real project: [`/factory:init`](init.md) in the repository, then `/factory:po <initiative>`.
+  DEV, QA and CR need real code and, for QA, a way to run the tests.

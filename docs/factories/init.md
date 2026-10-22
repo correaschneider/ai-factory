@@ -1,59 +1,59 @@
 # /factory:init
 
-Gera o **`docs/factory.config.md`** do projeto. É o primeiro command a rodar num repositório novo: todas as
-outras fábricas param na ETAPA 0 se o config não existir.
+Generates the project's **`docs/factory.config.md`**. It is the first command to run in a new repository: all
+the other factories stop at STEP 0 if the config doesn't exist.
 
 ```text
-/factory:init [caminho-do-projeto]
+/factory:init [project-path]
 ```
 
-Sem argumento, usa o diretório atual.
+Without an argument, it uses the current directory.
 
-## O que ele faz
+## What it does
 
 ```mermaid
 flowchart TD
-    A[ETAPA 0<br/>config já existe?] -->|sim| Q{sobrescrever,<br/>completar TBD<br/>ou abortar?}
-    A -->|não| B
-    Q --> B[ETAPA 1<br/>detectar stack]
-    B --> C[ETAPA 2<br/>tracker: driver + status]
-    C --> D[ETAPA 2.5<br/>confirmar sugestões]
-    D --> E[ETAPA 3<br/>gravar o config]
-    E --> F[ETAPA 4<br/>validar e reportar]
+    A[STEP 0<br/>config already exists?] -->|yes| Q{overwrite,<br/>fill in TBD<br/>or abort?}
+    A -->|no| B
+    Q --> B[STEP 1<br/>detect stack]
+    B --> C[STEP 2<br/>tracker: driver + statuses]
+    C --> D[STEP 2.5<br/>confirm suggestions]
+    D --> E[STEP 3<br/>write the config]
+    E --> F[STEP 4<br/>validate and report]
 ```
 
-1. **Pré-checagem.** Confirma que é um repositório. Se o config já existe, mostra o começo e pergunta se
-   sobrescreve, completa só os `TBD` ou aborta.
-2. **Stack, só leitura.** Detecta linguagem, framework, ORM, testes, E2E e build por evidência:
+1. **Pre-check.** Confirms it is a repository. If the config already exists, shows its beginning and asks whether to
+   overwrite, fill in only the `TBD`s or abort.
+2. **Stack, read-only.** Detects language, framework, ORM, tests, E2E and build from evidence:
     - `composer.json` + `artisan` → Laravel;
-    - `package.json` com `@nestjs/*`, `next` ou `@angular/core` → NestJS, Next.js ou Angular;
-    - lockfile → gerenciador de pacotes (`pnpm`, `yarn`, `npm`, `composer`);
-    - `.gitmodules` e pastas de projeto → layout (`single`, `multi-repo`, `monorepo-submodule`);
-    - `docker-compose` → containers, portas, `env.app_url` e `env.api_url`;
-    - remote e branches do git → `git.base_branch`, `git.dev_base`, branches protegidas;
-    - `docs/` → onde está o CodeBase e as convenções.
-3. **Tracker.** Propõe o driver pelo remote e pela estrutura do repositório e **confirma com você**, porque
-   é a escolha de maior impacto. Depois preenche o mapa de status lógicos.
-4. **Sugestões.** Framework fora da lista conhecida não fica em branco: o command coleta evidências
-   (dependências de runtime, script de `start`, arquivos de config característicos, manifestos de outras
-   linguagens) e pergunta. Com duas evidências ou mais vira sugestão; com uma, candidato fraco.
-5. **Grava** o config no formato do contrato.
-6. **Valida** as chaves obrigatórias e diz, por fábrica, o que falta para ela rodar.
+    - `package.json` with `@nestjs/*`, `next` or `@angular/core` → NestJS, Next.js or Angular;
+    - lockfile → package manager (`pnpm`, `yarn`, `npm`, `composer`);
+    - `.gitmodules` and project folders → layout (`single`, `multi-repo`, `monorepo-submodule`);
+    - `docker-compose` → containers, ports, `env.app_url` and `env.api_url`;
+    - git remote and branches → `git.base_branch`, `git.dev_base`, protected branches;
+    - `docs/` → where the CodeBase and the conventions are.
+3. **Tracker.** Proposes the driver based on the remote and the repository structure and **confirms it with you**, because
+   it is the highest-impact choice. Then it fills in the logical status map.
+4. **Suggestions.** A framework outside the known list is not left blank: the command gathers evidence
+   (runtime dependencies, `start` script, characteristic config files, manifests from other
+   languages) and asks. With two or more pieces of evidence it becomes a suggestion; with one, a weak candidate.
+5. **Writes** the config in the contract format.
+6. **Validates** the required keys and says, per factory, what is missing for it to run.
 
-## Como ele trata o que não sabe
+## How it handles what it doesn't know
 
-O `/factory:init` **não inventa valor**. Quatro saídas possíveis para cada chave:
+`/factory:init` **doesn't make up values**. Four possible outcomes for each key:
 
-| Situação | O que vai para o config |
+| Situation | What goes into the config |
 |---|---|
-| inferido com segurança | o valor concreto |
-| palpite que você confirmou | o valor concreto |
-| palpite não confirmado | `TBD   # suggestion: "X" — evidence: package.json:dependencies.x, …` |
-| nenhuma evidência | `TBD   # no evidence` |
+| inferred safely | the concrete value |
+| guess you confirmed | the concrete value |
+| unconfirmed guess | `TBD   # suggestion: "X" — evidence: package.json:dependencies.x, …` |
+| no evidence | `TBD   # no evidence` |
 
-Quando uma fábrica encontra um `TBD` com sugestão, ela para e **mostra a sugestão**, para você só confirmar.
+When a factory finds a `TBD` with a suggestion, it stops and **shows the suggestion**, so you only need to confirm it.
 
-## Relatório
+## Report
 
-No fim, uma tabela com a stack detectada, o driver escolhido, a lista de `TBD` pendentes e se cada fábrica
-já consegue rodar (por exemplo: "QA: adiada, falta `tests.layout.frontend`").
+At the end, a table with the detected stack, the chosen driver, the list of pending `TBD`s and whether each factory
+can already run (for example: "QA: postponed, missing `tests.layout.frontend`").

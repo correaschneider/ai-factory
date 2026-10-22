@@ -1,106 +1,106 @@
 # /factory:po
 
-Transforma uma **iniciativa do roadmap** em **Epic + Stories prontas no tracker**, com uma especificação
-detalhada o bastante para a fábrica DEV implementar sem pesquisar de novo.
+Turns a **roadmap initiative** into **Epic + Stories ready in the tracker**, with a specification
+detailed enough for the DEV factory to implement without researching again.
 
 ```text
-/factory:po <iniciativa> [--model papel=valor]
+/factory:po <initiative> [--model role=value]
 ```
 
-Exemplo: `/factory:po Integração com gateway de pagamento`. Sem argumento, a fábrica pergunta qual
-iniciativa processar. Tudo o que ela produz vai para `docs/initiatives/<iniciativa-em-kebab-case>/`.
+Example: `/factory:po Payment gateway integration`. Without an argument, the factory asks which
+initiative to process. Everything it produces goes into `docs/initiatives/<initiative-in-kebab-case>/`.
 
 ## Pipeline
 
-As quatro etapas rodam **em sequência**, cada uma num agente isolado, com um gate no fim:
+The four steps run **in sequence**, each in an isolated agent, with a gate at the end:
 
 ```mermaid
 flowchart LR
     R[1 · Researcher<br/>research.md] --> M[2 · Code Map<br/>codemap.md]
     M --> B[3 · Blueprint<br/>blueprint.md]
     B --> T[4 · Tasks<br/>Epic + Stories]
-    T --> H([handoff para a DEV])
+    T --> H([handoff to DEV])
 ```
 
-Pesquisa e mapa poderiam rodar em paralelo, mas a sequência é proposital: o mapa do código fica melhor
-quando já sabe o que o mercado faz.
+Research and mapping could run in parallel, but the sequence is intentional: the code map is better
+when it already knows what the market does.
 
-### 1. Researcher: o que o mercado faz
+### 1. Researcher: what the market does
 
-Investiga como outros produtos resolvem o problema. **Foco em produto, nunca em arquitetura**.
+Investigates how other products solve the problem. **Focus on product, never on architecture**.
 
-- Lê o contexto de produto do config: `product.domain`, `product.personas`, `product.competitors` e
+- Reads the product context from the config: `product.domain`, `product.personas`, `product.competitors` and
   `product.compliance`.
-- Pesquisa na web pelo menos **três concorrentes**: os listados, ou descobertos a partir do domínio.
-- Levanta boas práticas, anti-patterns, benchmarks com números reais e os cuidados de cada regime de
-  compliance (LGPD, por exemplo).
-- Separa **MVP (80/20)** de **escopo completo**.
+- Searches the web for at least **three competitors**: the listed ones, or ones discovered from the domain.
+- Gathers good practices, anti-patterns, benchmarks with real numbers and the concerns of each compliance
+  regime (LGPD, for example).
+- Separates **MVP (80/20)** from **full scope**.
 
-**Gate:** `research.md` com tabela comparativa, recomendação de MVP e, se houver compliance, o check.
-Não achou um benchmark? O relatório diz que não achou; a regra é não inventar dado.
+**Gate:** `research.md` with a comparison table, an MVP recommendation and, if there is compliance, the check.
+Couldn't find a benchmark? The report says it couldn't find one; the rule is not to make up data.
 
-### 2. Code Map: o que já existe
+### 2. Code Map: what already exists
 
-Cruza a iniciativa com o **CodeBase** do projeto (`docs_map.codebase`), lendo os **mapas e a documentação
-antes de abrir código-fonte**. Se precisar abrir um arquivo, registra qual e por quê.
+Cross-references the initiative with the project's **CodeBase** (`docs_map.codebase`), reading the **maps and the documentation
+before opening source code**. If it needs to open a file, it records which one and why.
 
-Entrega:
+Delivers:
 
-- o que já existe relacionado (entidades, services, jobs, páginas, rotas, com caminho);
-- **gap analysis** por funcionalidade: ✅ já existe · 🟡 parcial · ❌ criar do zero · ⚠️ conflita;
-- dependências, migrations necessárias, áreas afetadas, riscos técnicos e ordem sugerida.
+- what related things already exist (entities, services, jobs, pages, routes, with paths);
+- **gap analysis** per feature: ✅ already exists · 🟡 partial · ❌ build from scratch · ⚠️ conflicts;
+- dependencies, required migrations, affected areas, technical risks and suggested order.
 
-**Gate:** mapeou o existente, os gaps, as dependências e os riscos.
+**Gate:** mapped the existing code, the gaps, the dependencies and the risks.
 
-### 3. Blueprint: a especificação machine-ready
+### 3. Blueprint: the machine-ready specification
 
-O blueprint **não é para humano interpretar**: é para o tech lead consumir sem ambiguidade. Para cada
-funcionalidade do MVP:
+The blueprint **is not for a human to interpret**: it is for the tech lead to consume without ambiguity. For each
+MVP feature:
 
-| Seção | Conteúdo |
+| Section | Content |
 |---|---|
-| Contexto atual | o que existe no código, com os nomes reais do code map |
-| Backend | persistência (campos, tipos, índices), services com assinatura e tipos, endpoints com rota, validação e **autorização** |
-| Frontend | rota e guard, componentes, serviço de dados, tipos, menu por papel |
-| Error handling | status HTTP e códigos de erro no formato do projeto |
-| Critérios de aceite | checkboxes **testáveis**: caminho feliz, validações, permissões por persona, casos de borda |
-| Compliance e observabilidade | consentimento, retenção, auditoria, quando o domínio pede |
+| Current context | what exists in the code, with the real names from the code map |
+| Backend | persistence (fields, types, indexes), services with signature and types, endpoints with route, validation and **authorization** |
+| Frontend | route and guard, components, data service, types, menu per role |
+| Error handling | HTTP status and error codes in the project's format |
+| Acceptance criteria | **testable** checkboxes: happy path, validations, permissions per persona, edge cases |
+| Compliance and observability | consent, retention, auditing, when the domain calls for it |
 
-O vocabulário (migration, controller, entidade, caso de uso…) vem de `config.stack`, então o blueprint de
-um projeto Laravel e o de um NestJS falam a língua de cada um. O que não está claro vira **pergunta**, não
-suposição.
+The vocabulary (migration, controller, entity, use case…) comes from `config.stack`, so the blueprint of
+a Laravel project and that of a NestJS one each speak their own language. Whatever is unclear becomes a **question**, not
+an assumption.
 
-**Gate:** cada funcionalidade tem backend, frontend, error handling, critérios testáveis e complexidade
-(P/M/G, ou S/M/L com `language: en`).
+**Gate:** each feature has backend, frontend, error handling, testable criteria and complexity
+(S/M/L).
 
-### 4. Tasks: Epic e Stories no tracker
+### 4. Tasks: Epic and Stories in the tracker
 
-Usa as operações de autoria do contrato, então funciona igual em Jira, ClickUp, GitLab, GitHub ou Markdown:
+Uses the contract's authoring operations, so it works the same in Jira, ClickUp, GitLab, GitHub or Markdown:
 
-1. cria o **Epic** com resumo, escopo MVP e ponteiros para os três artefatos;
-2. cria **uma Story por funcionalidade do MVP**, com o **bloco completo do blueprint no corpo** (sem
-   resumir: é isso que a DEV vai ler);
-3. liga as dependências **nos dois sentidos** e confere que não há ciclo;
-4. atualiza o Epic com a tabela das Stories;
-5. grava `tasks-report.md` com os IDs criados.
+1. creates the **Epic** with a summary, the MVP scope and pointers to the three artifacts;
+2. creates **one Story per MVP feature**, with the **full blueprint block in the body** (without
+   summarizing: this is what DEV will read);
+3. links the dependencies **in both directions** and checks there are no cycles;
+4. updates the Epic with the Stories table;
+5. writes `tasks-report.md` with the created IDs.
 
-**Gate:** Epic e Stories criados, ligados e listados no relatório.
+**Gate:** Epic and Stories created, linked and listed in the report.
 
-## O que a fábrica PO não faz
+## What the PO factory doesn't do
 
-- **Não prioriza sprint.** As stories nascem no backlog; ordem é decisão do time.
-- **Não cria story para a Fase 2.** O escopo completo fica descrito no Epic, só como referência.
-- **Não decide arquitetura interna.** Camadas, padrões e divisão de código são do tech lead, na DEV.
+- **It doesn't prioritize the sprint.** The stories are born in the backlog; order is the team's decision.
+- **It doesn't create stories for Phase 2.** The full scope is described in the Epic, only as a reference.
+- **It doesn't decide internal architecture.** Layers, patterns and code split belong to the tech lead, in DEV.
 
-## Config que ela exige
+## Config it requires
 
-`product.domain`, `product.personas`, `docs_map.codebase`, `stack.backend`, `stack.frontend` e as chaves de
-autoria do driver (`tracker.project_path` no GitLab; `board_path`, `epic_folder`, `story_folder` e
-`issue.id_format` no Markdown).
+`product.domain`, `product.personas`, `docs_map.codebase`, `stack.backend`, `stack.frontend` and the driver's
+authoring keys (`tracker.project_path` in GitLab; `board_path`, `epic_folder`, `story_folder` and
+`issue.id_format` in Markdown).
 
-## Modelos padrão
+## Default models
 
-| Papel | Modelo |
+| Role | Model |
 |---|---|
 | `po.researcher` · `po.codemap` | `opus` |
 | `po.blueprint` | `fable` |

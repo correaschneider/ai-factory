@@ -1,5 +1,5 @@
 site_name: Factory
-site_description: Fábricas de agentes config-driven para Claude Code — PO, DEV, QA e CR.
+site_description: Config-driven agent factories for Claude Code — PO, DEV, QA and CR.
 site_url: https://correaschneider.github.io/ai-factory/
 repo_url: https://github.com/correaschneider/ai-factory
 repo_name: correaschneider/ai-factory
@@ -8,7 +8,7 @@ copyright: MIT · Pedro Schneider
 
 theme:
   name: material
-  language: pt
+  language: en
   logo: assets/icon.svg
   favicon: assets/icon.svg
   icon:
@@ -28,12 +28,12 @@ theme:
       scheme: default
       primary: blue grey
       accent: amber
-      toggle: { icon: material/weather-night, name: Modo escuro }
+      toggle: { icon: material/weather-night, name: Dark mode }
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
       primary: blue grey
       accent: amber
-      toggle: { icon: material/weather-sunny, name: Modo claro }
+      toggle: { icon: material/weather-sunny, name: Light mode }
 
 plugins:
   - search
@@ -41,46 +41,46 @@ plugins:
       docs_structure: suffix
       reconfigure_material: true
       languages:
-        - locale: pt
-          name: Português
-          default: true
-          build: true
         - locale: en
           name: English
+          default: true
           build: true
-          site_description: Config-driven agent factories for Claude Code — PO, DEV, QA and CR.
+        - locale: pt
+          name: Português
+          build: true
+          site_description: Fábricas de agentes config-driven para Claude Code — PO, DEV, QA e CR.
           nav_translations:
-            Início: Home
-            Conceitos: Concepts
-            Começando: Getting started
-            Fábricas: Factories
-            Referência: Reference
-            Configuração: Configuration
+            Home: Início
+            Getting started: Começando
+            Concepts: Conceitos
+            Factories: Fábricas
+            Reference: Referência
+            Configuration: Configuração
             Drivers: Drivers
-            Modelos por papel: Models per role
-            Perguntas frequentes: FAQ
-            Política de privacidade: Privacy policy
-            Termos de uso: Terms of use
+            Models per role: Modelos por papel
+            FAQ: Perguntas frequentes
+            Privacy policy: Política de privacidade
+            Terms of use: Termos de uso
 
 nav:
-  - Início: index.md
-  - Começando: getting-started.md
-  - Conceitos: concepts.md
-  - Fábricas:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - Concepts: concepts.md
+  - Factories:
       - factories/demo.md
       - factories/init.md
       - factories/po.md
       - factories/dev.md
       - factories/qa.md
       - factories/cr.md
-  - Referência:
-      - Configuração: reference/config.md
+  - Reference:
+      - Configuration: reference/config.md
       - Drivers: reference/drivers.md
-      - Modelos por papel: reference/models.md
-  - Perguntas frequentes: faq.md
+      - Models per role: reference/models.md
+  - FAQ: faq.md
   - Legal:
-      - Política de privacidade: privacy.md
-      - Termos de uso: terms.md
+      - Privacy policy: privacy.md
+      - Terms of use: terms.md
 
 markdown_extensions:
   - admonition
