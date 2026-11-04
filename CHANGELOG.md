@@ -3,6 +3,10 @@
 Semver: **major** = quebra de config/contrato (chave obrigatória nova no `CONTRACT.md`, op de driver com
 assinatura nova); **minor** = fábrica, driver ou op nova; **patch** = ajuste de prompt/correção.
 
+## Não lançado
+- Site refeito em **Next.js 16 + MUI v9** (paleta `grey`, claro/escuro/sistema) em `web/`, no lugar do MkDocs
+  Material; o conteúdo segue nos `.md` de `docs/`.
+
 ## 1.4.1 — 2026-10-22
 - README em inglês com **"First 5 minutes"** no topo (instalar → `/factory:demo` → `/factory:init`).
 - Site com **inglês como idioma padrão** e português em `/pt/`; "Getting started" e a home abrem pela demo. (#11)
@@ -31,7 +35,7 @@ assinatura nova); **minor** = fábrica, driver ou op nova; **patch** = ajuste de
 - Driver de tracker **GitHub Issues** (`drivers/trackers/github.md`, via `gh`): status por estado + label de estágio, sub-issues e dependências "blocked by" nativas, com fallback por referência cruzada. `/factory:init` propõe o driver para remotes no github.com. (#5)
 
 ## 1.0.3 — 2026-09-25
-- Documentação em https://correaschneider.github.io/ai-factory/ (MkDocs Material, português e inglês), publicada pelo GitHub Actions a cada merge na `main`.
+- Documentação em https://correaschneider.github.io/ai-factory/ (português e inglês), publicada pelo GitHub Actions a cada merge na `main`.
 
 ## 1.0.2 — 2026-09-25
 - `/factory:dev`: remove frontmatter duplicado (aparecia como texto no corpo) e usa `factory:dev-doc-sync`.
