@@ -18,6 +18,7 @@ Read `docs/factory.config.md`. Load `config.docs_map.codebase`, `config.stack`, 
 
 ## 1. Read the research
 `docs/initiatives/{name}/research.md` — what will be built, MVP, integrations.
+**`Depth: standard`** → there is no research: use the initiative text + `triage.md` as the scope.
 
 ## 2. Read the CodeBase maps (BEFORE any code)
 In `config.docs_map.codebase`: index/README, glossary, overview + architecture of the target project,
@@ -47,6 +48,11 @@ and the maps of `backend/` (entities/services/routes/jobs/integrations) and `fro
 ## 6. Recommended Sequence
 ## 7. External integrations involved
 ```
+
+## Depth
+- `deep` → the full output above.
+- `standard` → keep sections 1, 2, 4 and 5 short; **skip 3 and 7** unless they carry something the blueprint
+  needs. The codemap + blueprint together stay under ~300 lines.
 
 ## RULES
 - **ALWAYS** read `config.docs_map.codebase` BEFORE exploring code; map what exists before proposing the new.

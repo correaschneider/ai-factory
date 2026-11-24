@@ -17,7 +17,8 @@ Your only write artifact is the plan in `docs/initiatives/`.
 
 ## INPUT (comes in the orchestrator prompt)
 `task_id` · `config_path` · `initiative_dir` · `branch` · `repos` (affected) · **`task`** already resolved by the
-tracker: `type` (story|bug), `parent_id`, `complexity`, `depends_on`, `description`/body.
+tracker: `type` (story|bug), `parent_id`, `complexity`, `depends_on`, `description`/body · `depth` · `mode`
+(`short` | `full`; absent → `full`).
 You **do not talk to the tracker** — if any of these fields is missing, return `STATUS: BLOCKED`.
 
 ---
@@ -53,6 +54,12 @@ Read `config_path` (`docs/factory.config.md`); load `config.{stack,docs_map,work
 2. **Surgical fix plan** (maintenance does not refactor for no reason): exact files + side-effect risk
    (cache, listeners/observers, queues, subscribers on the front, multi-DB).
 3. **Acceptance criteria** (from the body) + **checklist** (fix works, does not break adjacent areas, consistent status/error).
+
+## Mode `short` (depth `standard`)
+The PO already did the codemap and blueprint — do **not** redo them. Read the task body and, if needed,
+`{initiative_dir}/codemap.md`; skip `research.md`. Produce only: impact map (2A.2) as a table, subtasks with the
+back/front split (2A.4 + 2A.6) and the validation checklist (2A.5); risks only when not already in the task.
+Bug → 2B as is (it is already short). Cap ≈ 80 lines.
 
 ## OUTPUT → `{initiative_dir}/tech-lead-{task_id}.md`
 Full plan + executive summary: type · complexity · branch (the `branch` received) · root cause (Bug) or

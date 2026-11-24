@@ -4,13 +4,37 @@ Transforma uma **iniciativa do roadmap** em **Epic + Stories prontas no tracker*
 detalhada o bastante para a fábrica DEV implementar sem pesquisar de novo.
 
 ```text
-/factory:po <iniciativa> [--model papel=valor]
+/factory:po <iniciativa> [--depth lean|standard|deep] [--model papel=valor]
 ```
 
 Exemplo: `/factory:po Integração com gateway de pagamento`. Sem argumento, a fábrica pergunta qual
 iniciativa processar. Tudo o que ela produz vai para `docs/initiatives/<iniciativa-em-kebab-case>/`.
 
-## Pipeline
+## Profundidade: quanta documentação a iniciativa merece
+
+Nem todo pedido merece estudo de mercado. Antes de qualquer agente, o orquestrador faz uma **triagem** curta:
+
+1. **Procura trabalho que já existe** no tracker (`search`), aberto e fechado, para nunca criar duplicata.
+2. **Confere os bloqueios declarados**: se uma story existente diz que está bloqueada por uma pasta que ainda não
+   entrou, ele olha a branch base agora e avisa quando o bloqueio já não vale.
+3. **Sugere uma profundidade** com dois ou três motivos, e você confirma (ou passa `--depth` para escolher).
+
+| Profundidade | Quando | O que produz |
+|---|---|---|
+| `lean` | remoção, renomeação, config, texto, SQL de manutenção, bug com causa conhecida | um `brief.md` (~80 linhas): a dor, **onde mexer com `arquivo:linha`**, critérios de aceite, riscos, 1 a 3 Stories |
+| `standard` | mudança numa área que já existe, com solução conhecida | `codemap.md` + `blueprint.md` enxutos (~300 linhas juntos), sem pesquisa de mercado |
+| `deep` | capacidade nova, solução em aberto, referências de mercado e UX importam | o pipeline completo abaixo: pesquisa, code map, blueprint |
+
+Dinheiro, autenticação, dado pessoal, mudança irreversível de dado e integração nova nunca ficam abaixo de
+`standard`. Uma decisão de negócio em aberto (fórmula de KPI, regra de processo) não aumenta a profundidade: vira
+pergunta com recomendação. A profundidade vai em cada issue como a label `depth:<valor>`, e a fábrica DEV herda.
+Um brief `lean` que descobre que a solução não está decidida devolve `ESCALATE`, e a fábrica pergunta antes de
+aprofundar.
+
+Em qualquer profundidade, **1 Story = 1 PR revisável**: a mudança não é fatiada por camada, e as decisões comuns do
+Epic são escritas uma vez, no Epic, sem cópia em cada Story. Iniciativa `lean` com uma Story só não tem Epic.
+
+## Pipeline (`deep`)
 
 As quatro etapas rodam **em sequência**, cada uma num agente isolado, com um gate no fim:
 
@@ -103,5 +127,5 @@ autoria do driver (`tracker.project_path` no GitLab; `board_path`, `epic_folder`
 | Papel | Modelo |
 |---|---|
 | `po.researcher` · `po.codemap` | `opus` |
-| `po.blueprint` | `fable` |
+| `po.blueprint` · `po.brief` | `fable` |
 | `po.tasks` | `sonnet` |

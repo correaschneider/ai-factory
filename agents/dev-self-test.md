@@ -13,7 +13,8 @@ Write everything you produce in `config.language` (absent → the language of th
 
 ## INPUT (comes in the orchestrator prompt)
 `task_id` · `config_path` · `initiative_dir` · `plan_path` · `repos` (affected) · `branch`.
-The orchestrator only launches you **after** the code review approves — if `plan_path` does not exist, `STATUS: BLOCKED`.
+The orchestrator only launches you **after** the code review approves (in depth `lean` without a sensitive diff,
+the review is skipped and you come right after the developer) — if `plan_path` does not exist, `STATUS: BLOCKED`.
 
 ---
 

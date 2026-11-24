@@ -48,7 +48,7 @@ The factory replaces the loose request with a **process**:
 |---|---|---|
 | [`/factory:demo`](factories/demo.md) | folder (optional) | sample project + Markdown kanban and the PO factory running, nothing to configure |
 | [`/factory:init`](factories/init.md) | project path | `docs/factory.config.md` with detected stack, tracker and git |
-| [`/factory:po`](factories/po.md) | initiative name | market research, code map, blueprint and **Epic + Stories** in the tracker |
+| [`/factory:po`](factories/po.md) | initiative name | triage and depth (`lean` brief · `standard` plan · `deep` research), then **Stories** in the tracker |
 | [`/factory:dev`](factories/dev.md) | task id | technical plan, code on the branch, review, validated build and task in QA |
 | [`/factory:qa`](factories/qa.md) | task id | test plan, backend and E2E tests, execution with video and **done** or **bugs** |
 | [`/factory:cr`](factories/cr.md) | task id | review and security audit of the MRs/PRs, **human verdict**, comments and status |

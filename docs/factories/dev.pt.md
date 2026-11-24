@@ -4,13 +4,29 @@ Leva **uma task do backlog até o handoff de QA**: planeja, implementa, revisa, 
 documentação do código e move a task para `qa_gate`.
 
 ```text
-/factory:dev <task-id> [--model papel=valor]
+/factory:dev <task-id> [--depth lean|standard|deep] [--model papel=valor]
 ```
 
 O orquestrador é o único que fala com você e com o tracker. Os workers são **agents** do plugin
 (`factory:dev-*`), cada um com as ferramentas do seu papel e nada além.
 
-## Pipeline
+## Profundidade
+
+A task carrega a profundidade escolhida no PO (label `depth:*` na task ou no épico); `--depth` sobrepõe. Task sem
+a label roda `deep`, o pipeline completo, a menos que `dev.default_depth` diga outra coisa.
+
+| Etapa | `lean` | `standard` | `deep` |
+|---|---|---|---|
+| Tech Lead | pulado: o corpo da task (e o brief) é o plano | plano curto: mapa de impacto, subtasks, checklist | completo |
+| Developer | sim | sim | sim |
+| Code Review | só com **diff sensível**: mais de `dev.lean_review_lines` (300) linhas, ou auth, RLS, migrations/DDL, SQL que apaga dado, pagamento, segredos, `dev.sensitive_paths` | sim | sim |
+| Self Test | sim | sim | sim |
+| Doc Sync | só quando a task lista mudança de doc ou o diff toca área documentada | sim | sim |
+
+Qualquer agente pode devolver `ESCALATE` quando o trabalho se mostra maior ou mais sensível do que a profundidade
+supunha; o orquestrador para e pergunta se sobe. Etapas puladas aparecem nomeadas no relatório final.
+
+## Pipeline (`deep`)
 
 ```mermaid
 flowchart TD

@@ -108,7 +108,9 @@ Each initiative gets a `docs/initiatives/<name>/` folder with everything the fac
 
 ```text
 docs/initiatives/login-with-google/
-├── research.md              # PO: market research
+├── triage.md                # PO: existing work, blockers, chosen depth
+├── brief.md                 # PO: lean depth only (replaces the three below)
+├── research.md              # PO: market research (deep only)
 ├── codemap.md               # PO: what already exists in the code
 ├── blueprint.md             # PO: machine-ready specification
 ├── tasks-report.md          # PO: Epic and Stories created

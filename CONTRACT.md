@@ -72,7 +72,7 @@ In `fetch`, the driver returns the logical status by the **most specific** selec
 
 | # | Operation | Input | Output / Effect |
 |---|-----------|-------|-----------------|
-| 1 | `fetch(id)` | id | `Task{ id, title, type, logical_status, parent_id?, branch?, linked_mr?, description, assignee? }` |
+| 1 | `fetch(id)` | id | `Task{ id, title, type, logical_status, parent_id?, branch?, linked_mr?, description, assignee?, depth? }` |
 | 2 | `read_blueprint(id)` | id | spec/blueprint. **Default = `fetch().description`**; separate op only if the spec lives outside the description |
 | 3 | `transition(id, target)` | id, **logical** status | moves the issue to the selector of `config.tracker.status[target]` (changes state/folder and/or label, removing conflicting stage labels) |
 | 4 | `comment(id, md)` | id, markdown | adds a comment (driver converts markdown→backend format) |
@@ -83,6 +83,9 @@ In `fetch`, the driver returns the logical status by the **most specific** selec
 Each driver declares how it resolves it (a convention like `{prefix}{id}`, a linked MR, or a field on the card).
 ⚠️ When the branch is **not** derivable from the key (e.g. ClickUp with branch `CU-{clickup_id}`), the driver reads it from the
 appropriate field — the command never assumes `{prefix}{id}`.
+
+**`depth`:** value of the label `depth:<lean|standard|deep>` on the issue; absent → the same label on its parent
+(epic); absent on both → empty (the DEV factory then falls back to `config.dev.default_depth`, else `deep`).
 
 > Ops of other commands (outside the pilot): `assign`, `query_backlog`. Same pattern.
 
@@ -99,6 +102,13 @@ on the kanban (`board_path`); **gitlab/github/jira** = Issues on the server.
 | B | `create_story(title, body, meta)` | title, body (= full blueprint block), `{epic_ref, depends_on[], labels[], complexity, priority}` | creates the story (type=story) linked to the epic → `story_ref` (includes `id`) |
 | C | `link_dependency(story_ref, depends_on_ref)` | two refs | records the **reciprocal** dependency (markdown: `blocks[]`/`depends_on[]`; gitlab/jira: relates/blocks link; github: native "blocked by") |
 | D | `update_epic(epic_ref, stories[])` | epic + list of stories | updates the stories index/table in the epic |
+| E | `search(terms)` | 3-6 key terms | open **and** closed issues (epics and stories) matching the terms → `[{id, title, type, state, labels, parent_id?}]`, most relevant first, at most ~20. Used by the PO triage to avoid duplicates. |
+
+**`epic_ref` is optional in `create_story`:** a lean initiative with a single Story has no Epic — the driver
+then skips the parent/epic link (and the `Epic: #…` line).
+
+**Depth label:** the PO factory adds `depth:<lean|standard|deep>` to `meta.labels` of the epic and stories; the
+driver applies it like any other label (creating it in the backend when needed).
 
 **How the driver resolves id and location:**
 - markdown → sequential id via `issue.id_format` (scans `board_path` for the highest number); writes to
@@ -111,6 +121,12 @@ on the kanban (`board_path`); **gitlab/github/jira** = Issues on the server.
 tasks: markdown→`tracker.{board_path,epic_folder,story_folder}` + `issue.id_format`; gitlab→`project_path`; github→`tracker.repo`.
 
 ---
+
+## Depth (optional keys — PO and DEV)
+`po.default_depth` (`lean|standard|deep`; tie-breaker of the PO triage; absent → `standard`) ·
+`dev.default_depth` (used when the task has no `depth:*` label; absent → `deep`) ·
+`dev.lean_review_lines` (lean runs the code review above this many changed lines; absent → 300) ·
+`dev.sensitive_paths` (list of globs that always trigger the code review in lean). Invalid value → **STOP**.
 
 ## Required keys of the DEV factory (validate in STEP 0 of `/factory:dev`)
 `tracker.status.{backlog,in_progress,qa_gate}` (distinct!); `git.{dev_base,protected,branch_prefix,commit_format,remote}`;
@@ -218,7 +234,7 @@ of the model); any other value → **STOP** in STEP 0 saying which key.
 
 | Level | Roles (`<factory>.<role>`) | Default |
 |---|---|---|
-| 1 — judgment | `dev.tech_lead`, `dev.code_reviewer`, `cr.security`, `po.blueprint`, `qa.planner` | `fable` |
+| 1 — judgment | `dev.tech_lead`, `dev.code_reviewer`, `cr.security`, `po.blueprint`, `po.brief`, `qa.planner` | `fable` |
 | 2 — volume | `dev.developer`, `qa.backend`, `qa.frontend`, `po.researcher`, `po.codemap`, `cr.reviewer` | `opus` |
 | 3 — mechanical | `dev.self_test`, `dev.doc_sync`, `qa.runner`, `po.tasks` | `sonnet` |
 

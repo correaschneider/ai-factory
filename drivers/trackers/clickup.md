@@ -15,6 +15,7 @@ Tags play the role of labels. No sub-issue by default → `create_child_bug` = n
 - `type` = heuristic: task with tag/label `bug` → bug, otherwise story.
 - `logical_status` = match `status` (ClickUp string) against `config.tracker.status` (case-insensitive match).
 - `branch` = convention from `config.scm.branch_convention` applied to the id (e.g. `CU-{id}`) — **not** derivable from the key prefix.
+- `depth` = tag `depth:*` of the task; else of the linked epic task.
 - `linked_mr` = scan `description` + `mcp__clickup__clickup_get_task_comments` for MR URLs/refs (the CR factory uses this in `find_mrs`).
 
 ### 2. read_blueprint(id) → `fetch().description`.
@@ -38,6 +39,8 @@ Tags play the role of labels. No sub-issue by default → `create_child_bug` = n
 If the PO factory runs with ClickUp: `create_epic`/`create_story` via `clickup_create_task` (epic = task with tag
 `epic`; story = task linked via `clickup_add_task_link`). `link_dependency` = `clickup_add_task_dependency`.
 `update_epic` = edit the epic's `markdown_description` with the stories checklist. IDs are assigned by ClickUp.
+`search(terms)` = ClickUp MCP search/filter tasks in `list_id` by the terms (include closed), max 20; `type` by tag
+`epic`/`bug`, else story. `epic_ref` empty → no task link.
 
 ## Prerequisite
 ClickUp MCP server connected. To discover `list_id`/valid status names: `clickup_get_task` with

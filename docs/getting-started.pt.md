@@ -67,7 +67,7 @@ Revise o arquivo, preencha os `TBD` e **faça commit**: o config é parte do pro
 /factory:po Login com Google
 ```
 
-A fábrica PO pesquisa como o mercado resolve o problema, mapeia o que já existe no código, escreve o
+A fábrica PO primeiro faz a triagem e sugere uma profundidade; no `deep`, pesquisa como o mercado resolve o problema, mapeia o que já existe no código, escreve o
 blueprint e cria **1 Epic + 1 Story por funcionalidade** no tracker. Tudo fica em
 `docs/initiatives/login-com-google/`.
 

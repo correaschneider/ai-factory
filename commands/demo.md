@@ -169,7 +169,8 @@ the CodeBase map, the kanban. Then **ASK** (AskUserQuestion):
 ## STEP 3 — Run the PO factory (if chosen)
 Treat `DEMO` as the **project root** for the whole run: every relative path (`docs/factory.config.md`,
 `docs/initiatives/`, `tasks/`) is relative to `DEMO`, and shell commands run with `cd DEMO`.
-Read and follow `${CLAUDE_PLUGIN_ROOT}/commands/po.md` with `$ARGUMENTS` = the sample initiative, adding
+Read and follow `${CLAUDE_PLUGIN_ROOT}/commands/po.md` with `$ARGUMENTS` = the sample initiative + ` --depth deep`
+(the demo shows the full pipeline; the triage still runs and its file is part of the output), adding
 ` | Project root: <DEMO>` to every worker prompt line, so each worker resolves its paths inside `DEMO`.
 All gates and rules of the PO factory apply as written.
 
@@ -177,9 +178,10 @@ All gates and rules of the PO factory apply as written.
 
 ## STEP 4 — Wrap up
 Report, in the output language:
-1. What was produced: `docs/initiatives/<name>/{research,codemap,blueprint,tasks-report}.md`, the epic in
+1. What was produced: `docs/initiatives/<name>/{triage,research,codemap,blueprint,tasks-report}.md`, the epic in
    `tasks/epics/`, the stories in `tasks/backlog/` (list their ids and titles).
 2. What to look at first: the blueprint and one story file (the story body carries the full blueprint block).
+   Mention that a real request can run lighter: the triage suggests `lean` (one short brief) or `standard`.
 3. Next step for a real project: open it and run `/factory:init`, then `/factory:po <initiative>`; DEV, QA and
    CR need a real codebase, a tracker (or this Markdown kanban) and, for QA, a way to run tests.
 

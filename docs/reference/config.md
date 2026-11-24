@@ -121,7 +121,8 @@ models:                               # optional
 | `tests` | folder, layout, helpers, roles, seeder, smoke script | QA |
 | `docs_map` | where the CodeBase (code maps) and the conventions are | PO, DEV, CR |
 | `product` | domain, personas, competitors, compliance | PO |
-| `dev` | back/front split, doc sync position, attempts, commit and push | DEV |
+| `po` | depth tie-breaker of the triage (`default_depth`) | PO |
+| `dev` | back/front split, doc sync position, attempts, commit and push; default depth, review threshold and sensitive paths in lean | DEV |
 | `models` | model per role | all |
 
 ## Required keys per factory
@@ -158,4 +159,4 @@ models:                               # optional
   QA compares against `base_branch`. If they are the same in your flow, repeat the value.
 - **Distinct gates.** `qa_gate` ≠ `in_qa` and `review_gate` ≠ `in_review`, always.
 - **Useful optional keys:** `docker.run_frontend` (runs the frontend separately and in parallel), `tests.smoke_script`,
-  `tests.seeder`, `dev.self_test.pre_migrate_stash`, `stack.frontend.lint`, `scm.exclude_branch_suffix`.
+  `dev.default_depth`, `dev.lean_review_lines`, `dev.sensitive_paths`, `po.default_depth`, `tests.seeder`, `dev.self_test.pre_migrate_stash`, `stack.frontend.lint`, `scm.exclude_branch_suffix`.

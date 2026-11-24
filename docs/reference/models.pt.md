@@ -7,7 +7,7 @@ ao subir cada worker.
 
 | Nível | Tipo de trabalho | Papéis | Modelo |
 |---|---|---|---|
-| 1 | **julgamento**: decisões caras de errar | `dev.tech_lead`, `dev.code_reviewer`, `cr.security`, `po.blueprint`, `qa.planner` | `fable` |
+| 1 | **julgamento**: decisões caras de errar | `dev.tech_lead`, `dev.code_reviewer`, `cr.security`, `po.blueprint`, `po.brief`, `qa.planner` | `fable` |
 | 2 | **volume**: muito código ou muita leitura | `dev.developer`, `qa.backend`, `qa.frontend`, `po.researcher`, `po.codemap`, `cr.reviewer` | `opus` |
 | 3 | **mecânico**: rodar, reportar, editar pontualmente | `dev.self_test`, `dev.doc_sync`, `qa.runner`, `po.tasks` | `sonnet` |
 

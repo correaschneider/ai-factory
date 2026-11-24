@@ -4,13 +4,36 @@ Turns a **roadmap initiative** into **Epic + Stories ready in the tracker**, wit
 detailed enough for the DEV factory to implement without researching again.
 
 ```text
-/factory:po <initiative> [--model role=value]
+/factory:po <initiative> [--depth lean|standard|deep] [--model role=value]
 ```
 
 Example: `/factory:po Payment gateway integration`. Without an argument, the factory asks which
 initiative to process. Everything it produces goes into `docs/initiatives/<initiative-in-kebab-case>/`.
 
-## Pipeline
+## Depth: how much documentation the initiative deserves
+
+Not every request deserves a market study. Before any agent runs, the orchestrator does a short **triage**:
+
+1. **Looks for existing work** in the tracker (`search`), open and closed, so it never creates a duplicate.
+2. **Re-checks stated blockers**: if an existing story says it is blocked by a folder that is not merged yet, it
+   checks the base branch now and reports it when the blocker no longer holds.
+3. **Suggests a depth** with two or three reasons, and you confirm (or pass `--depth` to choose yourself).
+
+| Depth | When | What it produces |
+|---|---|---|
+| `lean` | removal, rename, config, text, maintenance SQL, bug with a known cause | one `brief.md` (~80 lines): the pain, **where to change with `file:line`**, acceptance criteria, risks, 1 to 3 Stories |
+| `standard` | change inside an existing area, with a known solution | `codemap.md` + `blueprint.md`, short (~300 lines together), no market research |
+| `deep` | new capability, open solution, market/UX references matter | the full pipeline below: research, code map, blueprint |
+
+Money, auth, personal data, irreversible data changes and new integrations never go below `standard`. An open
+business decision (a KPI formula, a process rule) does not raise the depth: it becomes a question with a
+recommendation. The depth goes on every issue as the label `depth:<value>`, and the DEV factory inherits it.
+A `lean` brief that finds the solution is not settled returns `ESCALATE` and the factory asks before going deeper.
+
+In every depth, **1 Story = 1 reviewable PR**: a change is not split by layer, and the Epic's shared decisions
+are written once, in the Epic, not copied into every Story. A `lean` initiative with a single Story has no Epic.
+
+## Pipeline (`deep`)
 
 The four steps run **in sequence**, each in an isolated agent, with a gate at the end:
 
@@ -103,5 +126,5 @@ authoring keys (`tracker.project_path` in GitLab; `board_path`, `epic_folder`, `
 | Role | Model |
 |---|---|
 | `po.researcher` · `po.codemap` | `opus` |
-| `po.blueprint` | `fable` |
+| `po.blueprint` · `po.brief` | `fable` |
 | `po.tasks` | `sonnet` |

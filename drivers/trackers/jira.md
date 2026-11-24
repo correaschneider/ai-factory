@@ -14,6 +14,7 @@ Bug link via `createIssueLink` ("Relates" relation, not parent).
   `assignee=fields.assignee`; `description=fields.description` (ADF→markdown).
 - `logical_status` = reverse lookup of `fields.status.name` in `config.tracker.status` (names are unique).
 - `branch` = from the MR/branch linked to the issue (dev panel) if any; otherwise the **convention** `{git.branch_prefix[type]}{id}`.
+- `depth` = label `depth:*` in `fields.labels`; else in the parent's labels.
 
 ### 2. read_blueprint(id)  → `fields.description` (ADF→markdown). = `fetch().description`.
 
@@ -33,3 +34,8 @@ Bug link via `createIssueLink` ("Relates" relation, not parent).
 - Return `new_id`.
 
 ### 6. label(id, target)  → `editJiraIssue(cloud_id, id, fields:{labels:[+ config.tracker.labels[target]]})`.
+
+## Authoring op used by the PO triage
+### E. search(terms)
+JQL `project = {project_key} AND text ~ "{terms}" ORDER BY updated DESC` (max 20) via the MCP JQL search;
+`type` = Epic/Bug/other by `issuetype.name`.

@@ -4,7 +4,7 @@
 > Write everything you produce in `config.language` (absent → the language of the task).
 > If the prompt carries `Project root: <path>`, resolve every relative path (config, `docs/`, `tasks/`) against it.
 
-Breaks the blueprint into **Epic + Stories** in the project's tracker. **Does not know whether it is kanban-MD, GitLab or
+Breaks the brief (lean) or the blueprint (standard/deep) into **Stories, plus an Epic when there are several**, in the project's tracker. **Does not know whether it is kanban-MD, GitLab or
 Jira** — uses the **authoring ops** of `{plugin}/CONTRACT.md` (`create_epic`, `create_story`, `link_dependency`,
 `update_epic`); the driver of `config.tracker.driver` translates them.
 
@@ -19,19 +19,31 @@ Read `docs/factory.config.md`. Validate the authoring keys (`{plugin}/CONTRACT.m
 Missing/`TBD` → **STOP**. Load `{plugin}/drivers/trackers/{config.tracker.driver}.md`.
 
 ## FIRST STEP
-Read `docs/initiatives/{name}/blueprint.md` — features, acceptance criteria, dependencies, complexity.
-Does not exist → **STOP** ("run po-blueprint first").
+Source by `Depth` (from the prompt; absent → `deep`):
+- `lean` → `docs/initiatives/{name}/brief.md` (the "Stories" table + the rest of the brief). Missing → **STOP** ("run po-brief first").
+- `standard`/`deep` → `docs/initiatives/{name}/blueprint.md` — features, acceptance criteria, dependencies,
+  complexity. Missing → **STOP** ("run po-blueprint first").
+
+**Labels on everything created:** `generated` + `depth:{Depth}` (the DEV factory reads the depth from it).
+
+## 0. Epic or not
+- `lean` with **1 Story** → no Epic: create only the Story (`meta.epic_ref` empty) and skip steps 1 and 4.
+- Otherwise → Epic + Stories as below.
 
 ## 1. Create the Epic
-`epic_ref = tracker.create_epic(slug={name}, title="[{Initiative}] {Name}", body, meta={labels:[generated]})`
+`epic_ref = tracker.create_epic(slug={name}, title="[{Initiative}] {Name}", body, meta={labels:[generated, depth:{Depth}]})`
 (`{Initiative}` = the word "Initiative" in `config.language`, e.g. `Iniciativa` for `pt-BR`.)
-— body with summary, MVP scope (bullets) and pointers to research/codemap/blueprint.
+— body with summary, MVP scope (bullets), the **decisions shared by all Stories** (written only here) and
+pointers to the artifacts of this depth (brief, or research/codemap/blueprint).
 
-## 2. Create one Story per MVP feature
+## 2. Create one Story per MVP feature (lean: per row of the brief's "Stories" table)
 For EACH feature:
-`story_ref = tracker.create_story(title="{Feature}", body, meta={epic_ref, depends_on:[…], labels:[generated], complexity, priority})`
+`story_ref = tracker.create_story(title="{Feature}", body, meta={epic_ref, depends_on:[…], labels:[generated, depth:{Depth}], complexity, priority})`
 - **CRITICAL:** `body` = the **complete feature block from the blueprint** (context + backend + frontend
-  + error handling + acceptance criteria + compliance). It is what the tech-lead/DEV will consume. **Do not summarize.**
+  + error handling + acceptance criteria + compliance), or, in `lean`, the brief's rows for that Story (where to
+  change, decisions, criteria, risks). It is what the DEV will consume. **Do not summarize.**
+- **Do not copy** the Epic's shared decisions/context into each Story: write `Epic: #{epic_ref}` at the top and
+  let the reader follow the link. Copying the same block into every Story only adds length.
 - The driver resolves id and location (markdown: next `issue.id_format` in `story_folder`; gitlab/github/jira: server).
 
 ## 3. Resolve dependencies (reciprocal)
@@ -44,14 +56,15 @@ For each Story with `depends_on:[Y]`: `tracker.link_dependency(story_ref, Y)` (t
 ## 5. Report → `docs/initiatives/{name}/tasks-report.md`
 ```markdown
 # Tasks Report: {Initiative} — {date}
-## Epic created: {epic_ref}
+## Depth: {Depth} · Epic created: {epic_ref | none (lean, 1 Story)}
 ## Stories created | ID | Title | Complexity | Dependencies | Ref |
 ## Next steps (PO reviews; DEV starts with the 1st Story respecting depends_on)
-## Reference: research.md · codemap.md · blueprint.md
+## Reference: the artifacts of this depth (brief.md | codemap.md + blueprint.md | research.md + codemap.md + blueprint.md)
 ```
 
 ## RULES
-- **ALWAYS** create the Epic before the Stories; 1 MVP feature = 1 Story.
+- **ALWAYS** create the Epic before the Stories (when there is one); 1 MVP feature = 1 Story = 1 PR.
+- **ALWAYS** label `depth:{Depth}` on the Epic and the Stories.
 - **ALWAYS** include the **COMPLETE** blueprint block in the Story body (do not summarize).
 - **ALWAYS** label `factory-generated`; **ALWAYS** reciprocal dependencies via `link_dependency`.
 - **ALWAYS** update the Epic with the Stories table after creating all of them.

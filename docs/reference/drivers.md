@@ -26,13 +26,14 @@ a folder. It is useful for projects without a tracker or for testing the factory
 
 | Operation | Input | Effect |
 |---|---|---|
-| `fetch(id)` | id | returns `{id, title, type, logical_status, parent_id, branch, linked_mr, description, assignee}` |
+| `fetch(id)` | id | returns `{id, title, type, logical_status, parent_id, branch, linked_mr, description, assignee, depth}` (`depth` from the label `depth:*`, on the task or its epic) |
 | `read_blueprint(id)` | id | the task's specification; by default, the description itself |
 | `transition(id, target)` | id, logical status | takes the task to the `tracker.status[target]` selector, changing state, folder or labels |
 | `comment(id, md)` | id, Markdown | comments; the driver converts the Markdown to the system's format |
 | `create_child_bug(task, title, md)` | task, title, body | creates a bug **linked to the task** and returns the id |
 | `label(id, target)` | id, logical label | applies `tracker.labels[target]` |
 | `create_epic` · `create_story` · `link_dependency` · `update_epic` | — | authoring of epics and stories (PO factory) |
+| `search(terms)` | key terms | open and closed issues that match; the PO triage uses it to avoid duplicates |
 
 Two details every driver handles:
 
