@@ -15,6 +15,7 @@ When `qa_gate` and `in_qa` use the **same folder**, they are told apart by a **s
   by the **most specific** selector (the one requiring a label wins).
 - `branch` = `frontmatter[{config.issue.branch_field}]` if it exists (e.g. `clickup_id` → `CU-{value}`);
   otherwise convention `{git.branch_prefix[type]}{id}`.
+- `depth` = `depth:*` in `frontmatter.labels`; else in the epic file named by `frontmatter.epic`.
 
 ### 2. read_blueprint(id)  → body of the `.md`. = `fetch().description`.
 
@@ -46,6 +47,7 @@ When `qa_gate` and `in_qa` use the **same folder**, they are told apart by a **s
 - Write `{board_path}/{story_folder}/{id}-{slug}.md` with frontmatter `id, type: story, status: todo,
   epic: {meta.epic_ref}, depends_on: {meta.depends_on}, blocks: [], complexity, priority,
   branch: {git.branch_prefix.story}{id}, labels: [factory-generated, …]` + body = blueprint block.
+- `meta.epic_ref` empty (lean, 1 Story) → `epic:` left empty.
 - Return `story_ref = {id}` (+ path).
 
 ### C. link_dependency(story_ref, depends_on_ref)
@@ -54,3 +56,7 @@ When `qa_gate` and `in_qa` use the **same folder**, they are told apart by a **s
 
 ### D. update_epic(epic_ref, stories[])
 - Edit `EPIC-{slug}.md`: fill the `## Stories` section with the table `| ID | Title | Complexity | Status | Dependencies |` (relative links).
+
+### E. search(terms)
+`grep -ril` each term in `{board_path}` (all folders, epics included); rank files by how many terms they match;
+return the top 20 with `id`/`title`/`type`/`labels` from the frontmatter and the current folder as `state`.

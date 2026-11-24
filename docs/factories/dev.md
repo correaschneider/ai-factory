@@ -4,13 +4,29 @@ Takes **a task from the backlog to the QA handoff**: plans, implements, reviews,
 code documentation and moves the task to `qa_gate`.
 
 ```text
-/factory:dev <task-id> [--model role=value]
+/factory:dev <task-id> [--depth lean|standard|deep] [--model role=value]
 ```
 
 The orchestrator is the only one that talks to you and to the tracker. The workers are plugin **agents**
 (`factory:dev-*`), each with the tools of its role and nothing beyond that.
 
-## Pipeline
+## Depth
+
+The task carries the depth the PO chose (label `depth:*` on the task or its epic); `--depth` overrides it. Tasks
+without the label run `deep`, the full pipeline, unless `dev.default_depth` says otherwise.
+
+| Step | `lean` | `standard` | `deep` |
+|---|---|---|---|
+| Tech Lead | skipped: the task body (and the brief) is the plan | short plan: impact map, subtasks, checklist | full |
+| Developer | yes | yes | yes |
+| Code Review | only for a **sensitive diff**: more than `dev.lean_review_lines` (300) lines, or auth, RLS, migrations/DDL, data-deleting SQL, payments, secrets, `dev.sensitive_paths` | yes | yes |
+| Self Test | yes | yes | yes |
+| Doc Sync | only when the task lists doc changes or the diff touches documented areas | yes | yes |
+
+Any agent can return `ESCALATE` when the work turns out bigger or more sensitive than the depth assumed; the
+orchestrator stops and asks whether to raise it. Skipped steps are named in the final report.
+
+## Pipeline (`deep`)
 
 ```mermaid
 flowchart TD

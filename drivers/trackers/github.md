@@ -30,6 +30,7 @@ gh issue view {id} -R {repo} --json number,title,body,state,labels,assignees,par
   2. branch of the PR that closes the issue: `closedByPullRequestsReferences[0]` →
      `gh pr view <n> -R {repo} --json headRefName`;
   3. convention `{git.branch_prefix[type]}{id}` (or `issue.branch_field`, if the config defines it).
+- `depth` = label `depth:*` of the issue; else of `parent` (`gh issue view {parent} --json labels`).
 
 ### 2. read_blueprint(id)  → the issue's `body` (= `fetch().description`).
 
@@ -79,8 +80,14 @@ gh issue create -R {repo} --title "{title}" --body-file - --label bug --parent {
 - No native dependency → append `Depends on #{depends_on_ref}` to the story's body and
   `Blocks #{story_ref}` to the dependency's body.
 
+- `meta.epic_ref` empty (lean, 1 Story) → no `--parent` and no `Epic:` line.
+
 ### D. update_epic(epic_ref, stories[])
 - Rewrite only the stories section of the epic's body (read with `gh issue view --json body`, edit,
   `gh issue edit {epic_ref} -R {repo} --body-file -`): table `| # | Title | Complexity | Depends on |`
   with `#<n>` on each row. Sub-issues already show up in the epic's panel; the table guarantees the index
   even without sub-issues.
+
+### E. search(terms)
+`gh issue list -R {repo} --state all --search "{terms}" --limit 20 --json number,title,state,labels,issueType`
+(`type` = epic when it has the `epic` label/type, bug as in `fetch`, otherwise story).

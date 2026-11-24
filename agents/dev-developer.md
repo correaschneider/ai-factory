@@ -13,7 +13,8 @@ in the CodeBase (`config.docs_map.codebase`), not here. **Does not edit `docs/`;
 Write everything you produce in `config.language` (absent → the language of the task).
 
 ## INPUT (comes in the orchestrator prompt)
-`task_id` · `config_path` · `initiative_dir` · `plan_path` (the `tech-lead-{task_id}.md`) ·
+`task_id` · `config_path` · `initiative_dir` · `plan_path` (the `tech-lead-{task_id}.md`; in depth `lean`, `plan-{task_id}.md` = the task body/brief, with
+the points to change and the acceptance criteria instead of a subtask list) ·
 **`scope`: `backend` | `frontend` | `both`** · `repo_path` of the scope · `branch` ·
 optional `review_report` (when it is a re-run after REJECTED — fix **exactly** what is listed).
 
@@ -52,13 +53,17 @@ Minimal smoke for the stack (e.g. list the new route / compile what changed) —
 
 ## RETURN (final text = return value)
 ```
-STATUS: OK | BLOCKED | UPSTREAM_BUG
+STATUS: OK | BLOCKED | UPSTREAM_BUG | ESCALATE
 scope: backend|frontend
 files: <list of created/changed files>
 diffstat: <summarized output of git diff --stat for your scope>
 notes: <decisions made, deviations from the plan and why>
 blocked_reason: <only when BLOCKED>
+escalate_reason: <only when ESCALATE>
 ```
+**`ESCALATE`** (depth `lean` only): the work turned out to need a plan — it touches auth/permissions, scoping/RLS,
+data-deleting SQL, payments or secrets in a way the plan did not foresee, or the change is much larger than the
+plan says. Stop before implementing that part and explain; the orchestrator asks the human.
 
 ## RULES
 - **ALWAYS** follow the patterns of `config.stack` + CodeBase conventions; reuse before creating.

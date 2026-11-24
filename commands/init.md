@@ -163,11 +163,17 @@ product:                       # context for the PO factory
   competitors: []
   compliance:  []
 
+po:                            # optional — PO factory
+  default_depth: standard      # lean|standard|deep — tie-breaker of the triage (absent → standard)
+
 dev:                           # mechanics of the DEV factory
   developer_split: <true|false>
   doc_sync_order:  after_self_test
   retries:         3
   commit: { by: doc_sync, push: <mr|push> }
+  # default_depth: deep        # used when a task has no depth:* label (absent → deep)
+  # lean_review_lines: 300     # lean runs the code review above this many changed lines
+  # sensitive_paths: []        # globs that always trigger the code review in lean
 
 # models:                      # optional — omitted = plugin defaults (CONTRACT → "Models per role")
 #   default: inherit           # level 1 fable · level 2 opus · level 3 sonnet

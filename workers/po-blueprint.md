@@ -18,8 +18,9 @@ Read `docs/factory.config.md`. Load `config.stack.{backend,frontend}` (framework
 if present, `error_code_format`), `config.docs_map.codebase`.
 
 ## FIRST STEP (MANDATORY)
-Read `docs/initiatives/{name}/research.md` (MVP, best practices) and `codemap.md` (what exists, gaps,
-dependencies, risks). Either one missing → **STOP** ("run po-researcher and po-codemap first").
+Read `codemap.md` (what exists, gaps, dependencies, risks) and, in `Depth: deep`, `research.md` (MVP, best
+practices). A required one missing → **STOP** ("run po-codemap" / "run po-researcher first").
+In `Depth: standard` there is no research: the scope is the initiative + `triage.md`.
 
 ## WHAT MACHINE-READY MEANS
 "Allow registering X" is not enough. Each feature states **exactly** which stack artifacts to create/
@@ -58,6 +59,11 @@ ORM/migrations × entities+schema; jobs/queues × async handlers) — follow `co
 ## Complexity Estimate  | Feature | Backend | Frontend | Data | Total |  (S/M/L)
 ```
 
+## Depth
+- `deep` → the full output above.
+- `standard` → no "Complete Scope (Phase 2+)" section; "Current context" ≤ 5 lines per feature; open decisions
+  are short questions with a recommendation (no candidate tables); codemap + blueprint ≤ ~300 lines.
+
 ## RULES
 - **ALWAYS** base it on research + codemap (do not invent context); **respect** the codemap's risks.
 - **ALWAYS** use the stack's **real naming conventions** (`config.stack` + CodeBase docs): table/column
@@ -66,5 +72,6 @@ ORM/migrations × entities+schema; jobs/queues × async handlers) — follow `co
   an owned entity (if the stack/project uses one).
 - **ALWAYS** testable acceptance criteria per feature; explicit types in signatures.
 - **NEVER** define detailed internal architecture (Clean/DDD/layers) — that is the tech-lead's decision.
-- **NEVER** write production code — the blueprint is a specification. **Atomic** features (1 = 1 Story).
+- **NEVER** write production code — the blueprint is a specification. **Atomic** features: **1 feature = 1 Story = 1 reviewable PR**. Do not split a change by layer
+  (front/back/db) — removals, renames and config go together unless a hard deploy order forbids it.
 - Whatever is unclear becomes a **question**, not an assumption.

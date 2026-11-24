@@ -17,6 +17,7 @@ removes the other stage labels when applying the new one.
 - `logical_status` = match the issue's `{state, label}` against `config.tracker.status` by the **most
   specific** selector (the one requiring a label wins). E.g.: opened+`ready-for-qa`→`qa_gate`; opened+`qa-iniciada`→`in_qa`; closed→`done`.
 - `branch` = MR linked to the issue (source branch); otherwise convention `{git.branch_prefix[type]}{id}`.
+- `depth` = label `depth:*` of the issue; else of the epic it relates to (issue link / native Epic).
 
 ### 2. read_blueprint(id)  → `issue.description`. = `fetch().description`.
 
@@ -46,10 +47,14 @@ declare the choice in the config if it differs. No sub-issue → relation via **
 
 ### B. create_story(title, body, meta)
 - Create an issue (`title`, `description=body`, labels `[factory-generated, complexity::{x}, …]`).
-- Link it to the epic: issue link **relates_to** `meta.epic_ref` (or the Epic field if native). Return `story_ref = iid`.
+- Link it to the epic: issue link **relates_to** `meta.epic_ref` (or the Epic field if native); `epic_ref` empty → no link. Return `story_ref = iid`.
 
 ### C. link_dependency(story_ref, depends_on_ref)
 - Create an issue link **blocks**: `depends_on_ref` *blocks* `story_ref` (GitLab keeps the inverse automatically).
 
 ### D. update_epic(epic_ref, stories[])
 - Edit the epic's description: insert a checklist/table of stories (`- [ ] #iid Title`). Already-linked issues show up under "Linked items".
+
+### E. search(terms)
+List issues of `project_path` with `search={terms}`, `state=all`, `per_page=20` (GitLab MCP list issues, or
+`glab issue list --search "{terms}" --all`); `type` = epic by label `epic`, bug by label `bug`, else story.

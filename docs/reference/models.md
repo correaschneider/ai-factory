@@ -7,7 +7,7 @@ when spinning up each worker.
 
 | Level | Kind of work | Roles | Model |
 |---|---|---|---|
-| 1 | **judgment**: decisions that are costly to get wrong | `dev.tech_lead`, `dev.code_reviewer`, `cr.security`, `po.blueprint`, `qa.planner` | `fable` |
+| 1 | **judgment**: decisions that are costly to get wrong | `dev.tech_lead`, `dev.code_reviewer`, `cr.security`, `po.blueprint`, `po.brief`, `qa.planner` | `fable` |
 | 2 | **volume**: lots of code or lots of reading | `dev.developer`, `qa.backend`, `qa.frontend`, `po.researcher`, `po.codemap`, `cr.reviewer` | `opus` |
 | 3 | **mechanical**: run, report, make targeted edits | `dev.self_test`, `dev.doc_sync`, `qa.runner`, `po.tasks` | `sonnet` |
 

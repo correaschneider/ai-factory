@@ -3,6 +3,21 @@
 Semver: **major** = quebra de config/contrato (chave obrigatória nova no `CONTRACT.md`, op de driver com
 assinatura nova); **minor** = fábrica, driver ou op nova; **patch** = ajuste de prompt/correção.
 
+## 1.5.0 — 2026-11-24
+- **Profundidade (`lean` · `standard` · `deep`)** no `/factory:po` e no `/factory:dev`. O PO abre com uma
+  **triagem**: procura trabalho já existente no tracker (op nova `search`), confere se bloqueios declarados ainda
+  valem e sugere a profundidade, que você confirma ou força com `--depth`.
+  - `lean`: worker novo `po-brief` (dor, onde mexer com `arquivo:linha`, critérios, riscos; ~80 linhas) → Stories,
+    sem Epic quando é uma só. Na DEV, sem tech-lead, e code review só com diff sensível.
+  - `standard`: codemap + blueprint enxutos (~300 linhas), sem pesquisa de mercado; tech-lead em modo curto.
+  - `deep`: o pipeline de sempre.
+- A profundidade viaja como label `depth:*` e a DEV herda (task sem label = `deep`, comportamento anterior).
+  Agentes podem devolver `ESCALATE` para subir a profundidade, sempre com pergunta ao humano.
+- **1 Story = 1 PR revisável**: blueprint não fatia por camada; decisões comuns ficam só no Epic, sem cópia em
+  cada Story.
+- Chaves opcionais: `po.default_depth`, `dev.default_depth`, `dev.lean_review_lines`, `dev.sensitive_paths`;
+  papel de modelo `po.brief` (nível 1). A demo roda com `--depth deep`.
+
 ## 1.4.1 — 2026-10-22
 - README em inglês com **"First 5 minutes"** no topo (instalar → `/factory:demo` → `/factory:init`).
 - Site com **inglês como idioma padrão** e português em `/pt/`; "Getting started" e a home abrem pela demo. (#11)

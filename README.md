@@ -31,7 +31,7 @@ When you want it on a real project, open the repository and run `/factory:init`.
 |---|---|
 | `/factory:demo [folder]` | Sample project + Markdown kanban, then the PO factory on a sample initiative |
 | `/factory:init [path]` | Generates the project's `docs/factory.config.md` (detects stack, tracker and git) |
-| `/factory:po <initiative>` | Research → code map → blueprint → Epic + Stories in the tracker |
+| `/factory:po <initiative>` | Triage (duplicates, depth) → a lean brief, a standard plan or the deep research pipeline → Stories in the tracker |
 | `/factory:dev <task>` | Tech lead → developer → code review → self-test → doc sync → QA handoff |
 | `/factory:qa <task>` | Test plan → backend and E2E tests → run with evidence → done, or bugs |
 | `/factory:cr <task>` | Review and security audit of the task's MRs/PRs, human verdict, comments and status |
@@ -71,7 +71,7 @@ permissions the user configured, and always inside the project it runs in:
   MCP server or CLI the user already installed: reads tasks, creates epics, stories and bugs, comments and changes
   status. With the `markdown` driver everything stays in files in the repository.
 - **Comments on merge/pull requests** through `glab`/`gh`, in the CR factory, only after the human verdict.
-- **Searches the web** (PO factory, market research step) with Claude Code's search tools.
+- **Searches the web** (PO factory, market research step, `deep` depth only) with Claude Code's search tools.
 
 No data goes anywhere other than the tracker and code host the user configured. Actions that change the
 tracker or post MR comments go through the gates described in each command.

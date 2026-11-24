@@ -121,7 +121,8 @@ models:                               # opcional
 | `tests` | pasta, layout, helpers, papéis, seeder, script de smoke | QA |
 | `docs_map` | onde está o CodeBase (mapas do código) e as convenções | PO, DEV, CR |
 | `product` | domínio, personas, concorrentes, compliance | PO |
-| `dev` | divisão back/front, posição do doc sync, tentativas, commit e push | DEV |
+| `po` | desempate da triagem de profundidade (`default_depth`) | PO |
+| `dev` | divisão back/front, posição do doc sync, tentativas, commit e push; profundidade padrão, limiar de review e caminhos sensíveis no lean | DEV |
 | `models` | modelo por papel | todas |
 
 ## Chaves obrigatórias por fábrica
@@ -158,4 +159,4 @@ models:                               # opcional
   o QA compara contra `base_branch`. Se forem iguais no seu fluxo, repita o valor.
 - **Portões distintos.** `qa_gate` ≠ `in_qa` e `review_gate` ≠ `in_review`, sempre.
 - **Opcionais úteis:** `docker.run_frontend` (roda o frontend separado e em paralelo), `tests.smoke_script`,
-  `tests.seeder`, `dev.self_test.pre_migrate_stash`, `stack.frontend.lint`, `scm.exclude_branch_suffix`.
+  `dev.default_depth`, `dev.lean_review_lines`, `dev.sensitive_paths`, `po.default_depth`, `tests.seeder`, `dev.self_test.pre_migrate_stash`, `stack.frontend.lint`, `scm.exclude_branch_suffix`.

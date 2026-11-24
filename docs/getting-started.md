@@ -67,7 +67,7 @@ Review the file, fill in the `TBD`s and **commit it**: the config is part of the
 /factory:po Login with Google
 ```
 
-The PO factory researches how the market solves the problem, maps what already exists in the code, writes the
+The PO factory first triages the initiative and suggests a depth; at `deep` it researches how the market solves the problem, maps what already exists in the code, writes the
 blueprint and creates **1 Epic + 1 Story per feature** in the tracker. Everything goes into
 `docs/initiatives/login-with-google/`.
 

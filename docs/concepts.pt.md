@@ -108,7 +108,9 @@ Cada iniciativa ganha uma pasta `docs/initiatives/<nome>/` com tudo o que as fá
 
 ```text
 docs/initiatives/login-com-google/
-├── research.md              # PO — pesquisa de mercado
+├── triage.md                # PO — trabalho existente, bloqueios, profundidade
+├── brief.md                 # PO — só no lean (substitui os três abaixo)
+├── research.md              # PO — pesquisa de mercado (só no deep)
 ├── codemap.md               # PO — o que já existe no código
 ├── blueprint.md             # PO — especificação machine-ready
 ├── tasks-report.md          # PO — Epic e Stories criadas

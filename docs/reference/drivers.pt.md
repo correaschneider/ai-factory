@@ -26,13 +26,14 @@ uma pasta. Serve para projetos sem tracker ou para testar a fábrica.
 
 | Operação | Entrada | Efeito |
 |---|---|---|
-| `fetch(id)` | id | devolve `{id, title, type, logical_status, parent_id, branch, linked_mr, description, assignee}` |
+| `fetch(id)` | id | devolve `{id, title, type, logical_status, parent_id, branch, linked_mr, description, assignee, depth}` (`depth` vem da label `depth:*`, na task ou no épico) |
 | `read_blueprint(id)` | id | a especificação da task; por padrão, a própria descrição |
 | `transition(id, alvo)` | id, status lógico | leva a task ao seletor de `tracker.status[alvo]`, trocando estado, pasta ou labels |
 | `comment(id, md)` | id, Markdown | comenta; o driver converte o Markdown para o formato do sistema |
 | `create_child_bug(task, título, md)` | task, título, corpo | cria um bug **ligado à task** e devolve o id |
 | `label(id, alvo)` | id, label lógica | aplica `tracker.labels[alvo]` |
 | `create_epic` · `create_story` · `link_dependency` · `update_epic` | — | autoria de épicos e stories (fábrica PO) |
+| `search(termos)` | termos-chave | issues abertas e fechadas que batem; a triagem do PO usa para não duplicar |
 
 Dois detalhes que todo driver trata:
 
