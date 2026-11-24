@@ -3,9 +3,15 @@
 Semver: **major** = quebra de config/contrato (chave obrigatória nova no `CONTRACT.md`, op de driver com
 assinatura nova); **minor** = fábrica, driver ou op nova; **patch** = ajuste de prompt/correção.
 
+## 1.6.3 — 2026-11-24
+- Ajustes pedidos pela revisão automática do diretório (que recusou a 1.6.2 pelos avisos): a instalação no README e
+  no "Primeiros passos" aponta para o guia do Claude Code em vez de mostrar os comandos; o README descreve a
+  checagem de status HTTP sem citar a ferramenta; o checklist do CR de segurança descreve execução dinâmica de
+  código sem nomear a função; o CHANGELOG não cita mais o nome do arquivo do logo.
+
 ## 1.6.2 — 2026-11-24
-- Logo da documentação em PNG (`docs/assets/icon.png`): o diretório só aceita SVG no ícone do próprio plugin, e
-  recusou a 1.5.0 e a 1.6.1 por causa do `docs/assets/icon.svg`.
+- Logo da documentação em PNG: o diretório só aceita SVG no ícone do próprio plugin, e recusou a 1.5.0 e a 1.6.1
+  por causa do SVG do logo.
 
 ## 1.6.1 — 2026-11-24
 - **Sem hook.** O diretório de plugins só aceita hooks e scripts de organizações verificadas e recusou a 1.6.0;
@@ -73,7 +79,7 @@ assinatura nova); **minor** = fábrica, driver ou op nova; **patch** = ajuste de
 - `/factory:cr` e `CONTRACT.md`: caminhos e nomes antigos (`scm/`, `*-pipeline`) trocados pelos do plugin.
 
 ## 1.0.1 — 2026-09-25
-- Repositório também é marketplace (`.claude-plugin/marketplace.json`): `claude plugin marketplace add correaschneider/ai-factory`.
+- Repositório também é marketplace (`.claude-plugin/marketplace.json`), adicionável pelo nome `correaschneider/ai-factory`.
 - README: seção de privacidade e do que o plugin executa/envia; ícone; drivers de SCM sem referência a arquivo de credencial.
 
 ## 1.0.0 — 2026-09-25

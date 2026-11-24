@@ -5,11 +5,9 @@ passando pelo tracker de tarefas do time. Cada fábrica é uma linha de montagem
 especializados em contexto isolado e **pontos de parada onde um humano decide**.
 
 !!! tip "Primeiros 5 minutos"
-    ```bash
-    claude plugin marketplace add correaschneider/ai-factory
-    claude plugin install factory@ai-factory
-    ```
-    Depois, numa sessão nova do Claude Code: `/factory:demo`. Ela monta um projeto de exemplo e roda a
+    Instale a **Factory** pelo diretório de plugins do Claude Code, ou pelo marketplace
+    `correaschneider/ai-factory` ([como instalar plugins](https://code.claude.com/docs/en/discover-plugins)). Depois, numa sessão nova do Claude Code:
+    `/factory:start` para ver o que ela faz onde você está, ou `/factory:demo`. Ela monta um projeto de exemplo e roda a
     fábrica PO nele, sem configurar nada. Quando quiser num projeto de verdade: `/factory:init`.
 
 ```mermaid

@@ -8,10 +8,8 @@ contexts and **stopping points where a human decides**.
 
 ## First 5 minutes
 
-```bash
-claude plugin marketplace add correaschneider/ai-factory
-claude plugin install factory@ai-factory
-```
+Install **Factory** from the Claude Code plugin directory, or add the `correaschneider/ai-factory` marketplace and
+install the `factory` plugin as described in Claude Code's guide to [discovering and installing plugins](https://code.claude.com/docs/en/discover-plugins).
 
 Open a new Claude Code session. `/factory:start` tells you what the factory can do where you are; to see it
 running, run:
@@ -55,7 +53,7 @@ drivers/    trackers/{jira,clickup,gitlab,github,markdown} · scm/{gitlab,github
 CONTRACT.md config schema, abstract operations, required keys and models per role
 ```
 
-To try a local clone without installing: `claude --plugin-dir /path/to/ai-factory`.
+To try a local clone without installing, load its folder with Claude Code's plugin directory option (see the same guide).
 
 ## What the plugin runs, sends and fetches
 
@@ -68,7 +66,7 @@ permissions the user configured, and always inside the project it runs in:
   commit and push as the config says; the QA factory creates test files.
 - **Runs local commands:** `git`, the code host CLIs `glab` (GitLab) and `gh` (GitHub), the build and tests
   defined in the config (`docker compose`, `pnpm`, `composer`, `phpunit`, `cypress`, `playwright`, etc.) and
-  `curl` on the config's own `env.app_url`/`env.api_url`, for smoke tests.
+  an HTTP status check on the config's own `env.app_url`/`env.api_url`, for smoke tests.
 - **Talks to the task tracker** the user configured (Jira, ClickUp, GitLab Issues or GitHub Issues), through the
   MCP server or CLI the user already installed: reads tasks, creates epics, stories and bugs, comments and changes
   status. With the `markdown` driver everything stays in files in the repository.
