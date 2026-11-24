@@ -47,7 +47,7 @@ if [ -z "$last" ]; then
   else
     msg="Factory v$version installed. Type /factory:start to see what it can do in this project."
   fi
-  ctx="The factory plugin (v$version) was just installed. If the user asks what they can do with it, or seems unsure where to start, suggest /factory:start."
+  ctx="The factory plugin (v$version) was just installed. Some clients do not show hook messages, so in your FIRST reply of this session add one short final line, in the user's language, saying the Factory v$version is installed and that /factory:start shows what it can do in this project. Only once; never repeat it later in the session."
 else
   news="$(whats_new)"
   tail_pt=" /factory:start para ver."; tail_en=" /factory:start to see."
@@ -57,7 +57,7 @@ else
   else
     msg="Factory updated to v$version${news:+: $news}.$tail_en"
   fi
-  ctx="The factory plugin was updated from v$last to v$version${news:+ ($news)}. Mention it only if relevant."
+  ctx="The factory plugin was updated from v$last to v$version${news:+ ($news)}. Some clients do not show hook messages, so in your FIRST reply of this session add one short final line, in the user's language, saying the Factory was updated to v$version${news:+ and what is new}, and that /factory:start shows it. Only once; never repeat it later in the session."
 fi
 
 json_escape() { printf '%s' "$1" | sed -e 's/\\/\\\\/g' -e 's/"/\\"/g'; }

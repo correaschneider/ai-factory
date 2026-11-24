@@ -28,6 +28,10 @@ a sessão abre e fica quieto quase sempre:
 - **primeira sessão depois de uma versão minor ou major nova:** uma linha com o que ela trouxe;
 - **todas as outras sessões, e updates de patch:** nada.
 
+A linha chega por dois canais, porque nem todo cliente mostra mensagem de hook: o CLI mostra a mensagem do
+próprio hook no topo da sessão, e o hook também pede ao Claude para acrescentar essa linha no fim da **primeira
+resposta** da sessão (o app desktop mostra só esta). As respostas seguintes nunca repetem.
+
 O hook (`hooks/greet.sh`, bash puro) guarda só a última versão saudada, na pasta de dados do próprio plugin
 (`$CLAUDE_PLUGIN_DATA`, apagada ao desinstalar). Sem rede, sem telemetria. A mensagem segue o `language` do
 config do projeto, ou o locale do sistema.

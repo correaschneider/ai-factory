@@ -28,6 +28,10 @@ starts and stays quiet almost always:
 - **first session after a new minor or major version:** one line with what is new in it;
 - **every other session, and patch updates:** nothing.
 
+The line reaches you through two channels, because not every client shows hook messages: the CLI shows the
+hook's own message at the top of the session, and the hook also asks Claude to add that one line at the end of
+its **first reply** of the session (the desktop app shows only this one). Later replies never repeat it.
+
 The hook (`hooks/greet.sh`, plain bash) keeps only the last greeted version, in the plugin's own data folder
 (`$CLAUDE_PLUGIN_DATA`, removed on uninstall). No network, no telemetry. The message follows `language` from
 the project's config, or the system locale.

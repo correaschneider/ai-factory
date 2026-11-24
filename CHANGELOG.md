@@ -10,6 +10,8 @@ assinatura nova); **minor** = fábrica, driver ou op nova; **patch** = ajuste de
 - **Saudação única** por hook `SessionStart` (`hooks/greet.sh`, bash): uma linha depois da 1ª instalação e uma a
   cada versão minor/major nova ("o que mudou"); silêncio no resto, inclusive em patch. Guarda só a última versão
   saudada em `$CLAUDE_PLUGIN_DATA`; sem rede, sem telemetria. Idioma pelo `language` do config ou pelo locale.
+  Como o app desktop não exibe mensagem de hook de `SessionStart`, o hook também pede ao Claude uma linha no fim
+  da 1ª resposta da sessão (só uma vez).
 - README, FAQ e política de privacidade atualizados: o plugin agora tem um script (o hook).
 
 ## 1.5.0 — 2026-11-24
