@@ -43,8 +43,7 @@ execução com `--model`. Veja [Modelos por papel](reference/models.md).
 
 ## Que dados o plugin lê e para onde eles vão?
 
-O plugin é quase só texto: não tem servidor nem código próprio além de um hook de saudação mínimo, que só lê a
-própria versão e grava um arquivo local (veja a política de privacidade). Ele pede ao Claude Code que leia o
+O plugin é só texto: não tem servidor, hooks nem código próprio. Ele pede ao Claude Code que leia o
 repositório, fale com o tracker e o code host que **você** configurou e rode os comandos do seu config
 (build, testes, docker, git). Nada vai para outro destino. Detalhes na
 [política de privacidade](https://github.com/correaschneider/ai-factory#privacidade).
