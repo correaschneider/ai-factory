@@ -13,7 +13,8 @@ claude plugin marketplace add correaschneider/ai-factory
 claude plugin install factory@ai-factory
 ```
 
-Open a new Claude Code session and run:
+Open a new Claude Code session. `/factory:start` tells you what the factory can do where you are; to see it
+running, run:
 
 ```text
 /factory:demo
@@ -58,10 +59,8 @@ To try a local clone without installing: `claude --plugin-dir /path/to/ai-factor
 
 ## What the plugin runs, sends and fetches
 
-The plugin is almost all text (commands, agents and instructions in Markdown): no MCP server and no
-dependencies to install. Its only script is a small `SessionStart` hook (`hooks/greet.sh`, plain bash) that shows
-one line after the first install and after each minor update; it keeps the last greeted version in a file in
-the plugin's own data folder (`$CLAUDE_PLUGIN_DATA`) and makes no network call. Everything it does goes through Claude Code's own tools, under the
+The plugin is text only (commands, agents and instructions in Markdown): no hooks, no MCP server, no scripts
+of its own and no dependencies to install. Everything it does goes through Claude Code's own tools, under the
 permissions the user configured, and always inside the project it runs in:
 
 - **Reads and writes the project's repository:** reads `docs/factory.config.md` and the code; writes artifacts

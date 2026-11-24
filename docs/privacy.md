@@ -20,10 +20,7 @@ the user has configured in Claude Code.
 ## Where it writes
 
 - in the **user's own repository**: artifacts in `docs/initiatives/<name>/`, code, tests and QA evidence;
-- in the **configured tracker and code host**: issues, comments and status changes;
-- in the **plugin's own data folder** on the user's machine (`$CLAUDE_PLUGIN_DATA`, removed when the plugin is
-  uninstalled): one file with the last version the greeting was shown for. Nothing else is stored, and it never
-  leaves the machine.
+- in the **configured tracker and code host**: issues, comments and status changes.
 
 These artifacts may contain excerpts of the tasks that were read, including names and e-mails.
 

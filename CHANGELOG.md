@@ -3,6 +3,11 @@
 Semver: **major** = quebra de config/contrato (chave obrigatória nova no `CONTRACT.md`, op de driver com
 assinatura nova); **minor** = fábrica, driver ou op nova; **patch** = ajuste de prompt/correção.
 
+## 1.6.1 — 2026-11-24
+- **Sem hook.** O diretório de plugins só aceita hooks e scripts de organizações verificadas e recusou a 1.6.0;
+  `hooks/` saiu, e o plugin volta a ser só texto. O `/factory:start` fica e é a porta de entrada depois de instalar.
+- README, FAQ e política de privacidade voltam a dizer que não há hooks nem arquivo local.
+
 ## 1.6.0 — 2026-11-24
 - **`/factory:start`**: a fábrica se apresenta para o projeto em que você está. Sem config, mostra o que cada
   fábrica faz e manda para `/factory:demo` ou `/factory:init`; com config, mostra o que está pronto (PO, DEV, QA,

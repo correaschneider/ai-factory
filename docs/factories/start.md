@@ -19,19 +19,7 @@ It only reads: no file is written, nothing changes in the tracker, no build or c
 The next command follows a fixed order: fill what blocks a factory → QA for a story waiting for it → DEV for a
 story in the backlog → PO for a new initiative.
 
-## The greeting after installing or updating
+## When to run it
 
-Claude Code has no "just installed" event, so the plugin uses a `SessionStart` hook that runs when a session
-starts and stays quiet almost always:
-
-- **first session after installing:** one line, *"Factory vX installed. Type /factory:start…"*;
-- **first session after a new minor or major version:** one line with what is new in it;
-- **every other session, and patch updates:** nothing.
-
-The line reaches you through two channels, because not every client shows hook messages: the CLI shows the
-hook's own message at the top of the session, and the hook also asks Claude to add that one line at the end of
-its **first reply** of the session (the desktop app shows only this one). Later replies never repeat it.
-
-The hook (`hooks/greet.sh`, plain bash) keeps only the last greeted version, in the plugin's own data folder
-(`$CLAUDE_PLUGIN_DATA`, removed on uninstall). No network, no telemetry. The message follows `language` from
-the project's config, or the system locale.
+Right after installing the plugin, and whenever you open a project and want to know where it stands. The
+plugin does not greet you on its own: it has no hooks, so `/factory:start` is the way in.
