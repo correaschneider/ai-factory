@@ -3,6 +3,17 @@
 Semver: **major** = quebra de config/contrato (chave obrigatória nova no `CONTRACT.md`, op de driver com
 assinatura nova); **minor** = fábrica, driver ou op nova; **patch** = ajuste de prompt/correção.
 
+## 1.6.0 — 2026-11-24
+- **`/factory:start`**: a fábrica se apresenta para o projeto em que você está. Sem config, mostra o que cada
+  fábrica faz e manda para `/factory:demo` ou `/factory:init`; com config, mostra o que está pronto (PO, DEV, QA,
+  CR), o trabalho em andamento no tracker e um próximo comando. Só leitura.
+- **Saudação única** por hook `SessionStart` (`hooks/greet.sh`, bash): uma linha depois da 1ª instalação e uma a
+  cada versão minor/major nova ("o que mudou"); silêncio no resto, inclusive em patch. Guarda só a última versão
+  saudada em `$CLAUDE_PLUGIN_DATA`; sem rede, sem telemetria. Idioma pelo `language` do config ou pelo locale.
+  Como o app desktop não exibe mensagem de hook de `SessionStart`, o hook também pede ao Claude uma linha no fim
+  da 1ª resposta da sessão (só uma vez).
+- README, FAQ e política de privacidade atualizados: o plugin agora tem um script (o hook).
+
 ## 1.5.0 — 2026-11-24
 - **Profundidade (`lean` · `standard` · `deep`)** no `/factory:po` e no `/factory:dev`. O PO abre com uma
   **triagem**: procura trabalho já existente no tracker (op nova `search`), confere se bloqueios declarados ainda

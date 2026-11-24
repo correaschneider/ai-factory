@@ -46,6 +46,7 @@ The factory replaces the loose request with a **process**:
 
 | Command | Input | What it delivers |
 |---|---|---|
+| [`/factory:start`](factories/start.md) | — | what the factory can do in this project, what is ready and the next command |
 | [`/factory:demo`](factories/demo.md) | folder (optional) | sample project + Markdown kanban and the PO factory running, nothing to configure |
 | [`/factory:init`](factories/init.md) | project path | `docs/factory.config.md` with detected stack, tracker and git |
 | [`/factory:po`](factories/po.md) | initiative name | triage and depth (`lean` brief · `standard` plan · `deep` research), then **Stories** in the tracker |

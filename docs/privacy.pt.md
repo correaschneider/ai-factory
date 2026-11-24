@@ -20,7 +20,10 @@ Claude Code.
 
 - no **repositório do próprio usuário**: artefatos em `docs/initiatives/<nome>/`, código, testes e
   evidências de QA;
-- no **tracker e no code host configurados**: issues, comentários e mudanças de status.
+- no **tracker e no code host configurados**: issues, comentários e mudanças de status;
+- na **pasta de dados do próprio plugin** na máquina do usuário (`$CLAUDE_PLUGIN_DATA`, apagada quando o plugin é
+  desinstalado): um arquivo com a última versão para a qual a saudação foi mostrada. Nada mais é guardado, e ele
+  nunca sai da máquina.
 
 Esses artefatos podem conter trechos das tasks lidas, inclusive nomes e e-mails.
 

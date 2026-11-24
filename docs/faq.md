@@ -43,7 +43,8 @@ run with `--model`. See [Models per role](reference/models.md).
 
 ## What data does the plugin read and where does it go?
 
-The plugin is just text: it has no server, hooks or code of its own. It asks Claude Code to read the
+The plugin is almost all text: it has no server and no code of its own besides a tiny greeting hook that only
+reads its own version and writes one local file (see the privacy policy). It asks Claude Code to read the
 repository, talk to the tracker and code host that **you** configured and run the commands from your config
 (build, tests, docker, git). Nothing goes anywhere else. Details in the
 [privacy policy](https://github.com/correaschneider/ai-factory#privacidade).

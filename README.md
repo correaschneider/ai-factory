@@ -29,6 +29,7 @@ When you want it on a real project, open the repository and run `/factory:init`.
 
 | Command | What it does |
 |---|---|
+| `/factory:start` | What the factory can do in this project right now, what is ready, and the next command |
 | `/factory:demo [folder]` | Sample project + Markdown kanban, then the PO factory on a sample initiative |
 | `/factory:init [path]` | Generates the project's `docs/factory.config.md` (detects stack, tracker and git) |
 | `/factory:po <initiative>` | Triage (duplicates, depth) → a lean brief, a standard plan or the deep research pipeline → Stories in the tracker |
@@ -57,8 +58,10 @@ To try a local clone without installing: `claude --plugin-dir /path/to/ai-factor
 
 ## What the plugin runs, sends and fetches
 
-The plugin is text only (commands, agents and instructions in Markdown): no hooks, no MCP server, no scripts
-of its own and no dependencies to install. Everything it does goes through Claude Code's own tools, under the
+The plugin is almost all text (commands, agents and instructions in Markdown): no MCP server and no
+dependencies to install. Its only script is a small `SessionStart` hook (`hooks/greet.sh`, plain bash) that shows
+one line after the first install and after each minor update; it keeps the last greeted version in a file in
+the plugin's own data folder (`$CLAUDE_PLUGIN_DATA`) and makes no network call. Everything it does goes through Claude Code's own tools, under the
 permissions the user configured, and always inside the project it runs in:
 
 - **Reads and writes the project's repository:** reads `docs/factory.config.md` and the code; writes artifacts
