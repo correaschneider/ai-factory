@@ -69,7 +69,8 @@ assume any stack). The axes:
 - Certificate validation disabled
 
 **Injection & Code execution**
-- RCE via deserialization (pickle, YAML, `unserialize`) · `eval`/dynamic execution with user data
+- Remote code execution through unsafe deserialization (pickle, YAML, `unserialize`) · dynamic code evaluation
+  of user-supplied data
 - XSS in a web application: reflected, stored and **DOM-based** (includes explicit bypass of the frontend
   framework's sanitizer and HTML injected without escaping)
 

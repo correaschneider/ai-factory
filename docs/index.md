@@ -5,11 +5,9 @@ going through the team's task tracker. Each factory is an assembly line with fix
 agents in isolated contexts and **stopping points where a human decides**.
 
 !!! tip "First 5 minutes"
-    ```bash
-    claude plugin marketplace add correaschneider/ai-factory
-    claude plugin install factory@ai-factory
-    ```
-    Then, in a new Claude Code session: `/factory:demo`. It builds a sample project and runs the PO factory
+    Install **Factory** from the Claude Code plugin directory, or from the `correaschneider/ai-factory`
+    marketplace ([how to install plugins](https://code.claude.com/docs/en/discover-plugins)). Then, in a new Claude Code session: `/factory:start` to see
+    what it can do where you are, or `/factory:demo`. It builds a sample project and runs the PO factory
     on it, with nothing to configure. When you want it on a real project: `/factory:init`.
 
 ```mermaid

@@ -16,20 +16,16 @@
 
 ## 1. Instalar o plugin
 
-```bash
-claude plugin marketplace add correaschneider/ai-factory
-```
-
-```bash
-claude plugin install factory@ai-factory
-```
+Instale a **Factory** pelo diretório de plugins do Claude Code, ou adicione o marketplace
+`correaschneider/ai-factory` e instale o plugin `factory` como explica o guia do Claude Code sobre
+[descobrir e instalar plugins](https://code.claude.com/docs/en/discover-plugins).
 
 Abra uma sessão nova do Claude Code. Os commands aparecem como `/factory:init`, `/factory:po`,
 `/factory:dev`, `/factory:qa` e `/factory:cr`.
 
 !!! tip "Atualizar depois"
-    `claude plugin marketplace update ai-factory` seguido de `claude plugin update factory@ai-factory`.
-    A versão nova vale a partir da próxima sessão.
+    Atualize o plugin pelo mesmo caminho em que instalou ([guia](https://code.claude.com/docs/en/discover-plugins)). A versão nova vale a partir da
+    próxima sessão.
 
 ## 2. Ver funcionando em 5 minutos: `/factory:demo`
 
