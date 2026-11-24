@@ -3,12 +3,14 @@
 Semver: **major** = quebra de config/contrato (chave obrigatória nova no `CONTRACT.md`, op de driver com
 assinatura nova); **minor** = fábrica, driver ou op nova; **patch** = ajuste de prompt/correção.
 
+## 1.6.2 — 2026-11-24
+- Logo da documentação em PNG (`docs/assets/icon.png`): o diretório só aceita SVG no ícone do próprio plugin, e
+  recusou a 1.5.0 e a 1.6.1 por causa do `docs/assets/icon.svg`.
+
 ## 1.6.1 — 2026-11-24
 - **Sem hook.** O diretório de plugins só aceita hooks e scripts de organizações verificadas e recusou a 1.6.0;
   `hooks/` saiu, e o plugin volta a ser só texto. O `/factory:start` fica e é a porta de entrada depois de instalar.
 - README, FAQ e política de privacidade voltam a dizer que não há hooks nem arquivo local.
-- Logo da documentação em PNG (`docs/assets/icon.png`): o diretório só aceita SVG no ícone do próprio plugin, e por
-  isso também tinha recusado a 1.5.0.
 
 ## 1.6.0 — 2026-11-24
 - **`/factory:start`**: a fábrica se apresenta para o projeto em que você está. Sem config, mostra o que cada
